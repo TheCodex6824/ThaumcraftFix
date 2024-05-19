@@ -18,7 +18,7 @@
  *  along with Thaumcraft Fix.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package thecodex6824.thaumcraftfix.api;
+package thecodex6824.thaumcraftfix.api.casting;
 
 import java.util.Collection;
 

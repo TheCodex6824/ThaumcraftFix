@@ -18,13 +18,15 @@
  *  along with Thaumcraft Fix.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package thecodex6824.thaumcraftfix.core.transformer;
+package thecodex6824.thaumcraftfix.core.transformer.custom;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
 import com.google.common.collect.ImmutableSet;
+
+import thecodex6824.thaumcraftfix.core.transformer.ITransformer;
 
 public class AuraChunkThreadSafetyTransformer implements ITransformer {
 

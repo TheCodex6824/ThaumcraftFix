@@ -18,7 +18,7 @@
  *  along with Thaumcraft Fix.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package thecodex6824.thaumcraftfix.core.transformer;
+package thecodex6824.thaumcraftfix.core.transformer.custom;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -31,6 +31,8 @@ import org.objectweb.asm.tree.VarInsnNode;
 import thecodex6824.coremodlib.ASMUtil;
 import thecodex6824.coremodlib.MethodDefinition;
 import thecodex6824.thaumcraftfix.core.ThaumcraftFixCore;
+import thecodex6824.thaumcraftfix.core.transformer.ITransformer;
+import thecodex6824.thaumcraftfix.core.transformer.TransformUtil;
 
 public class PacketNoteHandlerRewriteTransformer implements ITransformer {
 

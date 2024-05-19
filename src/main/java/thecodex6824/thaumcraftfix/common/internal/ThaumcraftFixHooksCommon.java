@@ -67,12 +67,12 @@ import thaumcraft.common.lib.network.misc.PacketSelectThaumotoriumRecipeToServer
 import thaumcraft.common.tiles.crafting.TileFocalManipulator;
 import thaumcraft.common.tiles.crafting.TileResearchTable;
 import thecodex6824.thaumcraftfix.ThaumcraftFix;
-import thecodex6824.thaumcraftfix.api.IContainsFocusPackageNode;
+import thecodex6824.thaumcraftfix.api.casting.IContainsFocusPackageNode;
 import thecodex6824.thaumcraftfix.api.event.EntityInOuterLandsEvent;
 import thecodex6824.thaumcraftfix.api.event.FluxRiftDestroyBlockEvent;
 import thecodex6824.thaumcraftfix.common.network.PacketGainKnowledge;
 import thecodex6824.thaumcraftfix.common.network.PacketGainResearch;
-import thecodex6824.thaumcraftfix.core.transformer.PacketNoteHandlerRewriteTransformer;
+import thecodex6824.thaumcraftfix.core.transformer.custom.PacketNoteHandlerRewriteTransformer;
 
 @SuppressWarnings("unused")
 public final class ThaumcraftFixHooksCommon {

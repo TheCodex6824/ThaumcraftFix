@@ -18,7 +18,7 @@
  *  along with Thaumcraft Fix.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package thecodex6824.thaumcraftfix.core.transformer;
+package thecodex6824.thaumcraftfix.core.transformer.custom;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +38,9 @@ import com.google.common.collect.ImmutableList;
 import thecodex6824.coremodlib.ASMUtil;
 import thecodex6824.coremodlib.MethodDefinition;
 import thecodex6824.thaumcraftfix.core.ThaumcraftFixCore;
+import thecodex6824.thaumcraftfix.core.transformer.ITransformer;
+import thecodex6824.thaumcraftfix.core.transformer.TransformUtil;
+import thecodex6824.thaumcraftfix.core.transformer.Types;
 
 /**
  * Patches the ModelCustomArmor class to call the super method in setRotationAngles to fix

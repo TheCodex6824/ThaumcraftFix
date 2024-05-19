@@ -34,6 +34,7 @@ import com.google.common.collect.ImmutableList;
 import thecodex6824.coremodlib.FieldDefinition;
 import thecodex6824.coremodlib.MethodDefinition;
 import thecodex6824.coremodlib.PatchStateMachine;
+import thecodex6824.thaumcraftfix.core.transformer.custom.TransformerBipedRotationCustomArmor;
 
 public class EntityTransformers {
 

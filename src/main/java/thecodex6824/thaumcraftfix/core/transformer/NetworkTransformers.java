@@ -35,6 +35,7 @@ import org.objectweb.asm.tree.VarInsnNode;
 import thecodex6824.coremodlib.FieldDefinition;
 import thecodex6824.coremodlib.MethodDefinition;
 import thecodex6824.coremodlib.PatchStateMachine;
+import thecodex6824.thaumcraftfix.core.transformer.custom.PacketNoteHandlerRewriteTransformer;
 
 public class NetworkTransformers {
 

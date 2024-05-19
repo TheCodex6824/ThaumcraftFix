@@ -38,6 +38,7 @@ import thecodex6824.coremodlib.ASMUtil;
 import thecodex6824.coremodlib.FieldDefinition;
 import thecodex6824.coremodlib.MethodDefinition;
 import thecodex6824.coremodlib.PatchStateMachine;
+import thecodex6824.thaumcraftfix.core.transformer.custom.ExchangeModInterfaceTransformer;
 
 public class CastingTransformers {
 

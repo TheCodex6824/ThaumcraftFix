@@ -18,7 +18,7 @@
  *  along with Thaumcraft Fix.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package thecodex6824.thaumcraftfix.core.transformer;
+package thecodex6824.thaumcraftfix.core.transformer.custom;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -29,6 +29,9 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 
 import thecodex6824.coremodlib.MethodDefinition;
+import thecodex6824.thaumcraftfix.core.transformer.ITransformer;
+import thecodex6824.thaumcraftfix.core.transformer.TransformUtil;
+import thecodex6824.thaumcraftfix.core.transformer.Types;
 
 public class ExchangeModInterfaceTransformer implements ITransformer {
 

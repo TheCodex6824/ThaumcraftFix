@@ -20,6 +20,8 @@
 
 package thecodex6824.thaumcraftfix.core.transformer;
 
+import thecodex6824.thaumcraftfix.core.transformer.custom.AuraChunkThreadSafetyTransformer;
+
 public class MiscTransformers {
 
     public static final ITransformer AURA_CHUNK_THREAD_SAFETY = new AuraChunkThreadSafetyTransformer();
