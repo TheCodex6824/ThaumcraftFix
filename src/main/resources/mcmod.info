@@ -1,0 +1,15 @@
+[
+{
+  "modid": "thaumcraftfix",
+  "name": "Thaumcraft Fix",
+  "description": "The place to get fixes for Thaumcraft 6",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "updateUrl": "",
+  "authorList": ["TheCodex6824"],
+  "screenshots": [],
+  "useDependencyInformation": true,
+  "requiredMods": ["forge@[${forgeminversion},)", "thaumcraft@[6.1.BETA26,)"],
+  "dependencies": ["thaumcraft"]
+}
+]
