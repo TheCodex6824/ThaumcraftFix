@@ -161,6 +161,10 @@ public final class ThaumcraftFixHooksCommon {
 	return result;
     }
 
+    public static int recalcManipulatorXpCost(int totalComplexity) {
+	return (int) Math.max(1, Math.round(Math.sqrt(totalComplexity)));
+    }
+
     private static Collection<FocusPackage> getEmbeddedPackages(IFocusElement node) {
 	Collection<FocusPackage> embeddedPackages = null;
 	if (node instanceof IContainsFocusPackageNode) {

@@ -88,6 +88,7 @@ public class TransformerExecutor implements IClassTransformer {
 	transformers.add(BlockTransformers.FOCAL_MANIPULATOR_MAX_COMPLEXITY.get());
 	transformers.add(BlockTransformers.FOCAL_MANIPULATOR_COMPONENTS);
 	transformers.add(BlockTransformers.FOCAL_MANIPULATOR_COMPONENTS_CLIENT);
+	transformers.add(BlockTransformers.FOCAL_MANIPULATOR_XP_COST_GUI);
 	transformers.add(BlockTransformers.TABLE_TOP_SOLID.get());
 	transformers.add(CastingTransformers.EXCHANGE_MOD_INTERFACEIFY);
 	transformers.add(CastingTransformers.FOCUS_PACKAGE_INIT);

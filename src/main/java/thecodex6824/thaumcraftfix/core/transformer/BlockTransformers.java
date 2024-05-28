@@ -221,6 +221,39 @@ public class BlockTransformers {
 	    .build()
 	    );
 
+    public static final ITransformer FOCAL_MANIPULATOR_XP_COST_GUI = new GenericStateMachineTransformer(
+	    PatchStateMachine.builder(
+		    new MethodDefinition(
+			    GUI_MANIPULATOR_CLASS,
+			    false,
+			    "gatherInfo",
+			    Type.VOID_TYPE,
+			    Type.BOOLEAN_TYPE
+			    )
+		    )
+	    .findNextFieldAccess(new FieldDefinition(
+		    GUI_MANIPULATOR_CLASS,
+		    "costXp",
+		    Type.INT_TYPE
+		    ))
+	    .insertInstructionsBefore(
+		    new InsnNode(Opcodes.POP),
+		    new VarInsnNode(Opcodes.ALOAD, 0),
+		    new FieldDefinition(
+			    GUI_MANIPULATOR_CLASS,
+			    "totalComplexity",
+			    Type.INT_TYPE
+			    ).asFieldInsnNode(Opcodes.GETFIELD),
+		    new MethodInsnNode(Opcodes.INVOKESTATIC,
+			    TransformUtil.HOOKS_COMMON,
+			    "recalcManipulatorXpCost",
+			    Type.getMethodDescriptor(Type.INT_TYPE, Type.INT_TYPE),
+			    false
+			    )
+		    )
+	    .build()
+	    );
+
     public static final Supplier<ITransformer> TABLE_TOP_SOLID = () -> {
 	return new GenericStateMachineTransformer(
 		PatchStateMachine.builder(
