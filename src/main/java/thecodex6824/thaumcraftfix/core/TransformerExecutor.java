@@ -38,6 +38,7 @@ import thecodex6824.thaumcraftfix.core.transformer.MiscTransformers;
 import thecodex6824.thaumcraftfix.core.transformer.NetworkTransformers;
 import thecodex6824.thaumcraftfix.core.transformer.ResearchTransformers;
 import thecodex6824.thaumcraftfix.core.transformer.SoundTransformers;
+import thecodex6824.thaumcraftfix.core.transformer.WorldGenTransformers;
 
 public class TransformerExecutor implements IClassTransformer {
 
@@ -98,10 +99,12 @@ public class TransformerExecutor implements IClassTransformer {
 	transformers.add(NetworkTransformers.LOGISTICS_REQUEST.get());
 	transformers.add(NetworkTransformers.NOTE_HANDLER.get());
 	transformers.add(NetworkTransformers.PROGRESS_SYNC_CHECKS.get());
+	transformers.add(NetworkTransformers.PROGRESS_SYNC_REQS.get());
 	transformers.add(NetworkTransformers.RESEARCH_TABLE_AIDS.get());
 	transformers.add(NetworkTransformers.THAUMATORIUM_RECIPE_SELECTION.get());
 	transformers.add(ResearchTransformers.KNOWLEDGE_GAIN_EVENT_CLIENT.get());
 	transformers.add(ResearchTransformers.RESEARCH_GAIN_EVENT_CLIENT.get());
+	transformers.add(WorldGenTransformers.MAGICAL_FOREST_DECORATE_CASCADING.get());
     }
 
     private boolean isTransformNeeded(String transformedName) {

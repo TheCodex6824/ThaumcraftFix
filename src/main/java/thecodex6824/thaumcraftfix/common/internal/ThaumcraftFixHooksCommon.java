@@ -58,12 +58,14 @@ import thaumcraft.api.casters.FocusModSplit;
 import thaumcraft.api.casters.FocusPackage;
 import thaumcraft.api.casters.IFocusElement;
 import thaumcraft.api.research.ResearchCategory;
+import thaumcraft.api.research.ResearchEntry;
 import thaumcraft.common.config.ModConfig;
 import thaumcraft.common.container.ContainerThaumatorium;
 import thaumcraft.common.entities.EntityFluxRift;
 import thaumcraft.common.lib.network.misc.PacketLogisticsRequestToServer;
 import thaumcraft.common.lib.network.misc.PacketNote;
 import thaumcraft.common.lib.network.misc.PacketSelectThaumotoriumRecipeToServer;
+import thaumcraft.common.lib.research.ResearchManager;
 import thaumcraft.common.tiles.crafting.TileFocalManipulator;
 import thaumcraft.common.tiles.crafting.TileResearchTable;
 import thecodex6824.thaumcraftfix.ThaumcraftFix;
@@ -363,6 +365,15 @@ public final class ThaumcraftFixHooksCommon {
 	}
 
 	return ok;
+    }
+
+    public static int checkProgressSyncStage(int originalStage, EntityPlayer player, ResearchEntry entry) {
+	int logicStage = originalStage;
+	if (logicStage < 0 && ResearchManager.doesPlayerHaveRequisites(player, entry.getKey())) {
+	    logicStage = Integer.MAX_VALUE;
+	}
+
+	return logicStage;
     }
 
 }

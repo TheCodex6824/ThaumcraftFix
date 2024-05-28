@@ -179,4 +179,38 @@ public class NetworkTransformers {
 		);
     };
 
+    public static final Supplier<ITransformer> PROGRESS_SYNC_REQS = () -> {
+	return new GenericStateMachineTransformer(
+		PatchStateMachine.builder(
+			new MethodDefinition(
+				"thaumcraft/common/lib/network/playerdata/PacketSyncProgressToServer",
+				false,
+				"checkRequisites",
+				Type.BOOLEAN_TYPE,
+				Types.ENTITY_PLAYER, Types.STRING
+				)
+			)
+		.findConsecutive()
+		.findNextOpcode(Opcodes.ICONST_1)
+		.findNextOpcode(Opcodes.ISUB)
+		.findNextLocalAccess(4)
+		.endConsecutive()
+		.insertInstructionsAfter(
+			new VarInsnNode(Opcodes.ILOAD, 4),
+			new VarInsnNode(Opcodes.ALOAD, 1),
+			new VarInsnNode(Opcodes.ALOAD, 3),
+			new MethodInsnNode(Opcodes.INVOKESTATIC,
+				TransformUtil.HOOKS_COMMON,
+				"checkProgressSyncStage",
+				Type.getMethodDescriptor(Type.INT_TYPE,
+					Type.INT_TYPE, Types.ENTITY_PLAYER,
+					Type.getType("Lthaumcraft/api/research/ResearchEntry;")),
+				false
+				),
+			new VarInsnNode(Opcodes.ISTORE, 4)
+			)
+		.build()
+		);
+    };
+
 }
