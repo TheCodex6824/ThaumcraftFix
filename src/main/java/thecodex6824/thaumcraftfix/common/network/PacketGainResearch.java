@@ -47,12 +47,12 @@ public class PacketGainResearch implements IMessage {
 
     @Override
     public void fromBytes(ByteBuf buf) {
-	ByteBufUtils.writeUTF8String(buf, key);
+	key = ByteBufUtils.readUTF8String(buf);
     }
 
     @Override
     public void toBytes(ByteBuf buf) {
-	key = ByteBufUtils.readUTF8String(buf);
+	ByteBufUtils.writeUTF8String(buf, key);
     }
 
     public static class Handler implements IMessageHandler<PacketGainResearch, IMessage> {
