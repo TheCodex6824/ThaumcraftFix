@@ -22,10 +22,14 @@ package thecodex6824.thaumcraftfix.common.internal;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
+
+import com.google.common.collect.Lists;
 
 import baubles.api.cap.BaublesCapabilities;
 import it.unimi.dsi.fastutil.ints.IntRBTreeSet;
@@ -59,6 +63,7 @@ import thaumcraft.api.casters.FocusPackage;
 import thaumcraft.api.casters.IFocusElement;
 import thaumcraft.api.research.ResearchCategory;
 import thaumcraft.api.research.ResearchEntry;
+import thaumcraft.api.research.theorycraft.ResearchTableData;
 import thaumcraft.common.config.ModConfig;
 import thaumcraft.common.container.ContainerThaumatorium;
 import thaumcraft.common.entities.EntityFluxRift;
@@ -72,6 +77,7 @@ import thecodex6824.thaumcraftfix.ThaumcraftFix;
 import thecodex6824.thaumcraftfix.api.casting.IContainsFocusPackageNode;
 import thecodex6824.thaumcraftfix.api.event.EntityInOuterLandsEvent;
 import thecodex6824.thaumcraftfix.api.event.FluxRiftDestroyBlockEvent;
+import thecodex6824.thaumcraftfix.api.research.ResearchCategoryTheorycraftFilter;
 import thecodex6824.thaumcraftfix.common.network.PacketGainKnowledge;
 import thecodex6824.thaumcraftfix.common.network.PacketGainResearch;
 import thecodex6824.thaumcraftfix.core.transformer.custom.PacketNoteHandlerRewriteTransformer;
@@ -378,6 +384,38 @@ public final class ThaumcraftFixHooksCommon {
 	}
 
 	return logicStage;
+    }
+
+    public static boolean isTheorycraftCategoryAllowed(boolean originalDecision, String category,
+	    EntityPlayer player, ResearchTableData data) {
+
+	return originalDecision && data.getAvailableCategories(player).contains(category) &&
+		ResearchCategoryTheorycraftFilter.getAllowedTheorycraftCategories().stream()
+		.map(c -> c.key)
+		.anyMatch(s -> s.equals(category));
+    }
+
+    public static ArrayList<String> filterTheorycraftCategories(ArrayList<String> input) {
+	input.retainAll(ResearchCategoryTheorycraftFilter.getAllowedTheorycraftCategories().stream()
+		.map(c -> c.key)
+		.collect(Collectors.toList()));
+	return input;
+    }
+
+    public static ArrayList<String> filterTheorycraftCategories(ArrayList<String> input,
+	    EntityPlayer player, ResearchTableData data) {
+
+	input.retainAll(data.getAvailableCategories(player));
+	input.retainAll(ResearchCategoryTheorycraftFilter.getAllowedTheorycraftCategories().stream()
+		.map(c -> c.key)
+		.collect(Collectors.toList()));
+	return input;
+    }
+
+    public static String[] filterTheorycraftCategoriesArray(String[] input, EntityPlayer player, ResearchTableData data) {
+	ArrayList<String> list = Lists.newArrayList(input);
+	list = filterTheorycraftCategories(list, player, data);
+	return list.toArray(new String[0]);
     }
 
 }

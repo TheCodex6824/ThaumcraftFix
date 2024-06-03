@@ -25,7 +25,7 @@
  * throughout the lifetime of the mod, and give ample warning of breaking changes. Anything *outside*
  * the API package is subject to change without notice, so please don't use it - ask if you need something there instead :)
  */
-@net.minecraftforge.fml.common.API(owner = ThaumcraftFixAPI.MODID, provides = ThaumcraftFixAPI.PROVIDES,
-apiVersion = ThaumcraftFixAPI.API_VERSION)
+@net.minecraftforge.fml.common.API(owner = ThaumcraftFixApi.MODID, provides = ThaumcraftFixApi.PROVIDES,
+apiVersion = ThaumcraftFixApi.API_VERSION)
 @javax.annotation.ParametersAreNonnullByDefault
 package thecodex6824.thaumcraftfix.api;

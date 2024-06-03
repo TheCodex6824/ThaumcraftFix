@@ -20,9 +20,9 @@
 
 package thecodex6824.thaumcraftfix.api;
 
-public final class ThaumcraftFixAPI {
+public final class ThaumcraftFixApi {
 
-    private ThaumcraftFixAPI() {}
+    private ThaumcraftFixApi() {}
 
     public static final String MODID = "thaumcraftfix";
     public static final String NAME = "Thaumcraft Fix";

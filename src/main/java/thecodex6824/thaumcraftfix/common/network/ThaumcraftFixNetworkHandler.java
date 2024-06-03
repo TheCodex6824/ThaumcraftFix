@@ -22,12 +22,12 @@ package thecodex6824.thaumcraftfix.common.network;
 
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
-import thecodex6824.thaumcraftfix.api.ThaumcraftFixAPI;
+import thecodex6824.thaumcraftfix.api.ThaumcraftFixApi;
 
 public class ThaumcraftFixNetworkHandler extends SimpleNetworkWrapper {
 
     public ThaumcraftFixNetworkHandler() {
-	super(ThaumcraftFixAPI.MODID);
+	super(ThaumcraftFixApi.MODID);
 	int id = 0;
 	registerMessage(PacketGainKnowledge.Handler.class, PacketGainKnowledge.class, id++, Side.CLIENT);
 	registerMessage(PacketGainResearch.Handler.class, PacketGainResearch.class, id++, Side.CLIENT);

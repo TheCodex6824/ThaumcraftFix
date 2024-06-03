@@ -23,6 +23,8 @@ package thecodex6824.thaumcraftfix;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.google.common.collect.ImmutableSet;
+
 import net.minecraft.item.Item;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -32,25 +34,35 @@ import net.minecraftforge.fml.common.Mod.Instance;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLFingerprintViolationEvent;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
-import thecodex6824.thaumcraftfix.api.ThaumcraftFixAPI;
+import thaumcraft.api.capabilities.IPlayerKnowledge.EnumKnowledgeType;
+import thaumcraft.api.research.ResearchCategories;
+import thaumcraft.api.research.ResearchCategory;
+import thaumcraft.api.research.ResearchEntry;
+import thaumcraft.api.research.ResearchStage;
+import thaumcraft.api.research.ResearchStage.Knowledge;
+import thecodex6824.thaumcraftfix.api.ThaumcraftFixApi;
+import thecodex6824.thaumcraftfix.api.internal.ThaumcraftFixApiBridge;
+import thecodex6824.thaumcraftfix.api.research.ResearchCategoryTheorycraftFilter;
+import thecodex6824.thaumcraftfix.common.internal.DefaultApiImplementation;
 import thecodex6824.thaumcraftfix.common.network.ThaumcraftFixNetworkHandler;
 
-@Mod(modid = ThaumcraftFixAPI.MODID, name = "Thaumcraft Fix", version = ThaumcraftFix.VERSION, useMetadata = true,
+@Mod(modid = ThaumcraftFixApi.MODID, name = "Thaumcraft Fix", version = ThaumcraftFix.VERSION, useMetadata = true,
 certificateFingerprint = "@FINGERPRINT@")
 @EventBusSubscriber
 public class ThaumcraftFix {
 
     public static final String VERSION = "@VERSION@";
 
-    @Instance(ThaumcraftFixAPI.MODID)
+    @Instance(ThaumcraftFixApi.MODID)
     public static ThaumcraftFix instance;
 
-    @SidedProxy(modId = ThaumcraftFixAPI.MODID, serverSide = "thecodex6824.thaumcraftfix.ServerProxy",
+    @SidedProxy(modId = ThaumcraftFixApi.MODID, serverSide = "thecodex6824.thaumcraftfix.ServerProxy",
 	    clientSide = "thecodex6824.thaumcraftfix.ClientProxy")
     public static IProxy proxy;
 
@@ -60,6 +72,7 @@ public class ThaumcraftFix {
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
 	logger = event.getModLog();
+	ThaumcraftFixApiBridge.setImplementation(new DefaultApiImplementation());
     }
 
     @SubscribeEvent(priority = EventPriority.LOW)
@@ -83,9 +96,38 @@ public class ThaumcraftFix {
     public void postInit(FMLPostInitializationEvent event) {}
 
     @EventHandler
+    public void loadComplete(FMLLoadCompleteEvent event) {
+	ThaumcraftFixApiBridge.InternalImplementation impl = ThaumcraftFixApiBridge.implementation();
+	if (impl instanceof DefaultApiImplementation) {
+	    ImmutableSet.Builder<ResearchCategory> allowed = ImmutableSet.builder();
+	    for (ResearchCategory category : ResearchCategories.researchCategories.values()) {
+		for (ResearchEntry entry : category.research.values()) {
+		    if (entry.getStages() != null) {
+			for (ResearchStage stage : entry.getStages()) {
+			    if (stage.getKnow() != null) {
+				for (Knowledge know : stage.getKnow()) {
+				    if (know.type == EnumKnowledgeType.THEORY) {
+					allowed.add(know.category);
+				    }
+				}
+			    }
+			}
+		    }
+		}
+	    }
+
+	    ((DefaultApiImplementation) impl).setAllowedTheorycraftCategories(allowed.build());
+	    logger.debug("The following research categories will be allowed for theorycrafting:");
+	    for (ResearchCategory c : ResearchCategoryTheorycraftFilter.getAllowedTheorycraftCategories()) {
+		logger.debug("{}", c.key);
+	    }
+	}
+    }
+
+    @EventHandler
     public static void onFingerPrintViolation(FMLFingerprintViolationEvent event) {
 	if (!event.isDirectory()) {
-	    Logger tempLogger = LogManager.getLogger(ThaumcraftFixAPI.MODID);
+	    Logger tempLogger = LogManager.getLogger(ThaumcraftFixApi.MODID);
 	    tempLogger.warn("A file failed to match with the signing key.");
 	    tempLogger.warn("If you *know* this is a homebrew/custom build then this is expected, carry on.");
 	    tempLogger.warn("Otherwise, you might want to redownload this mod from the *official* CurseForge page.");

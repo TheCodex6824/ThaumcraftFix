@@ -34,7 +34,7 @@ public final class Types {
     public static final Type OBJECT = Type.getType(Object.class);
     public static final Type STRING = Type.getType(String.class);
     public static final Type UUID = Type.getType(UUID.class);
-    public static final Type ARRAYLIST = Type.getType(ArrayList.class);
+    public static final Type ARRAY_LIST = Type.getType(ArrayList.class);
     public static final Type SET = Type.getType(Set.class);
     public static final Type RANDOM = Type.getType(Random.class);
 
@@ -64,5 +64,7 @@ public final class Types {
     public static final Type TILE_FOCAL_MANIPULATOR = Type.getType("Lthaumcraft/common/tiles/crafting/TileFocalManipulator;");
 
     public static final Type SOUND_EVENT = Type.getType("Lnet/minecraft/util/SoundEvent;");
+
+    public static final Type RESEARCH_TABLE_DATA = Type.getType("Lthaumcraft/api/research/theorycraft/ResearchTableData;");
 
 }

@@ -5,7 +5,7 @@ import org.apache.logging.log4j.Logger;
 
 import net.minecraft.entity.player.EntityPlayer;
 import thaumcraft.api.research.ResearchEvent;
-import thecodex6824.thaumcraftfix.api.ThaumcraftFixAPI;
+import thecodex6824.thaumcraftfix.api.ThaumcraftFixApi;
 
 public class PlayerGainResearchEventClient extends ResearchEvent.Research {
 
@@ -27,7 +27,7 @@ public class PlayerGainResearchEventClient extends ResearchEvent.Research {
     public void setCanceled(boolean cancel) {
 	// people might be registered for the normal event and also get this event,
 	// which they might try to cancel - so throwing an exception here is not good
-	Logger logger = LogManager.getLogger(ThaumcraftFixAPI.PROVIDES);
+	Logger logger = LogManager.getLogger(ThaumcraftFixApi.PROVIDES);
 	logger.error(CANCEL_LOG_TEXT, new UnsupportedOperationException("Cannot cancel PlayerGainResearchEventClient"));
     }
 

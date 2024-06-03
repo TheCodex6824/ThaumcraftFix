@@ -9,7 +9,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import thaumcraft.api.capabilities.IPlayerKnowledge.EnumKnowledgeType;
 import thaumcraft.api.research.ResearchCategory;
 import thaumcraft.api.research.ResearchEvent;
-import thecodex6824.thaumcraftfix.api.ThaumcraftFixAPI;
+import thecodex6824.thaumcraftfix.api.ThaumcraftFixApi;
 
 public class PlayerGainKnowledgeEventClient extends ResearchEvent.Knowledge {
 
@@ -31,7 +31,7 @@ public class PlayerGainKnowledgeEventClient extends ResearchEvent.Knowledge {
     public void setCanceled(boolean cancel) {
 	// people might be registered for the normal event and also get this event,
 	// which they might try to cancel - so throwing an exception here is not good
-	Logger logger = LogManager.getLogger(ThaumcraftFixAPI.PROVIDES);
+	Logger logger = LogManager.getLogger(ThaumcraftFixApi.PROVIDES);
 	logger.error(CANCEL_LOG_TEXT, new UnsupportedOperationException("Cannot cancel PlayerGainKnowledgeEventClient"));
     }
 

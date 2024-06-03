@@ -38,6 +38,7 @@ import thecodex6824.thaumcraftfix.core.transformer.MiscTransformers;
 import thecodex6824.thaumcraftfix.core.transformer.NetworkTransformers;
 import thecodex6824.thaumcraftfix.core.transformer.ResearchTransformers;
 import thecodex6824.thaumcraftfix.core.transformer.SoundTransformers;
+import thecodex6824.thaumcraftfix.core.transformer.TheorycraftTransformers;
 import thecodex6824.thaumcraftfix.core.transformer.WorldGenTransformers;
 
 public class TransformerExecutor implements IClassTransformer {
@@ -105,6 +106,16 @@ public class TransformerExecutor implements IClassTransformer {
 	transformers.add(NetworkTransformers.THAUMATORIUM_RECIPE_SELECTION.get());
 	transformers.add(ResearchTransformers.KNOWLEDGE_GAIN_EVENT_CLIENT.get());
 	transformers.add(ResearchTransformers.RESEARCH_GAIN_EVENT_CLIENT.get());
+	transformers.add(TheorycraftTransformers.CARD_ANALYZE_CATEGORIES.get());
+	transformers.add(TheorycraftTransformers.CARD_CURIO_CATEGORIES.get());
+	transformers.add(TheorycraftTransformers.CARD_DARK_WHISPERS_CATEGORIES.get());
+	transformers.add(TheorycraftTransformers.CARD_DRAGON_EGG_CATEGORIES.get());
+	transformers.add(TheorycraftTransformers.CARD_EXPERIMENTATION_CATEGORIES.get());
+	transformers.add(TheorycraftTransformers.CARD_GLYPHS_CATEGORIES.get());
+	transformers.add(TheorycraftTransformers.CARD_PORTAL_CATEGORIES.get());
+	transformers.add(TheorycraftTransformers.CARD_REALIZATION_CATEGORIES.get());
+	transformers.add(TheorycraftTransformers.CARD_REVELATION_CATEGORIES.get());
+	transformers.add(TheorycraftTransformers.RESEARCH_TABLE_DATA_CATEGORIES.get());
 	transformers.add(WorldGenTransformers.MAGICAL_FOREST_DECORATE_CASCADING.get());
     }
 
