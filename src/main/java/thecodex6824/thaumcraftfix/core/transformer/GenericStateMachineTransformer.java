@@ -29,11 +29,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.StringJoiner;
 
+import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.util.Textifier;
+import org.objectweb.asm.util.TraceClassVisitor;
 import org.objectweb.asm.util.TraceMethodVisitor;
 
 import thecodex6824.coremodlib.ASMUtil;
@@ -92,6 +94,13 @@ public class GenericStateMachineTransformer implements ITransformer {
     public boolean transform(ClassNode classNode, String name, String transformedName) {
 	MethodNode theMethod = TransformUtil.findMethod(classNode, machine.targetMethod());
 	if (theMethod == null) {
+	    Logger logger = ThaumcraftFixCore.getLogger();
+	    logger.error("Transformer target method %s not found in class %s, dumping entire class for debugging",
+		    machine.targetMethod().toString(), classNode.name);
+	    StringWriter writer = new StringWriter();
+	    TraceClassVisitor visitor = new TraceClassVisitor(new PrintWriter(writer));
+	    classNode.accept(visitor);
+	    logger.error(writer.toString());
 	    throw new IllegalArgumentException(String.format(
 		    "Target method %s does not exist in the provided class %s",
 		    machine.targetMethod().toString(), classNode.name
