@@ -418,4 +418,8 @@ public final class ThaumcraftFixHooksCommon {
 	return list.toArray(new String[0]);
     }
 
+    public static boolean isEntityDeadForProcessInteract(boolean original, EntityLivingBase entity) {
+	return original || entity.getHealth() <= 1.0e-5f;
+    }
+
 }

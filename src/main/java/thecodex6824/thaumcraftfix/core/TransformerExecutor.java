@@ -96,6 +96,11 @@ public class TransformerExecutor implements IClassTransformer {
 	transformers.add(CastingTransformers.FOCUS_PACKAGE_SET_CASTER_UUID);
 	transformers.add(CastingTransformers.TOUCH_MOD_AVOID_PLAYER_CAST_TARGET);
 	transformers.add(CastingTransformers.TOUCH_MOD_AVOID_PLAYER_CAST_TRAJECTORY);
+	transformers.add(EntityTransformers.ADVANCED_CROSSBOW_PROCESS_INTERACT_DEAD.get());
+	transformers.add(EntityTransformers.BORE_PROCESS_INTERACT_DEAD.get());
+	transformers.add(EntityTransformers.CROSSBOW_PROCESS_INTERACT_DEAD.get());
+	transformers.add(EntityTransformers.GOLEM_PROCESS_INTERACT_DEAD.get());
+	transformers.add(EntityTransformers.OWNED_CONSTRUCT_PROCESS_INTERACT_DEAD.get());
 	transformers.add(ItemTransformers.COMPARE_TAGS_RELAXED_NULL_CHECK.get());
 	transformers.add(MiscTransformers.AURA_CHUNK_THREAD_SAFETY);
 	transformers.add(NetworkTransformers.LOGISTICS_REQUEST.get());

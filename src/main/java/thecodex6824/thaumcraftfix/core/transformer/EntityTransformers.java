@@ -20,6 +20,8 @@
 
 package thecodex6824.thaumcraftfix.core.transformer;
 
+import java.util.function.Supplier;
+
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -137,6 +139,52 @@ public class EntityTransformers {
 		    )
 	    .build()
 	    );
+
+    private static Supplier<ITransformer> makeEntityProcessInteractTransformer(String className) {
+	return () -> {
+	    return new GenericStateMachineTransformer(
+		    PatchStateMachine.builder(
+			    TransformUtil.remapMethod(new MethodDefinition(
+				    className,
+				    false,
+				    "func_184645_a",
+				    Type.BOOLEAN_TYPE,
+				    Types.ENTITY_PLAYER, Type.getType("Lnet/minecraft/util/EnumHand;")
+				    )
+				    ))
+		    .findNextFieldAccess(TransformUtil.remapField(new FieldDefinition(
+			    className,
+			    "field_70128_L",
+			    Type.BOOLEAN_TYPE
+			    )))
+		    .insertInstructionsAfter(
+			    new VarInsnNode(Opcodes.ALOAD, 0),
+			    new MethodInsnNode(Opcodes.INVOKESTATIC,
+				    TransformUtil.HOOKS_COMMON,
+				    "isEntityDeadForProcessInteract",
+				    Type.getMethodDescriptor(Type.BOOLEAN_TYPE, Type.BOOLEAN_TYPE, Types.ENTITY_LIVING_BASE),
+				    false
+				    )
+			    )
+		    .build()
+		    );
+	};
+    }
+
+    public static final Supplier<ITransformer> ADVANCED_CROSSBOW_PROCESS_INTERACT_DEAD =
+	    makeEntityProcessInteractTransformer("thaumcraft/common/entities/construct/EntityTurretCrossbowAdvanced");
+
+    public static final Supplier<ITransformer> BORE_PROCESS_INTERACT_DEAD =
+	    makeEntityProcessInteractTransformer("thaumcraft/common/entities/construct/EntityArcaneBore");
+
+    public static final Supplier<ITransformer> CROSSBOW_PROCESS_INTERACT_DEAD =
+	    makeEntityProcessInteractTransformer("thaumcraft/common/entities/construct/EntityTurretCrossbow");
+
+    public static final Supplier<ITransformer> GOLEM_PROCESS_INTERACT_DEAD =
+	    makeEntityProcessInteractTransformer("thaumcraft/common/golems/EntityThaumcraftGolem");
+
+    public static final Supplier<ITransformer> OWNED_CONSTRUCT_PROCESS_INTERACT_DEAD =
+	    makeEntityProcessInteractTransformer("thaumcraft/common/entities/construct/EntityOwnedConstruct");
 
     // fixes armor counting twice visually for void robe armor
     // I get a lot of reports/questions about it, so here it is
