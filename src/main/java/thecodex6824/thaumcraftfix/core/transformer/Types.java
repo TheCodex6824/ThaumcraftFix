@@ -40,6 +40,7 @@ public final class Types {
 
     public static final Type ENTITY = Type.getType("Lnet/minecraft/entity/Entity;");
     public static final Type ENTITY_LIVING_BASE = Type.getType("Lnet/minecraft/entity/EntityLivingBase;");
+    public static final Type ENTITY_LIVING = Type.getType("Lnet/minecraft/entity/EntityLiving;");
     public static final Type ENTITY_PLAYER = Type.getType("Lnet/minecraft/entity/player/EntityPlayer;");
     public static final Type ENTITY_PLAYER_MP = Type.getType("Lnet/minecraft/entity/player/EntityPlayerMP;");
 

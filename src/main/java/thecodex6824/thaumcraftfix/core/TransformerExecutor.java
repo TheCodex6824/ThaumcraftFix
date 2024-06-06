@@ -101,6 +101,7 @@ public class TransformerExecutor implements IClassTransformer {
 	transformers.add(EntityTransformers.CROSSBOW_PROCESS_INTERACT_DEAD.get());
 	transformers.add(EntityTransformers.GOLEM_PROCESS_INTERACT_DEAD.get());
 	transformers.add(EntityTransformers.OWNED_CONSTRUCT_PROCESS_INTERACT_DEAD.get());
+	transformers.add(EntityTransformers.OWNED_CONSTRUCT_ZERO_DROP_CHANCES.get());
 	transformers.add(ItemTransformers.COMPARE_TAGS_RELAXED_NULL_CHECK.get());
 	transformers.add(MiscTransformers.AURA_CHUNK_THREAD_SAFETY);
 	transformers.add(NetworkTransformers.LOGISTICS_REQUEST.get());
