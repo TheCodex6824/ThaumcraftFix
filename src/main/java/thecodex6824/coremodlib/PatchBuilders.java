@@ -71,7 +71,12 @@ public class PatchBuilders {
 	}
 
 	public T findNextLocalAccess(int index) {
-	    matchers.add(new PrefabMatchers.LocalVariableMatch(index));
+	    matchers.add(new PrefabMatchers.LocalVariableMatchByIndex(index));
+	    return (T) this;
+	}
+
+	public T findNextLocalAccess(LocalVariableDefinition local) {
+	    matchers.add(new PrefabMatchers.LocalVariableMatchByDefinition(local));
 	    return (T) this;
 	}
 

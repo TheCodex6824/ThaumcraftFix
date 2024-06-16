@@ -50,8 +50,8 @@ public class PatchStateMachine {
 	    this.actions = ImmutableList.copyOf(actions);
 	}
 
-	public MatchResult matches(AbstractInsnNode node) {
-	    return matcher.matches(node);
+	public MatchResult matches(MethodNode method, AbstractInsnNode node) {
+	    return matcher.matches(method, node);
 	}
 
 	public Collection<AbstractInsnNode> runMatchActions(MethodNode method, MatchDetails result, List<? extends MatchDetails> matches) {
@@ -195,7 +195,7 @@ public class PatchStateMachine {
 	    AbstractInsnNode node = methodNode.instructions.get(i);
 	    if (!ignoreMatches.contains(node)) {
 		lastNode = nodes.get(currentNode);
-		MatchResult result = lastNode.matches(node);
+		MatchResult result = lastNode.matches(methodNode, node);
 		if (result.matched()) {
 		    liveMatches.add(result);
 		    snapshotMatches.add(result.makeSnapshot());

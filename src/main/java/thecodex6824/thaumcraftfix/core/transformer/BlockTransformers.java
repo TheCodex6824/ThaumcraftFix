@@ -34,6 +34,7 @@ import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
 import thecodex6824.coremodlib.FieldDefinition;
+import thecodex6824.coremodlib.LocalVariableDefinition;
 import thecodex6824.coremodlib.MethodDefinition;
 import thecodex6824.coremodlib.PatchStateMachine;
 
@@ -50,14 +51,17 @@ public class BlockTransformers {
 				)
 				))
 		.findConsecutive()
-		.findNextLocalAccess(13)
+		.findNextLocalAccess(new LocalVariableDefinition(
+			"ents",
+			Types.LIST
+			))
 		.findNextMethodCall(new MethodDefinition(
 			"java/util/List",
 			false,
 			"iterator",
 			Types.ITERATOR
 			))
-		.findNextLocalAccess(14)
+		.findNextOpcode(Opcodes.ASTORE)
 		.endConsecutive()
 		.insertInstructionsAfter(
 			new VarInsnNode(Opcodes.ALOAD, 0),
