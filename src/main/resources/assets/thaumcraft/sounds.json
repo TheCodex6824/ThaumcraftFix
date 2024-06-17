@@ -1,0 +1,11 @@
+{
+  "runicshieldcharge": {
+    "category": "player",
+    "sounds": [
+      {
+        "name": "thaumcraft:runicshieldcharge",
+        "stream": false
+      }
+    ]
+  }
+}
