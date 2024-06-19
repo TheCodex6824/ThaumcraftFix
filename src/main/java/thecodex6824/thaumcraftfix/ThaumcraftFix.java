@@ -32,6 +32,7 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
 import net.minecraftforge.fml.common.SidedProxy;
+import net.minecraftforge.fml.common.event.FMLConstructionEvent;
 import net.minecraftforge.fml.common.event.FMLFingerprintViolationEvent;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
@@ -68,6 +69,11 @@ public class ThaumcraftFix {
 
     private Logger logger;
     private ThaumcraftFixNetworkHandler network;
+
+    @EventHandler
+    public void construction(FMLConstructionEvent event) {
+	proxy.construction();
+    }
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {

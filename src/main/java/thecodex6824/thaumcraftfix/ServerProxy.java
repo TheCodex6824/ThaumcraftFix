@@ -27,6 +27,9 @@ import net.minecraftforge.fml.server.FMLServerHandler;
 public class ServerProxy implements IProxy {
 
     @Override
+    public void construction() {}
+
+    @Override
     public void scheduleTask(Side intendedSide, Runnable task) {
 	if (intendedSide == Side.CLIENT) {
 	    throw new IllegalArgumentException("Cannot run task intended for client side on a dedicated server");
