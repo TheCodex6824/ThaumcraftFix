@@ -29,14 +29,52 @@ import org.objectweb.asm.tree.FrameNode;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
+import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
 import thecodex6824.coremodlib.FieldDefinition;
+import thecodex6824.coremodlib.LocalVariableDefinition;
 import thecodex6824.coremodlib.MethodDefinition;
 import thecodex6824.coremodlib.PatchStateMachine;
 
 public class BlockTransformers {
+
+    public static final Supplier<ITransformer> BRAIN_JAR_EAT_DELAY = () -> {
+	return new GenericStateMachineTransformer(
+		PatchStateMachine.builder(
+			TransformUtil.remapMethod(new MethodDefinition(
+				"thaumcraft/common/tiles/devices/TileJarBrain",
+				false,
+				"func_73660_a",
+				Type.VOID_TYPE
+				)
+				))
+		.findConsecutive()
+		.findNextLocalAccess(new LocalVariableDefinition(
+			"ents",
+			Types.LIST
+			))
+		.findNextMethodCall(new MethodDefinition(
+			"java/util/List",
+			false,
+			"iterator",
+			Types.ITERATOR
+			))
+		.findNextOpcode(Opcodes.ASTORE)
+		.endConsecutive()
+		.insertInstructionsAfter(
+			new VarInsnNode(Opcodes.ALOAD, 0),
+			new LdcInsnNode(10),
+			new FieldDefinition(
+				"thaumcraft/common/tiles/devices/TileJarBrain",
+				"eatDelay",
+				Type.INT_TYPE
+				).asFieldInsnNode(Opcodes.PUTFIELD)
+			)
+		.build(), true, 1
+		);
+    };
 
     public static final ITransformer FOCAL_MANIPULATOR_BLACK_FOCUS_GLITCH = new GenericStateMachineTransformer(
 	    PatchStateMachine.builder(
@@ -264,7 +302,6 @@ public class BlockTransformers {
 				Types.BLOCK_FACE_SHAPE,
 				Types.I_BLOCK_ACCESS, Types.I_BLOCK_STATE,
 				Types.BLOCK_POS, Types.ENUM_FACING
-
 				)
 				))
 		.findNextOpcode(Opcodes.ARETURN)
@@ -278,6 +315,44 @@ public class BlockTransformers {
 				)
 			)
 		.build()
+		);
+    };
+
+    public static final Supplier<ITransformer> THAUMATORIUM_TOP_EMPTY = () -> {
+	LabelNode jumpTarget = new LabelNode(new Label());
+	return new GenericStateMachineTransformer(
+		PatchStateMachine.builder(
+			TransformUtil.remapMethod(new MethodDefinition(
+				"thaumcraft/common/tiles/crafting/TileThaumatoriumTop",
+				false,
+				"func_191420_l",
+				Type.BOOLEAN_TYPE
+				)
+				))
+		.findConsecutive()
+		.findNextMethodCall(TransformUtil.remapMethod(new MethodDefinition(
+			"thaumcraft/common/tiles/crafting/TileThaumatoriumTop",
+			false,
+			"func_191420_l",
+			Type.BOOLEAN_TYPE
+			)))
+		.findNextOpcode(Opcodes.IRETURN)
+		.endConsecutive()
+		.insertInstructionsSurrounding()
+		.before(
+			new InsnNode(Opcodes.DUP),
+			new JumpInsnNode(Opcodes.IFNULL, jumpTarget)
+			)
+		.after(
+			jumpTarget,
+			new FrameNode(Opcodes.F_SAME1, 0, null, 1,
+				new Object[] { "thaumcraft/common/tiles/crafting/TileThaumatorium" }),
+			new InsnNode(Opcodes.POP),
+			new InsnNode(Opcodes.ICONST_1),
+			new InsnNode(Opcodes.IRETURN)
+			)
+		.endAction()
+		.build(), true, 1
 		);
     };
 

@@ -20,11 +20,52 @@
 
 package thecodex6824.thaumcraftfix;
 
+import java.util.List;
+
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.IResourcePack;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraftforge.fml.common.FMLContainerHolder;
+import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.relauncher.Side;
+import thecodex6824.thaumcraftfix.api.ThaumcraftFixApi;
 
 public class ClientProxy implements IProxy {
+
+    @Override
+    public void construction() {
+	// Forge does not sort the resource pack using mod dependencies
+	// instead, it is just the order the mods are loaded
+	// this means that in dev (where the mod is a folder and not jar) or if the jar is renamed,
+	// our resources will *not* override Thaumcraft
+	// this fixes that by moving our position in the list to override Thaumcraft if needed
+	List<IResourcePack> packs = Minecraft.getMinecraft().defaultResourcePacks;
+	int thaumcraftIndex = -1;
+	int fixIndex = -1;
+	for (int i = 0; i < packs.size(); ++i) {
+	    IResourcePack pack = packs.get(i);
+	    if (pack instanceof FMLContainerHolder) {
+		ModContainer container = ((FMLContainerHolder) pack).getFMLContainer();
+		if (container.getModId().equals("thaumcraft")) {
+		    thaumcraftIndex = i;
+		}
+		else if (container.getModId().equals(ThaumcraftFixApi.MODID)) {
+		    fixIndex = i;
+		}
+
+		if (thaumcraftIndex != -1 && fixIndex != -1) {
+		    break;
+		}
+	    }
+	}
+
+	if (thaumcraftIndex != -1 && fixIndex != -1 && thaumcraftIndex > fixIndex) {
+	    IResourcePack fix = packs.remove(fixIndex);
+	    // everything after tc fix will have shifted left by 1, so thaumcraftIndex is now 1 after
+	    // thaumcraftIndex == new list size is also acceptable here
+	    packs.add(thaumcraftIndex, fix);
+	}
+    }
 
     @Override
     public void scheduleTask(Side intendedSide, Runnable task) {

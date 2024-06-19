@@ -186,6 +186,31 @@ public class EntityTransformers {
     public static final Supplier<ITransformer> OWNED_CONSTRUCT_PROCESS_INTERACT_DEAD =
 	    makeEntityProcessInteractTransformer("thaumcraft/common/entities/construct/EntityOwnedConstruct");
 
+    public static final Supplier<ITransformer> OWNED_CONSTRUCT_ZERO_DROP_CHANCES = () -> {
+	return new GenericStateMachineTransformer(
+		PatchStateMachine.builder(
+			new MethodDefinition(
+				"thaumcraft/common/entities/construct/EntityOwnedConstruct",
+				false,
+				"<init>",
+				Type.VOID_TYPE,
+				Types.WORLD
+				)
+			)
+		.findNextOpcode(Opcodes.RETURN)
+		.insertInstructionsBefore(
+			new VarInsnNode(Opcodes.ALOAD, 0),
+			new MethodInsnNode(Opcodes.INVOKESTATIC,
+				TransformUtil.HOOKS_COMMON,
+				"clearDropChances",
+				Type.getMethodDescriptor(Type.VOID_TYPE, Types.ENTITY_LIVING),
+				false
+				)
+			)
+		.build()
+		);
+    };
+
     // fixes armor counting twice visually for void robe armor
     // I get a lot of reports/questions about it, so here it is
     public static final ITransformer VOID_ROBE_ARMOR_DISPLAY = new GenericStateMachineTransformer(

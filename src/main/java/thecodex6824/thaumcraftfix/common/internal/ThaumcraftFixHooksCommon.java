@@ -37,9 +37,11 @@ import net.minecraft.block.state.BlockFaceShape;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -420,6 +422,12 @@ public final class ThaumcraftFixHooksCommon {
 
     public static boolean isEntityDeadForProcessInteract(boolean original, EntityLivingBase entity) {
 	return original || entity.getHealth() <= 1.0e-5f;
+    }
+
+    public static void clearDropChances(EntityLiving entity) {
+	for (EntityEquipmentSlot slot : EntityEquipmentSlot.values()) {
+	    entity.setDropChance(slot, 0.0f);
+	}
     }
 
 }

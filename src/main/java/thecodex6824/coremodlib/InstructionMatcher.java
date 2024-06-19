@@ -21,10 +21,11 @@
 package thecodex6824.coremodlib;
 
 import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.MethodNode;
 
 @FunctionalInterface
 public interface InstructionMatcher {
 
-    public MatchResult matches(AbstractInsnNode node);
+    public MatchResult matches(MethodNode method, AbstractInsnNode node);
 
 }

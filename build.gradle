@@ -56,6 +56,7 @@ final needCustomNatives = arch != "x86" && arch != "i386" && arch != "x86_64" &&
 
 minecraft {
     mappings channel: 'stable', version: '39-1.12'
+    accessTransformer = file('src/main/resources/META-INF/thaumcraftfix_at.cfg')
     runs {
         client {
             workingDirectory file('run')
@@ -211,6 +212,7 @@ task signJar(type: SignJar) {
 
 jar {
     manifest {
+        attributes 'FMLAT': 'thaumcraftfix_at.cfg'
         attributes 'FMLCorePlugin': 'thecodex6824.thaumcraftfix.core.ThaumcraftFixCore'
         attributes 'FMLCorePluginContainsFMLMod': 'true'
     }

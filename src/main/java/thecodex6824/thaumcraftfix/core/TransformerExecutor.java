@@ -85,12 +85,14 @@ public class TransformerExecutor implements IClassTransformer {
 		    AUG_GOOD_VERSION);
 	}
 
+	transformers.add(BlockTransformers.BRAIN_JAR_EAT_DELAY.get());
 	transformers.add(BlockTransformers.FOCAL_MANIPULATOR_BLACK_FOCUS_GLITCH);
 	transformers.add(BlockTransformers.FOCAL_MANIPULATOR_MAX_COMPLEXITY.get());
 	transformers.add(BlockTransformers.FOCAL_MANIPULATOR_COMPONENTS);
 	transformers.add(BlockTransformers.FOCAL_MANIPULATOR_COMPONENTS_CLIENT);
 	transformers.add(BlockTransformers.FOCAL_MANIPULATOR_XP_COST_GUI);
 	transformers.add(BlockTransformers.TABLE_TOP_SOLID.get());
+	transformers.add(BlockTransformers.THAUMATORIUM_TOP_EMPTY.get());
 	transformers.add(CastingTransformers.EXCHANGE_MOD_INTERFACEIFY);
 	transformers.add(CastingTransformers.FOCUS_PACKAGE_INIT);
 	transformers.add(CastingTransformers.FOCUS_PACKAGE_SET_CASTER_UUID);
@@ -101,6 +103,7 @@ public class TransformerExecutor implements IClassTransformer {
 	transformers.add(EntityTransformers.CROSSBOW_PROCESS_INTERACT_DEAD.get());
 	transformers.add(EntityTransformers.GOLEM_PROCESS_INTERACT_DEAD.get());
 	transformers.add(EntityTransformers.OWNED_CONSTRUCT_PROCESS_INTERACT_DEAD.get());
+	transformers.add(EntityTransformers.OWNED_CONSTRUCT_ZERO_DROP_CHANCES.get());
 	transformers.add(ItemTransformers.COMPARE_TAGS_RELAXED_NULL_CHECK.get());
 	transformers.add(MiscTransformers.AURA_CHUNK_THREAD_SAFETY);
 	transformers.add(NetworkTransformers.LOGISTICS_REQUEST.get());

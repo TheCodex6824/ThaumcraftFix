@@ -27,7 +27,9 @@ import java.util.function.Function;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.FieldInsnNode;
+import org.objectweb.asm.tree.LocalVariableNode;
 import org.objectweb.asm.tree.MethodInsnNode;
+import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 import org.objectweb.asm.util.Textifier;
@@ -39,7 +41,7 @@ class PrefabMatchers {
     public static class AlwaysMatch implements InstructionMatcher {
 
 	@Override
-	public MatchResult matches(AbstractInsnNode node) {
+	public MatchResult matches(MethodNode method, AbstractInsnNode node) {
 	    return MatchResult.matchSingleNode(node);
 	}
 
@@ -59,7 +61,7 @@ class PrefabMatchers {
 	}
 
 	@Override
-	public MatchResult matches(AbstractInsnNode node) {
+	public MatchResult matches(MethodNode method, AbstractInsnNode node) {
 	    return matcher.apply(node) ? MatchResult.matchSingleNode(node) : MatchResult.noMatch();
 	}
 
@@ -79,10 +81,10 @@ class PrefabMatchers {
 	}
 
 	@Override
-	public MatchResult matches(AbstractInsnNode node) {
+	public MatchResult matches(MethodNode method, AbstractInsnNode node) {
 	    AbstractInsnNode current = node;
 	    for (InstructionMatcher matcher : matchers) {
-		if (current == null || !matcher.matches(current).matched()) {
+		if (current == null || !matcher.matches(method, current).matched()) {
 		    return MatchResult.noMatch();
 		}
 
@@ -113,7 +115,7 @@ class PrefabMatchers {
 	}
 
 	@Override
-	public MatchResult matches(AbstractInsnNode node) {
+	public MatchResult matches(MethodNode method, AbstractInsnNode node) {
 	    return node.getOpcode() == opcode ? MatchResult.matchSingleNode(node) : MatchResult.noMatch();
 	}
 
@@ -133,7 +135,7 @@ class PrefabMatchers {
 	}
 
 	@Override
-	public MatchResult matches(AbstractInsnNode node) {
+	public MatchResult matches(MethodNode method, AbstractInsnNode node) {
 	    return cls.isInstance(node) ? MatchResult.matchSingleNode(node) : MatchResult.noMatch();
 	}
 
@@ -144,16 +146,16 @@ class PrefabMatchers {
 
     }
 
-    public static class LocalVariableMatch implements InstructionMatcher {
+    public static class LocalVariableMatchByIndex implements InstructionMatcher {
 
 	private final int index;
 
-	public LocalVariableMatch(int varIndex) {
+	public LocalVariableMatchByIndex(int varIndex) {
 	    index = varIndex;
 	}
 
 	@Override
-	public MatchResult matches(AbstractInsnNode node) {
+	public MatchResult matches(MethodNode method, AbstractInsnNode node) {
 	    boolean ret = false;
 	    if (node instanceof VarInsnNode) {
 		ret = ((VarInsnNode) node).var == index;
@@ -169,6 +171,35 @@ class PrefabMatchers {
 
     }
 
+    public static class LocalVariableMatchByDefinition implements InstructionMatcher {
+
+	private final LocalVariableDefinition local;
+
+	public LocalVariableMatchByDefinition(LocalVariableDefinition localDef) {
+	    local = localDef;
+	}
+
+	@Override
+	public MatchResult matches(MethodNode method, AbstractInsnNode node) {
+	    boolean ret = false;
+	    if (node instanceof VarInsnNode) {
+		LocalVariableNode var = method.localVariables.stream()
+			.filter(v -> v.desc.equals(local.desc()) && v.name.equals(local.name()))
+			.findAny()
+			.orElse(null);
+		ret = var != null && ((VarInsnNode) node).var == var.index;
+	    }
+
+	    return ret ? MatchResult.matchSingleNode(node) : MatchResult.noMatch();
+	}
+
+	@Override
+	public String toString() {
+	    return String.format("Node is accessing local variable %s", local.toString());
+	}
+
+    }
+
     public static class FieldMatch implements InstructionMatcher {
 
 	private final FieldDefinition fieldDef;
@@ -178,7 +209,7 @@ class PrefabMatchers {
 	}
 
 	@Override
-	public MatchResult matches(AbstractInsnNode node) {
+	public MatchResult matches(MethodNode method, AbstractInsnNode node) {
 	    boolean ret = false;
 	    if (node instanceof FieldInsnNode) {
 		FieldInsnNode field = (FieldInsnNode) node;
@@ -204,7 +235,7 @@ class PrefabMatchers {
 	}
 
 	@Override
-	public MatchResult matches(AbstractInsnNode node) {
+	public MatchResult matches(MethodNode method, AbstractInsnNode node) {
 	    boolean ret = false;
 	    if (node instanceof FieldInsnNode) {
 		FieldInsnNode field = (FieldInsnNode) node;
@@ -230,11 +261,11 @@ class PrefabMatchers {
 	}
 
 	@Override
-	public MatchResult matches(AbstractInsnNode node) {
+	public MatchResult matches(MethodNode method, AbstractInsnNode node) {
 	    boolean ret = false;
 	    if (node instanceof MethodInsnNode) {
-		MethodInsnNode method = (MethodInsnNode) node;
-		ret = method.name.equals(methodDef.name()) && method.desc.equals(methodDef.desc());
+		MethodInsnNode methodInsn = (MethodInsnNode) node;
+		ret = methodInsn.name.equals(methodDef.name()) && methodInsn.desc.equals(methodDef.desc());
 	    }
 
 	    return ret ? MatchResult.matchSingleNode(node) : MatchResult.noMatch();
@@ -258,7 +289,7 @@ class PrefabMatchers {
 	}
 
 	@Override
-	public MatchResult matches(AbstractInsnNode node) {
+	public MatchResult matches(MethodNode method, AbstractInsnNode node) {
 	    boolean ret = false;
 	    if (node.getOpcode() == opcode && node instanceof TypeInsnNode) {
 		TypeInsnNode typeNode = (TypeInsnNode) node;

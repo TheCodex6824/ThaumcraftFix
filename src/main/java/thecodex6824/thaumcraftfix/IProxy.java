@@ -25,6 +25,8 @@ import net.minecraftforge.fml.relauncher.Side;
 
 public interface IProxy {
 
+    public void construction();
+
     public void scheduleTask(Side intendedSide, Runnable task);
 
     public EntityPlayer getClientPlayer();

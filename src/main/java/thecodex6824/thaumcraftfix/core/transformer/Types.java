@@ -21,6 +21,8 @@
 package thecodex6824.thaumcraftfix.core.transformer;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
@@ -34,12 +36,15 @@ public final class Types {
     public static final Type OBJECT = Type.getType(Object.class);
     public static final Type STRING = Type.getType(String.class);
     public static final Type UUID = Type.getType(UUID.class);
+    public static final Type LIST = Type.getType(List.class);
     public static final Type ARRAY_LIST = Type.getType(ArrayList.class);
     public static final Type SET = Type.getType(Set.class);
     public static final Type RANDOM = Type.getType(Random.class);
+    public static final Type ITERATOR = Type.getType(Iterator.class);
 
     public static final Type ENTITY = Type.getType("Lnet/minecraft/entity/Entity;");
     public static final Type ENTITY_LIVING_BASE = Type.getType("Lnet/minecraft/entity/EntityLivingBase;");
+    public static final Type ENTITY_LIVING = Type.getType("Lnet/minecraft/entity/EntityLiving;");
     public static final Type ENTITY_PLAYER = Type.getType("Lnet/minecraft/entity/player/EntityPlayer;");
     public static final Type ENTITY_PLAYER_MP = Type.getType("Lnet/minecraft/entity/player/EntityPlayerMP;");
 
