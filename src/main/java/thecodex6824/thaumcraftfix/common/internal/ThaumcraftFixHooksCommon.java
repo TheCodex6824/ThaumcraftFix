@@ -70,6 +70,7 @@ import thaumcraft.common.config.ModConfig;
 import thaumcraft.common.container.ContainerFocalManipulator;
 import thaumcraft.common.container.ContainerThaumatorium;
 import thaumcraft.common.entities.EntityFluxRift;
+import thaumcraft.common.items.casters.ItemFocus;
 import thaumcraft.common.lib.network.misc.PacketLogisticsRequestToServer;
 import thaumcraft.common.lib.network.misc.PacketNote;
 import thaumcraft.common.lib.network.misc.PacketSelectThaumotoriumRecipeToServer;
@@ -141,12 +142,11 @@ public final class ThaumcraftFixHooksCommon {
 	return fallback;
     }
 
-    public static boolean shouldFocalManipulatorClearState(boolean originalDecision, TileFocalManipulator tile, ItemStack previousFocusStack) {
-	return originalDecision && (tile.vis <= 0.0F || !previousFocusStack.isEmpty());
-    }
-
-    public static boolean shouldFocalManipulatorClearStateInverted(boolean originalDecisionInverted, TileFocalManipulator tile, ItemStack previousFocusStack) {
-	return !shouldFocalManipulatorClearState(!originalDecisionInverted, tile, previousFocusStack);
+    public static void setFocusStackColor(ItemStack maybeFocus) {
+	Item item = maybeFocus.getItem();
+	if (item instanceof ItemFocus) {
+	    ((ItemFocus) item).getFocusColor(maybeFocus);
+	}
     }
 
     public static int modifyManipulatorComponentCount(int originalCount, TileFocalManipulator tile, AspectList crystals, EntityPlayer crafter) {

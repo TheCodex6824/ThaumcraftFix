@@ -101,6 +101,31 @@ public class ItemTransformers {
 	    .build()
 	    );
 
+    public static final Supplier<ITransformer> FOCUS_COLOR_NBT = () -> {
+	return new GenericStateMachineTransformer(
+		PatchStateMachine.builder(
+			new MethodDefinition(
+				"thaumcraft/common/items/casters/ItemFocus",
+				false,
+				"setPackage",
+				Type.VOID_TYPE,
+				Types.ITEM_STACK, Types.FOCUS_PACKAGE
+				)
+			)
+		.findNextOpcode(Opcodes.RETURN)
+		.insertInstructionsBefore(
+			new VarInsnNode(Opcodes.ALOAD, 0),
+			new MethodInsnNode(Opcodes.INVOKESTATIC,
+				TransformUtil.HOOKS_COMMON,
+				"setFocusStackColor",
+				Type.getMethodDescriptor(Type.VOID_TYPE, Types.ITEM_STACK),
+				false
+				)
+			)
+		.build()
+		);
+    };
+
     // makes runic shielding infusion work on items with baubles capability
     // TC only checks for the interface on the item...
     public static final ITransformer RUNIC_SHIELD_INFUSION_BAUBLE_CAP = new GenericStateMachineTransformer(

@@ -86,7 +86,7 @@ public class TransformerExecutor implements IClassTransformer {
 	}
 
 	transformers.add(BlockTransformers.BRAIN_JAR_EAT_DELAY.get());
-	transformers.add(BlockTransformers.FOCAL_MANIPULATOR_BLACK_FOCUS_GLITCH);
+	transformers.add(BlockTransformers.FOCAL_MANIPULATOR_FOCUS_SLOT.get());
 	transformers.add(BlockTransformers.FOCAL_MANIPULATOR_MAX_COMPLEXITY.get());
 	transformers.add(BlockTransformers.FOCAL_MANIPULATOR_COMPONENTS);
 	transformers.add(BlockTransformers.FOCAL_MANIPULATOR_COMPONENTS_CLIENT);
@@ -105,6 +105,7 @@ public class TransformerExecutor implements IClassTransformer {
 	transformers.add(EntityTransformers.OWNED_CONSTRUCT_PROCESS_INTERACT_DEAD.get());
 	transformers.add(EntityTransformers.OWNED_CONSTRUCT_ZERO_DROP_CHANCES.get());
 	transformers.add(ItemTransformers.COMPARE_TAGS_RELAXED_NULL_CHECK.get());
+	transformers.add(ItemTransformers.FOCUS_COLOR_NBT.get());
 	transformers.add(MiscTransformers.AURA_CHUNK_THREAD_SAFETY);
 	transformers.add(NetworkTransformers.FOCAL_MANIPULATOR_DATA.get());
 	transformers.add(NetworkTransformers.LOGISTICS_REQUEST.get());

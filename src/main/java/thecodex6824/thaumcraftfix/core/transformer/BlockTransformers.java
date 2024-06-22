@@ -76,51 +76,31 @@ public class BlockTransformers {
 		);
     };
 
-    public static final ITransformer FOCAL_MANIPULATOR_BLACK_FOCUS_GLITCH = new GenericStateMachineTransformer(
-	    PatchStateMachine.builder(
-		    TransformUtil.remapMethod(new MethodDefinition(
-			    Types.TILE_FOCAL_MANIPULATOR.getInternalName(),
-			    false,
-			    "func_70299_a",
-			    Type.VOID_TYPE,
-			    Type.INT_TYPE, Types.ITEM_STACK
-			    )
-			    ))
-	    .findNextMethodCall(TransformUtil.remapMethod(new MethodDefinition(
-		    "net/minecraft/item/ItemStack",
-		    false,
-		    "func_190926_b",
-		    Type.BOOLEAN_TYPE
-		    )))
-	    .insertInstructionsAfter(
-		    new VarInsnNode(Opcodes.ALOAD, 0),
-		    new VarInsnNode(Opcodes.ALOAD, 3),
-		    new MethodInsnNode(Opcodes.INVOKESTATIC,
-			    TransformUtil.HOOKS_COMMON,
-			    "shouldFocalManipulatorClearState",
-			    Type.getMethodDescriptor(Type.BOOLEAN_TYPE, Type.BOOLEAN_TYPE, Types.TILE_FOCAL_MANIPULATOR, Types.ITEM_STACK),
-			    false
-			    )
-		    )
-	    .findNextMethodCall(TransformUtil.remapMethod(new MethodDefinition(
-		    "net/minecraft/item/ItemStack",
-		    false,
-		    "func_77989_b",
-		    Type.BOOLEAN_TYPE,
-		    Types.ITEM_STACK, Types.ITEM_STACK
-		    )))
-	    .insertInstructionsAfter(
-		    new VarInsnNode(Opcodes.ALOAD, 0),
-		    new VarInsnNode(Opcodes.ALOAD, 3),
-		    new MethodInsnNode(Opcodes.INVOKESTATIC,
-			    TransformUtil.HOOKS_COMMON,
-			    "shouldFocalManipulatorClearStateInverted",
-			    Type.getMethodDescriptor(Type.BOOLEAN_TYPE, Type.BOOLEAN_TYPE, Types.TILE_FOCAL_MANIPULATOR, Types.ITEM_STACK),
-			    false
-			    )
-		    )
-	    .build(), true, 1
-	    );
+    public static final Supplier<ITransformer> FOCAL_MANIPULATOR_FOCUS_SLOT = () -> {
+	FieldDefinition vis = new FieldDefinition(
+		Types.TILE_FOCAL_MANIPULATOR.getInternalName(),
+		"vis",
+		Type.FLOAT_TYPE
+		);
+	return new GenericStateMachineTransformer(
+		PatchStateMachine.builder(
+			TransformUtil.remapMethod(new MethodDefinition(
+				Types.TILE_FOCAL_MANIPULATOR.getInternalName(),
+				false,
+				"func_70299_a",
+				Type.VOID_TYPE,
+				Type.INT_TYPE, Types.ITEM_STACK
+				)
+				))
+		.findNextFieldAccess(vis)
+		.insertInstructionsBefore(
+			new InsnNode(Opcodes.POP),
+			new VarInsnNode(Opcodes.ALOAD, 0),
+			vis.asFieldInsnNode(Opcodes.GETFIELD)
+			)
+		.build(), true, 1
+		);
+    };
 
     public static final Supplier<ITransformer> FOCAL_MANIPULATOR_MAX_COMPLEXITY = () -> {
 	LabelNode newLabel = new LabelNode(new Label());
