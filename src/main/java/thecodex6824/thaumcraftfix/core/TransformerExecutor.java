@@ -106,6 +106,7 @@ public class TransformerExecutor implements IClassTransformer {
 	transformers.add(EntityTransformers.OWNED_CONSTRUCT_ZERO_DROP_CHANCES.get());
 	transformers.add(ItemTransformers.COMPARE_TAGS_RELAXED_NULL_CHECK.get());
 	transformers.add(MiscTransformers.AURA_CHUNK_THREAD_SAFETY);
+	transformers.add(NetworkTransformers.FOCAL_MANIPULATOR_DATA.get());
 	transformers.add(NetworkTransformers.LOGISTICS_REQUEST.get());
 	transformers.add(NetworkTransformers.NOTE_HANDLER.get());
 	transformers.add(NetworkTransformers.PROGRESS_SYNC_CHECKS.get());

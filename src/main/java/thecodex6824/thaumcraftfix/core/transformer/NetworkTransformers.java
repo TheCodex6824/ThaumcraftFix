@@ -39,6 +39,49 @@ import thecodex6824.thaumcraftfix.core.transformer.custom.PacketNoteHandlerRewri
 
 public class NetworkTransformers {
 
+    public static final Supplier<ITransformer> FOCAL_MANIPULATOR_DATA = () -> {
+	LabelNode newLabel = new LabelNode(new Label());
+	return new GenericStateMachineTransformer(
+		PatchStateMachine.builder(
+			new MethodDefinition(
+				"thaumcraft/common/lib/network/playerdata/PacketFocusNodesToServer$1",
+				false,
+				"run",
+				Type.VOID_TYPE
+				)
+			)
+		.findAny()
+		.insertInstructionsBefore(
+			new VarInsnNode(Opcodes.ALOAD, 0),
+			new FieldDefinition(
+				"thaumcraft/common/lib/network/playerdata/PacketFocusNodesToServer$1",
+				"val$message",
+				Type.getType("Lthaumcraft/common/lib/network/playerdata/PacketFocusNodesToServer;")
+				).asFieldInsnNode(Opcodes.GETFIELD),
+			new VarInsnNode(Opcodes.ALOAD, 0),
+			new FieldDefinition(
+				"thaumcraft/common/lib/network/playerdata/PacketFocusNodesToServer$1",
+				"val$ctx",
+				Type.getType("Lnet/minecraftforge/fml/common/network/simpleimpl/MessageContext;")
+				).asFieldInsnNode(Opcodes.GETFIELD),
+			new MethodInsnNode(Opcodes.INVOKESTATIC,
+				TransformUtil.HOOKS_COMMON,
+				"validateFocalManipulatorNodeData",
+				Type.getMethodDescriptor(Type.BOOLEAN_TYPE,
+					Type.getType("Lthaumcraft/common/lib/network/playerdata/PacketFocusNodesToServer;"),
+					Type.getType("Lnet/minecraftforge/fml/common/network/simpleimpl/MessageContext;")),
+				false
+				),
+			new JumpInsnNode(Opcodes.IFNE, newLabel),
+			new InsnNode(Opcodes.RETURN),
+			newLabel,
+			new FrameNode(Opcodes.F_SAME, 0, null, 0, null)
+			)
+
+		.build(), true, 1
+		);
+    };
+
     public static final Supplier<ITransformer> LOGISTICS_REQUEST = () -> {
 	LabelNode newLabel = new LabelNode(new Label());
 	return new GenericStateMachineTransformer(

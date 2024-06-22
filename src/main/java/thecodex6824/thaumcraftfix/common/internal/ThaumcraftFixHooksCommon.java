@@ -67,11 +67,13 @@ import thaumcraft.api.research.ResearchCategory;
 import thaumcraft.api.research.ResearchEntry;
 import thaumcraft.api.research.theorycraft.ResearchTableData;
 import thaumcraft.common.config.ModConfig;
+import thaumcraft.common.container.ContainerFocalManipulator;
 import thaumcraft.common.container.ContainerThaumatorium;
 import thaumcraft.common.entities.EntityFluxRift;
 import thaumcraft.common.lib.network.misc.PacketLogisticsRequestToServer;
 import thaumcraft.common.lib.network.misc.PacketNote;
 import thaumcraft.common.lib.network.misc.PacketSelectThaumotoriumRecipeToServer;
+import thaumcraft.common.lib.network.playerdata.PacketFocusNodesToServer;
 import thaumcraft.common.lib.research.ResearchManager;
 import thaumcraft.common.tiles.crafting.TileFocalManipulator;
 import thaumcraft.common.tiles.crafting.TileResearchTable;
@@ -373,6 +375,35 @@ public final class ThaumcraftFixHooksCommon {
 
 		ok = player.openContainer instanceof ContainerThaumatorium &&
 			((TileEntity) containerThaumatoriumTile.get(player.openContainer)).getPos().equals(pos);
+	    }
+	}
+
+	return ok;
+    }
+
+    private static Field focusNodesPosition;
+    private static Field containerFocalManipulatorTile;
+
+    public static boolean validateFocalManipulatorNodeData(PacketFocusNodesToServer message, MessageContext ctx) throws Exception {
+	if (focusNodesPosition == null) {
+	    focusNodesPosition = PacketFocusNodesToServer.class.getDeclaredField("loc");
+	    focusNodesPosition.setAccessible(true);
+	}
+
+	EntityPlayerMP player = ctx.getServerHandler().player;
+	boolean ok = player.isEntityAlive();
+	BlockPos pos = BlockPos.fromLong(focusNodesPosition.getLong(message));
+	if (ok && pos != null) {
+	    ok = validatePosition(player, pos, "focal manipulator node selections") &&
+		    player.openContainer instanceof ContainerFocalManipulator;
+	    if (ok) {
+		if (containerFocalManipulatorTile == null) {
+		    containerFocalManipulatorTile = ContainerFocalManipulator.class.getDeclaredField("table");
+		    containerFocalManipulatorTile.setAccessible(true);
+		}
+
+		TileFocalManipulator tile = ((TileFocalManipulator) containerFocalManipulatorTile.get(player.openContainer));
+		ok = tile.getPos().equals(pos) && tile.vis <= 0.0F;
 	    }
 	}
 
