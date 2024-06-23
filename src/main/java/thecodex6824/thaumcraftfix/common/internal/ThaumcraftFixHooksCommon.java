@@ -49,6 +49,7 @@ import net.minecraft.network.play.server.SPacketSoundEffect;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -71,6 +72,7 @@ import thaumcraft.common.container.ContainerFocalManipulator;
 import thaumcraft.common.container.ContainerThaumatorium;
 import thaumcraft.common.entities.EntityFluxRift;
 import thaumcraft.common.items.casters.ItemFocus;
+import thaumcraft.common.lib.SoundsTC;
 import thaumcraft.common.lib.network.misc.PacketLogisticsRequestToServer;
 import thaumcraft.common.lib.network.misc.PacketNote;
 import thaumcraft.common.lib.network.misc.PacketSelectThaumotoriumRecipeToServer;
@@ -382,7 +384,7 @@ public final class ThaumcraftFixHooksCommon {
     }
 
     private static Field focusNodesPosition;
-    private static Field containerFocalManipulatorTile;
+    private static volatile Field containerFocalManipulatorTile;
 
     public static boolean validateFocalManipulatorNodeData(PacketFocusNodesToServer message, MessageContext ctx) throws Exception {
 	if (focusNodesPosition == null) {
@@ -408,6 +410,20 @@ public final class ThaumcraftFixHooksCommon {
 	}
 
 	return ok;
+    }
+
+    public static void fixupFocalManipulatorCraftFail(EntityPlayer player) throws Exception {
+	if (player instanceof EntityPlayerMP) {
+	    if (containerFocalManipulatorTile == null) {
+		containerFocalManipulatorTile = ContainerFocalManipulator.class.getDeclaredField("table");
+		containerFocalManipulatorTile.setAccessible(true);
+	    }
+
+	    TileEntity tile = ((TileEntity) containerFocalManipulatorTile.get(player.openContainer));
+	    BlockPos pos = tile.getPos();
+	    SPacketSoundEffect sound = new SPacketSoundEffect(SoundsTC.craftfail, SoundCategory.BLOCKS, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 0.33F, 1.0F);
+	    ((EntityPlayerMP) player).connection.sendPacket(sound);
+	}
     }
 
     public static int checkProgressSyncStage(int originalStage, EntityPlayer player, ResearchEntry entry) {

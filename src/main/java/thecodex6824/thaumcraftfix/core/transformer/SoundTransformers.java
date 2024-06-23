@@ -26,6 +26,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
+import org.objectweb.asm.tree.VarInsnNode;
 
 import thecodex6824.coremodlib.MethodDefinition;
 import thecodex6824.coremodlib.PatchStateMachine;
@@ -71,6 +72,36 @@ public class SoundTransformers {
 	    Types.ITEM_STACK, Types.WORLD, Types.ENTITY_PLAYER, Types.STRING
 	    ),
 	    Types.ENTITY_PLAYER, 2);
+
+    public static final Supplier<ITransformer> SOUND_FIX_FOCAL_MANIPULATOR_CONTAINER = () -> {
+	return new GenericStateMachineTransformer(
+		PatchStateMachine.builder(TransformUtil.remapMethod(new MethodDefinition(
+			"thaumcraft/common/container/ContainerFocalManipulator",
+			false,
+			"func_75140_a",
+			Type.BOOLEAN_TYPE,
+			Types.ENTITY_PLAYER, Type.INT_TYPE
+			)))
+		.findNextMethodCall(TransformUtil.remapMethod(new MethodDefinition(
+			Types.WORLD.getInternalName(),
+			false,
+			"func_184133_a",
+			Type.VOID_TYPE,
+			Types.ENTITY_PLAYER, Types.BLOCK_POS, Types.SOUND_EVENT,
+			Type.getType("Lnet/minecraft/util/SoundCategory;"), Type.FLOAT_TYPE, Type.FLOAT_TYPE
+			)))
+		.insertInstructionsAfter(
+			new VarInsnNode(Opcodes.ALOAD, 1),
+			new MethodInsnNode(Opcodes.INVOKESTATIC,
+				TransformUtil.HOOKS_COMMON,
+				"fixupFocalManipulatorCraftFail",
+				Type.getMethodDescriptor(Type.VOID_TYPE, Types.ENTITY_PLAYER),
+				false
+				)
+			)
+		.build()
+		);
+    };
 
     public static final Supplier<ITransformer> SOUND_FIX_LOOT_BAG = makeSoundFixupTransformer(TransformUtil.remapMethod(new MethodDefinition(
 	    "thaumcraft/common/items/curios/ItemLootBag",

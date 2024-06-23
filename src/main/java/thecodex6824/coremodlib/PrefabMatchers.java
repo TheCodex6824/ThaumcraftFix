@@ -278,6 +278,32 @@ class PrefabMatchers {
 
     }
 
+    public static class MethodReturnTypeMatch implements InstructionMatcher {
+
+	private final Type returnType;
+
+	public MethodReturnTypeMatch(Type type) {
+	    returnType = type;
+	}
+
+	@Override
+	public MatchResult matches(MethodNode method, AbstractInsnNode node) {
+	    boolean ret = false;
+	    if (node instanceof MethodInsnNode) {
+		MethodInsnNode methodInsn = (MethodInsnNode) node;
+		ret = Type.getMethodType(methodInsn.desc).getReturnType().equals(returnType);
+	    }
+
+	    return ret ? MatchResult.matchSingleNode(node) : MatchResult.noMatch();
+	}
+
+	@Override
+	public String toString() {
+	    return String.format("Node is calling a method returning type %s", returnType.getInternalName());
+	}
+
+    }
+
     public static class TypeInsnMatch implements InstructionMatcher {
 
 	private final int opcode;

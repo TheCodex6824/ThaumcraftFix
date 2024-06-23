@@ -95,6 +95,11 @@ public class PatchBuilders {
 	    return (T) this;
 	}
 
+	public T findNextMethodCallReturningType(Type returnType) {
+	    matchers.add(new PrefabMatchers.MethodReturnTypeMatch(returnType));
+	    return (T) this;
+	}
+
 	public T findNextCheckCast(Type castDesc) {
 	    matchers.add(new PrefabMatchers.TypeInsnMatch(Opcodes.CHECKCAST, castDesc));
 	    return (T) this;
