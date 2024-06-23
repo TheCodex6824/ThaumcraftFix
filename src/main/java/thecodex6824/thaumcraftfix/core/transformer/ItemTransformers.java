@@ -37,10 +37,83 @@ import org.objectweb.asm.tree.VarInsnNode;
 
 import com.google.common.collect.ImmutableList;
 
+import baubles.api.cap.BaublesCapabilities;
+import it.unimi.dsi.fastutil.ints.IntRBTreeSet;
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.NonNullList;
+import net.minecraftforge.oredict.OreDictionary;
+import thaumcraft.common.items.casters.ItemFocus;
 import thecodex6824.coremodlib.MethodDefinition;
 import thecodex6824.coremodlib.PatchStateMachine;
 
 public class ItemTransformers {
+
+    public static final class Hooks {
+
+	public static boolean shouldAllowRunicShield(ItemStack stack) {
+	    return stack.hasCapability(BaublesCapabilities.CAPABILITY_ITEM_BAUBLE, null);
+	}
+
+	private static int[] getValidMetadata(Item item) {
+	    IntRBTreeSet visitedMeta = new IntRBTreeSet();
+	    for (CreativeTabs tab : item.getCreativeTabs()) {
+		NonNullList<ItemStack> stacks = NonNullList.create();
+		item.getSubItems(tab, stacks);
+		for (ItemStack stack : stacks) {
+		    if (stack.getItem() == item)
+			visitedMeta.add(stack.getMetadata());
+		}
+	    }
+
+	    return visitedMeta.toIntArray();
+	}
+
+	public static ItemStack cycleItemStack(ItemStack fallback, Object thing, int counter) {
+	    if (thing instanceof ItemStack) {
+		ItemStack stack = (ItemStack) thing;
+		if (!stack.isEmpty() && stack.getHasSubtypes() && stack.getMetadata() == OreDictionary.WILDCARD_VALUE) {
+		    int[] validMeta = getValidMetadata(stack.getItem());
+		    if (validMeta.length > 0) {
+			int timer = 5000 / validMeta.length;
+			int metaIndex = (int) ((counter + System.currentTimeMillis() / timer) % validMeta.length);
+			ItemStack copy = stack.copy();
+			copy.setItemDamage(validMeta[metaIndex]);
+			return copy;
+		    }
+		}
+	    }
+
+	    return fallback;
+	}
+
+	public static void setFocusStackColor(ItemStack maybeFocus) {
+	    Item item = maybeFocus.getItem();
+	    if (item instanceof ItemFocus) {
+		((ItemFocus) item).getFocusColor(maybeFocus);
+	    }
+	}
+
+	public static int nullCheckTags(NBTTagCompound prime, NBTTagCompound other) {
+	    int result = 0;
+	    if (prime == null) {
+		result = 0b10;
+	    }
+	    else if (other == null) {
+		result = 0b1;
+	    }
+
+	    // what is returned here has 2 meanings:
+	    // if nonzero, we want to exit early - return value will be this shifted right by 1
+	    // this lets us effectively return 2 booleans from 1 function, since internally booleans are just ints
+	    return result;
+	}
+
+    }
+
+    private static final String HOOKS = Type.getInternalName(Hooks.class);
 
     public static final Supplier<ITransformer> COMPARE_TAGS_RELAXED_NULL_CHECK = () -> {
 	LabelNode newLabel = new LabelNode(new Label());
@@ -58,7 +131,7 @@ public class ItemTransformers {
 			new VarInsnNode(Opcodes.ALOAD, 0),
 			new VarInsnNode(Opcodes.ALOAD, 1),
 			new MethodInsnNode(Opcodes.INVOKESTATIC,
-				TransformUtil.HOOKS_COMMON,
+				HOOKS,
 				"nullCheckTags",
 				Type.getMethodDescriptor(Type.INT_TYPE, Types.NBT_TAG_COMPOUND, Types.NBT_TAG_COMPOUND),
 				false
@@ -92,7 +165,7 @@ public class ItemTransformers {
 		    new VarInsnNode(Opcodes.ALOAD, 0),
 		    new VarInsnNode(Opcodes.ILOAD, 1),
 		    new MethodInsnNode(Opcodes.INVOKESTATIC,
-			    TransformUtil.HOOKS_COMMON,
+			    HOOKS,
 			    "cycleItemStack",
 			    Type.getMethodDescriptor(Types.ITEM_STACK, Types.ITEM_STACK, Types.OBJECT, Type.INT_TYPE),
 			    false
@@ -116,7 +189,7 @@ public class ItemTransformers {
 		.insertInstructionsBefore(
 			new VarInsnNode(Opcodes.ALOAD, 0),
 			new MethodInsnNode(Opcodes.INVOKESTATIC,
-				TransformUtil.HOOKS_COMMON,
+				HOOKS,
 				"setFocusStackColor",
 				Type.getMethodDescriptor(Type.VOID_TYPE, Types.ITEM_STACK),
 				false
@@ -143,7 +216,7 @@ public class ItemTransformers {
 		InsnList toAdd = new InsnList();
 		toAdd.add(new VarInsnNode(Opcodes.ALOAD, 2));
 		toAdd.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-			TransformUtil.HOOKS_COMMON,
+			HOOKS,
 			"shouldAllowRunicShield",
 			Type.getMethodDescriptor(Type.BOOLEAN_TYPE, Types.ITEM_STACK),
 			false

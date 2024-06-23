@@ -35,9 +35,6 @@ public final class TransformUtil {
 
     private TransformUtil() {}
 
-    public static final String HOOKS_COMMON = "thecodex6824/thaumcraftfix/common/internal/ThaumcraftFixHooksCommon";
-    public static final String HOOKS_CLIENT = "thecodex6824/thaumcraftfix/client/internal/ThaumcraftFixHooksClient";
-
     public static Type remapType(Type input) {
 	return Type.getType(FMLDeobfuscatingRemapper.INSTANCE.mapType(input.getDescriptor()));
     }

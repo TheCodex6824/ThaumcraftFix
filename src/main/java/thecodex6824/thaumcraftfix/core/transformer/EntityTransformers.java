@@ -33,12 +33,100 @@ import org.objectweb.asm.tree.VarInsnNode;
 
 import com.google.common.collect.ImmutableList;
 
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.model.ModelBiped;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.inventory.EntityEquipmentSlot;
+import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.eventhandler.Event.Result;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import thaumcraft.client.renderers.models.gear.ModelCustomArmor;
+import thaumcraft.common.config.ModConfig;
+import thaumcraft.common.entities.EntityFluxRift;
 import thecodex6824.coremodlib.FieldDefinition;
 import thecodex6824.coremodlib.MethodDefinition;
 import thecodex6824.coremodlib.PatchStateMachine;
+import thecodex6824.thaumcraftfix.api.event.EntityInOuterLandsEvent;
+import thecodex6824.thaumcraftfix.api.event.FluxRiftDestroyBlockEvent;
 import thecodex6824.thaumcraftfix.core.transformer.custom.TransformerBipedRotationCustomArmor;
 
 public class EntityTransformers {
+
+    public static final class HooksCommon {
+
+	public static int isInOuterLands(int entityDim, Entity entity) {
+	    EntityInOuterLandsEvent event = new EntityInOuterLandsEvent(entity);
+	    MinecraftForge.EVENT_BUS.post(event);
+	    boolean pass = event.getResult() == Result.ALLOW || (event.getResult() == Result.DEFAULT &&
+		    entity.getEntityWorld().provider.getDimension() == ModConfig.CONFIG_WORLD.dimensionOuterId);
+	    // if we want the check to pass, we return the entity dimension so the condition on TC's side passes
+	    // otherwise, we pass a different dimension so the check will fail
+	    return pass ? entityDim : entityDim + 1;
+	}
+
+	public static void clearDropChances(EntityLiving entity) {
+	    for (EntityEquipmentSlot slot : EntityEquipmentSlot.values()) {
+		entity.setDropChance(slot, 0.0f);
+	    }
+	}
+
+	public static boolean isEntityDeadForProcessInteract(boolean original, EntityLivingBase entity) {
+	    return original || entity.getHealth() <= 1.0e-5f;
+	}
+
+	public static boolean fireFluxRiftDestroyBlockEvent(EntityFluxRift rift, BlockPos pos, IBlockState state) {
+	    return MinecraftForge.EVENT_BUS.post(new FluxRiftDestroyBlockEvent(rift, pos, state));
+	}
+
+    }
+
+    @SideOnly(Side.CLIENT)
+    public static final class HooksClient {
+
+	public static void correctRotationPoints(ModelBiped model) {
+	    if (model instanceof ModelCustomArmor) {
+		if (model.isSneak) {
+		    model.bipedRightLeg.rotationPointY = 13.0F;
+		    model.bipedLeftLeg.rotationPointY = 13.0F;
+		    model.bipedHead.rotationPointY = 4.5F;
+
+		    model.bipedBody.rotationPointY = 4.5F;
+		    model.bipedRightArm.rotationPointY = 5.0F;
+		    model.bipedLeftArm.rotationPointY = 5.0F;
+		}
+		else {
+		    model.bipedBody.rotationPointY = 0.0F;
+		    model.bipedRightArm.rotationPointY = 2.0F;
+		    model.bipedLeftArm.rotationPointY = 2.0F;
+		}
+
+		model.bipedHeadwear.rotationPointX = model.bipedHead.rotationPointX;
+		model.bipedHeadwear.rotationPointY = model.bipedHead.rotationPointY;
+		model.bipedHeadwear.rotationPointZ = model.bipedHead.rotationPointZ;
+	    }
+	}
+
+	public static float getRobeRotationDivisor(Entity entity) {
+	    float f = 1.0F;
+	    if (entity instanceof EntityLivingBase && ((EntityLivingBase) entity).getTicksElytraFlying() > 4) {
+		f = (float) (entity.motionX * entity.motionX + entity.motionY * entity.motionY + entity.motionZ * entity.motionZ);
+		f /= 0.2F;
+		f = Math.max(f * f * f, 1.0F);
+	    }
+
+	    return f;
+	}
+
+    }
+
+    private static final String HOOKS_COMMON = Type.getInternalName(HooksCommon.class);
+
+    @SideOnly(Side.CLIENT)
+    private static final String HOOKS_CLIENT = Type.getInternalName(HooksClient.class);
 
     // pretty much rewrites a model rotation method to not be incompatible with everything
     public static final ITransformer CUSTOM_ARMOR_NOT_CALLING_SUPER = new TransformerBipedRotationCustomArmor();
@@ -60,7 +148,7 @@ public class EntityTransformers {
 		InsnList toAdd = new InsnList();
 		toAdd.add(new VarInsnNode(Opcodes.ALOAD, 0));
 		toAdd.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-			TransformUtil.HOOKS_CLIENT,
+			HOOKS_CLIENT,
 			"correctRotationPoints",
 			Type.getMethodDescriptor(Type.VOID_TYPE, Type.getType("Lnet/minecraft/client/model/ModelBiped;")),
 			false
@@ -94,7 +182,7 @@ public class EntityTransformers {
 	    .insertInstructionsAfter(
 		    new VarInsnNode(Opcodes.ALOAD, 1),
 		    new MethodInsnNode(Opcodes.INVOKESTATIC,
-			    TransformUtil.HOOKS_CLIENT,
+			    HOOKS_CLIENT,
 			    "getRobeRotationDivisor",
 			    Type.getMethodDescriptor(Type.FLOAT_TYPE, Types.ENTITY),
 			    false
@@ -131,7 +219,7 @@ public class EntityTransformers {
 	    .endConsecutive()
 	    .insertInstructionsAfter(new VarInsnNode(Opcodes.ALOAD, 0),
 		    new MethodInsnNode(Opcodes.INVOKESTATIC,
-			    TransformUtil.HOOKS_COMMON,
+			    HOOKS_COMMON,
 			    "isInOuterLands",
 			    Type.getMethodDescriptor(Type.INT_TYPE, Type.INT_TYPE, Types.ENTITY),
 			    false
@@ -160,7 +248,7 @@ public class EntityTransformers {
 		    .insertInstructionsAfter(
 			    new VarInsnNode(Opcodes.ALOAD, 0),
 			    new MethodInsnNode(Opcodes.INVOKESTATIC,
-				    TransformUtil.HOOKS_COMMON,
+				    HOOKS_COMMON,
 				    "isEntityDeadForProcessInteract",
 				    Type.getMethodDescriptor(Type.BOOLEAN_TYPE, Type.BOOLEAN_TYPE, Types.ENTITY_LIVING_BASE),
 				    false
@@ -201,7 +289,7 @@ public class EntityTransformers {
 		.insertInstructionsBefore(
 			new VarInsnNode(Opcodes.ALOAD, 0),
 			new MethodInsnNode(Opcodes.INVOKESTATIC,
-				TransformUtil.HOOKS_COMMON,
+				HOOKS_COMMON,
 				"clearDropChances",
 				Type.getMethodDescriptor(Type.VOID_TYPE, Types.ENTITY_LIVING),
 				false
@@ -261,7 +349,7 @@ public class EntityTransformers {
 		toAdd.add(new VarInsnNode(Opcodes.ALOAD, 5));
 		toAdd.add(new VarInsnNode(Opcodes.ALOAD, 6));
 		toAdd.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-			TransformUtil.HOOKS_COMMON,
+			HOOKS_COMMON,
 			"fireFluxRiftDestroyBlockEvent",
 			Type.getMethodDescriptor(Type.BOOLEAN_TYPE, Type.getType("Lthaumcraft/common/entities/EntityFluxRift;"),
 				Types.BLOCK_POS, Types.I_BLOCK_STATE),

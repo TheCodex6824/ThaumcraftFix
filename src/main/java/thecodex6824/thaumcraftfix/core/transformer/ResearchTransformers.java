@@ -28,10 +28,37 @@ import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import thaumcraft.api.capabilities.IPlayerKnowledge.EnumKnowledgeType;
+import thaumcraft.api.research.ResearchCategory;
 import thecodex6824.coremodlib.MethodDefinition;
 import thecodex6824.coremodlib.PatchStateMachine;
+import thecodex6824.thaumcraftfix.ThaumcraftFix;
+import thecodex6824.thaumcraftfix.common.network.PacketGainKnowledge;
+import thecodex6824.thaumcraftfix.common.network.PacketGainResearch;
 
 public class ResearchTransformers {
+
+    public static final class Hooks {
+
+	public static void sendKnowledgeGainPacket(EntityPlayer player, EnumKnowledgeType type, ResearchCategory category, int amount) {
+	    if (player instanceof EntityPlayerMP) {
+		ThaumcraftFix.instance.getNetworkHandler().sendTo(
+			new PacketGainKnowledge(type, category, amount), (EntityPlayerMP) player);
+	    }
+	}
+
+	public static void sendResearchGainPacket(EntityPlayer player, String researchKey) {
+	    if (player instanceof EntityPlayerMP) {
+		ThaumcraftFix.instance.getNetworkHandler().sendTo(
+			new PacketGainResearch(researchKey), (EntityPlayerMP) player);
+	    }
+	}
+
+    }
+
+    private static final String HOOKS = Type.getInternalName(Hooks.class);
 
     public static final Supplier<ITransformer> KNOWLEDGE_GAIN_EVENT_CLIENT = () -> {
 	return new GenericStateMachineTransformer(
@@ -58,7 +85,7 @@ public class ResearchTransformers {
 			new VarInsnNode(Opcodes.ALOAD, 2),
 			new VarInsnNode(Opcodes.ILOAD, 3),
 			new MethodInsnNode(Opcodes.INVOKESTATIC,
-				TransformUtil.HOOKS_COMMON,
+				HOOKS,
 				"sendKnowledgeGainPacket",
 				Type.getMethodDescriptor(Type.VOID_TYPE, Types.ENTITY_PLAYER,
 					Type.getType("Lthaumcraft/api/capabilities/IPlayerKnowledge$EnumKnowledgeType;"),
@@ -89,7 +116,7 @@ public class ResearchTransformers {
 			new VarInsnNode(Opcodes.ALOAD, 0),
 			new VarInsnNode(Opcodes.ALOAD, 1),
 			new MethodInsnNode(Opcodes.INVOKESTATIC,
-				TransformUtil.HOOKS_COMMON,
+				HOOKS,
 				"sendResearchGainPacket",
 				Type.getMethodDescriptor(Type.VOID_TYPE, Types.ENTITY_PLAYER, Types.STRING),
 				false

@@ -33,12 +33,77 @@ import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
+import net.minecraft.block.state.BlockFaceShape;
+import net.minecraft.client.Minecraft;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.EnumFacing;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import thaumcraft.api.aspects.AspectList;
+import thaumcraft.common.tiles.crafting.TileFocalManipulator;
 import thecodex6824.coremodlib.FieldDefinition;
 import thecodex6824.coremodlib.LocalVariableDefinition;
 import thecodex6824.coremodlib.MethodDefinition;
 import thecodex6824.coremodlib.PatchStateMachine;
+import thecodex6824.thaumcraftfix.ThaumcraftFix;
 
 public class BlockTransformers {
+
+    public static final class HooksCommon {
+
+	public static boolean checkFocusComplexity(TileFocalManipulator tile, EntityPlayer player, int maxComplexity, int computedComplexity) {
+	    boolean result = true;
+	    if (computedComplexity > maxComplexity) {
+		result = false;
+		tile.vis = 0.0F;
+		ThaumcraftFix.instance.getLogger().warn("Player {} ({}) tried to make a focus of complexity {} when the focus has a maximum complexity of {}",
+			player.getName(), player.getUniqueID().toString(), computedComplexity, maxComplexity);
+	    }
+
+	    return result;
+	}
+
+	public static int modifyManipulatorComponentCount(int originalCount, TileFocalManipulator tile, AspectList crystals, EntityPlayer crafter) {
+	    int result = crafter.isCreative() ? -1 : originalCount;
+	    if (result < 0) {
+		// we need to set this ourselves since the tile will now be skipping it
+		tile.crystalsSync = crystals.copy();
+	    }
+
+	    return result;
+	}
+
+	public static int recalcManipulatorXpCost(int totalComplexity) {
+	    return (int) Math.max(1, Math.round(Math.sqrt(totalComplexity)));
+	}
+
+	public static BlockFaceShape getTableBlockFaceShape(BlockFaceShape original, EnumFacing side) {
+	    return side == EnumFacing.UP && original == BlockFaceShape.UNDEFINED ? BlockFaceShape.SOLID : original;
+	}
+
+    }
+
+    @SideOnly(Side.CLIENT)
+    public static final class HooksClient {
+
+	public static boolean modifyFocalManipulatorCraftValid(boolean origResult, int totalComplexity,
+		int maxComplexity, TileFocalManipulator table, boolean emptyNodes, boolean validCrystals) {
+
+	    EntityPlayer player = Minecraft.getMinecraft().player;
+	    if (!player.isCreative()) {
+		return origResult;
+	    }
+
+	    // waive crystal and xp requirement in creative
+	    return totalComplexity <= maxComplexity && !emptyNodes;
+	}
+
+    }
+
+    private static final String HOOKS_COMMON = Type.getInternalName(HooksCommon.class);
+
+    @SideOnly(Side.CLIENT)
+    private static final String HOOKS_CLIENT = Type.getInternalName(HooksClient.class);
 
     public static final Supplier<ITransformer> BRAIN_JAR_EAT_DELAY = () -> {
 	return new GenericStateMachineTransformer(
@@ -128,7 +193,7 @@ public class BlockTransformers {
 			new VarInsnNode(Opcodes.ILOAD, 3),
 			new VarInsnNode(Opcodes.ILOAD, 4),
 			new MethodInsnNode(Opcodes.INVOKESTATIC,
-				TransformUtil.HOOKS_COMMON,
+				HOOKS_COMMON,
 				"checkFocusComplexity",
 				Type.getMethodDescriptor(Type.BOOLEAN_TYPE, Types.TILE_FOCAL_MANIPULATOR, Types.ENTITY_PLAYER, Type.INT_TYPE, Type.INT_TYPE),
 				false
@@ -168,7 +233,7 @@ public class BlockTransformers {
 			    ).asFieldInsnNode(Opcodes.GETFIELD),
 		    new VarInsnNode(Opcodes.ALOAD, 2),
 		    new MethodInsnNode(Opcodes.INVOKESTATIC,
-			    TransformUtil.HOOKS_COMMON,
+			    HOOKS_COMMON,
 			    "modifyManipulatorComponentCount",
 			    Type.getMethodDescriptor(Type.INT_TYPE, Type.INT_TYPE, Types.TILE_FOCAL_MANIPULATOR,
 				    Type.getType("Lthaumcraft/api/aspects/AspectList;"), Types.ENTITY_PLAYER),
@@ -224,7 +289,7 @@ public class BlockTransformers {
 		    new VarInsnNode(Opcodes.ILOAD, 4),
 		    new VarInsnNode(Opcodes.ILOAD, 6),
 		    new MethodInsnNode(Opcodes.INVOKESTATIC,
-			    TransformUtil.HOOKS_CLIENT,
+			    HOOKS_CLIENT,
 			    "modifyFocalManipulatorCraftValid",
 			    Type.getMethodDescriptor(Type.BOOLEAN_TYPE, Type.BOOLEAN_TYPE, Type.INT_TYPE, Type.INT_TYPE,
 				    Types.TILE_FOCAL_MANIPULATOR, Type.BOOLEAN_TYPE, Type.BOOLEAN_TYPE),
@@ -263,7 +328,7 @@ public class BlockTransformers {
 			    Type.INT_TYPE
 			    ).asFieldInsnNode(Opcodes.GETFIELD),
 		    new MethodInsnNode(Opcodes.INVOKESTATIC,
-			    TransformUtil.HOOKS_COMMON,
+			    HOOKS_COMMON,
 			    "recalcManipulatorXpCost",
 			    Type.getMethodDescriptor(Type.INT_TYPE, Type.INT_TYPE),
 			    false
@@ -288,7 +353,7 @@ public class BlockTransformers {
 		.insertInstructionsBefore(
 			new VarInsnNode(Opcodes.ALOAD, 4),
 			new MethodInsnNode(Opcodes.INVOKESTATIC,
-				TransformUtil.HOOKS_COMMON,
+				HOOKS_COMMON,
 				"getTableBlockFaceShape",
 				Type.getMethodDescriptor(Types.BLOCK_FACE_SHAPE, Types.BLOCK_FACE_SHAPE, Types.ENUM_FACING),
 				false

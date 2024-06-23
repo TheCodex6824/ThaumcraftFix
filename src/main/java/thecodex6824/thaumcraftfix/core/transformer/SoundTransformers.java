@@ -20,6 +20,7 @@
 
 package thecodex6824.thaumcraftfix.core.transformer;
 
+import java.lang.reflect.Field;
 import java.util.function.Supplier;
 
 import org.objectweb.asm.Opcodes;
@@ -28,10 +29,50 @@ import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.network.play.server.SPacketSoundEffect;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvent;
+import net.minecraft.util.math.BlockPos;
+import thaumcraft.common.container.ContainerFocalManipulator;
+import thaumcraft.common.lib.SoundsTC;
 import thecodex6824.coremodlib.MethodDefinition;
 import thecodex6824.coremodlib.PatchStateMachine;
 
 public class SoundTransformers {
+
+    public static final class Hooks {
+
+	public static void fixupPlayerSound(EntityLivingBase player, SoundEvent sound, float volume, float pitch) {
+	    if (player instanceof EntityPlayerMP) {
+		// send the sound to the originating player, since the server won't do it
+		SPacketSoundEffect packet = new SPacketSoundEffect(sound, player.getSoundCategory(), player.posX, player.posY, player.posZ, volume, pitch);
+		((EntityPlayerMP) player).connection.sendPacket(packet);
+	    }
+	}
+
+	private static Field containerFocalManipulatorTile;
+
+	public static void fixupFocalManipulatorCraftFail(EntityPlayer player) throws Exception {
+	    if (player instanceof EntityPlayerMP) {
+		if (containerFocalManipulatorTile == null) {
+		    containerFocalManipulatorTile = ContainerFocalManipulator.class.getDeclaredField("table");
+		    containerFocalManipulatorTile.setAccessible(true);
+		}
+
+		TileEntity tile = ((TileEntity) containerFocalManipulatorTile.get(player.openContainer));
+		BlockPos pos = tile.getPos();
+		SPacketSoundEffect sound = new SPacketSoundEffect(SoundsTC.craftfail, SoundCategory.BLOCKS, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 0.33F, 1.0F);
+		((EntityPlayerMP) player).connection.sendPacket(sound);
+	    }
+	}
+
+    }
+
+    private static final String HOOKS = Type.getInternalName(Hooks.class);
 
     private static Supplier<ITransformer> makeSoundFixupTransformer(MethodDefinition target, Type playerType, int playerIndex) {
 	return () -> {
@@ -52,7 +93,7 @@ public class SoundTransformers {
 		    .insertInstructionsBefore(
 			    new InsnNode(Opcodes.DUP2_X2),
 			    new MethodInsnNode(Opcodes.INVOKESTATIC,
-				    TransformUtil.HOOKS_COMMON,
+				    HOOKS,
 				    "fixupPlayerSound",
 				    Type.getMethodDescriptor(Type.VOID_TYPE, Types.ENTITY_LIVING_BASE,
 					    Types.SOUND_EVENT, Type.FLOAT_TYPE, Type.FLOAT_TYPE),
@@ -93,7 +134,7 @@ public class SoundTransformers {
 		.insertInstructionsAfter(
 			new VarInsnNode(Opcodes.ALOAD, 1),
 			new MethodInsnNode(Opcodes.INVOKESTATIC,
-				TransformUtil.HOOKS_COMMON,
+				HOOKS,
 				"fixupFocalManipulatorCraftFail",
 				Type.getMethodDescriptor(Type.VOID_TYPE, Types.ENTITY_PLAYER),
 				false

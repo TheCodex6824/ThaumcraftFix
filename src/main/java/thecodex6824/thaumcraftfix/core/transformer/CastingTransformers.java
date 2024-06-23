@@ -20,6 +20,9 @@
 
 package thecodex6824.thaumcraftfix.core.transformer;
 
+import java.util.Collection;
+import java.util.UUID;
+
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -34,13 +37,55 @@ import org.objectweb.asm.tree.VarInsnNode;
 
 import com.google.common.collect.ImmutableList;
 
+import net.minecraft.entity.EntityLivingBase;
+import thaumcraft.api.casters.FocusModSplit;
+import thaumcraft.api.casters.FocusPackage;
+import thaumcraft.api.casters.IFocusElement;
 import thecodex6824.coremodlib.ASMUtil;
 import thecodex6824.coremodlib.FieldDefinition;
 import thecodex6824.coremodlib.MethodDefinition;
 import thecodex6824.coremodlib.PatchStateMachine;
+import thecodex6824.thaumcraftfix.api.casting.IContainsFocusPackageNode;
 import thecodex6824.thaumcraftfix.core.transformer.custom.ExchangeModInterfaceTransformer;
 
 public class CastingTransformers {
+
+    public static final class Hooks {
+
+	private static Collection<FocusPackage> getEmbeddedPackages(IFocusElement node) {
+	    Collection<FocusPackage> embeddedPackages = null;
+	    if (node instanceof IContainsFocusPackageNode) {
+		embeddedPackages = ((IContainsFocusPackageNode) node).getEmbeddedPackages();
+	    }
+	    else if (node instanceof FocusModSplit) {
+		embeddedPackages = ((FocusModSplit) node).getSplitPackages();
+	    }
+
+	    return embeddedPackages;
+	}
+
+	public static void initializeFocusPackage(FocusPackage focusPackage, EntityLivingBase caster) {
+	    focusPackage.setCasterUUID(caster.getUniqueID());
+	    for (IFocusElement node : focusPackage.nodes) {
+		Collection<FocusPackage> embeddedPackages = getEmbeddedPackages(node);
+		if (embeddedPackages != null) {
+		    embeddedPackages.forEach(p -> p.initialize(caster));
+		}
+	    }
+	}
+
+	public static void setFocusPackageCasterUUID(FocusPackage focusPackage, UUID caster) {
+	    for (IFocusElement node : focusPackage.nodes) {
+		Collection<FocusPackage> embeddedPackages = getEmbeddedPackages(node);
+		if (embeddedPackages != null) {
+		    embeddedPackages.forEach(p -> p.setCasterUUID(caster));
+		}
+	    }
+	}
+
+    }
+
+    private static final String HOOKS = Type.getInternalName(Hooks.class);
 
     public static final ITransformer EXCHANGE_MOD_INTERFACEIFY = new ExchangeModInterfaceTransformer();
 
@@ -59,7 +104,7 @@ public class CastingTransformers {
 		    new VarInsnNode(Opcodes.ALOAD, 0),
 		    new VarInsnNode(Opcodes.ALOAD, 1),
 		    new MethodInsnNode(Opcodes.INVOKESTATIC,
-			    TransformUtil.HOOKS_COMMON,
+			    HOOKS,
 			    "initializeFocusPackage",
 			    Type.getMethodDescriptor(Type.VOID_TYPE, Types.FOCUS_PACKAGE, Types.ENTITY_LIVING_BASE),
 			    false
@@ -90,7 +135,7 @@ public class CastingTransformers {
 		    new VarInsnNode(Opcodes.ALOAD, 0),
 		    new VarInsnNode(Opcodes.ALOAD, 1),
 		    new MethodInsnNode(Opcodes.INVOKESTATIC,
-			    TransformUtil.HOOKS_COMMON,
+			    HOOKS,
 			    "setFocusPackageCasterUUID",
 			    Type.getMethodDescriptor(Type.VOID_TYPE, Types.FOCUS_PACKAGE, Types.UUID),
 			    false

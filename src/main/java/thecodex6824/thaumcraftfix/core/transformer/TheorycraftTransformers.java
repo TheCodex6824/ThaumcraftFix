@@ -1,16 +1,61 @@
 package thecodex6824.thaumcraftfix.core.transformer;
 
+import java.util.ArrayList;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
+import com.google.common.collect.Lists;
+
+import net.minecraft.entity.player.EntityPlayer;
+import thaumcraft.api.research.theorycraft.ResearchTableData;
 import thecodex6824.coremodlib.MethodDefinition;
 import thecodex6824.coremodlib.PatchStateMachine;
+import thecodex6824.thaumcraftfix.api.research.ResearchCategoryTheorycraftFilter;
 
 public class TheorycraftTransformers {
+
+    public static final class Hooks {
+
+	public static boolean isTheorycraftCategoryAllowed(boolean originalDecision, String category,
+		EntityPlayer player, ResearchTableData data) {
+
+	    return originalDecision && data.getAvailableCategories(player).contains(category) &&
+		    ResearchCategoryTheorycraftFilter.getAllowedTheorycraftCategories().stream()
+		    .map(c -> c.key)
+		    .anyMatch(s -> s.equals(category));
+	}
+
+	public static ArrayList<String> filterTheorycraftCategories(ArrayList<String> input) {
+	    input.retainAll(ResearchCategoryTheorycraftFilter.getAllowedTheorycraftCategories().stream()
+		    .map(c -> c.key)
+		    .collect(Collectors.toList()));
+	    return input;
+	}
+
+	public static ArrayList<String> filterTheorycraftCategories(ArrayList<String> input,
+		EntityPlayer player, ResearchTableData data) {
+
+	    input.retainAll(data.getAvailableCategories(player));
+	    input.retainAll(ResearchCategoryTheorycraftFilter.getAllowedTheorycraftCategories().stream()
+		    .map(c -> c.key)
+		    .collect(Collectors.toList()));
+	    return input;
+	}
+
+	public static String[] filterTheorycraftCategoriesArray(String[] input, EntityPlayer player, ResearchTableData data) {
+	    ArrayList<String> list = Lists.newArrayList(input);
+	    list = filterTheorycraftCategories(list, player, data);
+	    return list.toArray(new String[0]);
+	}
+
+    }
+
+    private static final String HOOKS = Type.getInternalName(Hooks.class);
 
     private static Supplier<ITransformer> makeStringArrayFilterTransformer(String internalName) {
 	return () -> {
@@ -30,7 +75,7 @@ public class TheorycraftTransformers {
 			    new VarInsnNode(Opcodes.ALOAD, 1),
 			    new VarInsnNode(Opcodes.ALOAD, 2),
 			    new MethodInsnNode(Opcodes.INVOKESTATIC,
-				    TransformUtil.HOOKS_COMMON,
+				    HOOKS,
 				    "filterTheorycraftCategoriesArray",
 				    Type.getMethodDescriptor(strArray, strArray,
 					    Types.ENTITY_PLAYER, Types.RESEARCH_TABLE_DATA),
@@ -63,7 +108,7 @@ public class TheorycraftTransformers {
 			new VarInsnNode(Opcodes.ALOAD, 1),
 			new VarInsnNode(Opcodes.ALOAD, 2),
 			new MethodInsnNode(Opcodes.INVOKESTATIC,
-				TransformUtil.HOOKS_COMMON,
+				HOOKS,
 				"filterTheorycraftCategories",
 				Type.getMethodDescriptor(Types.ARRAY_LIST, Types.ARRAY_LIST,
 					Types.ENTITY_PLAYER, Types.RESEARCH_TABLE_DATA),
@@ -99,7 +144,7 @@ public class TheorycraftTransformers {
 			new VarInsnNode(Opcodes.ALOAD, 1),
 			new VarInsnNode(Opcodes.ALOAD, 2),
 			new MethodInsnNode(Opcodes.INVOKESTATIC,
-				TransformUtil.HOOKS_COMMON,
+				HOOKS,
 				"isTheorycraftCategoryAllowed",
 				Type.getMethodDescriptor(Type.BOOLEAN_TYPE, Type.BOOLEAN_TYPE,
 					Types.STRING, Types.ENTITY_PLAYER, Types.RESEARCH_TABLE_DATA),
@@ -142,7 +187,7 @@ public class TheorycraftTransformers {
 		.findNextOpcode(Opcodes.ARETURN)
 		.insertInstructionsBefore(
 			new MethodInsnNode(Opcodes.INVOKESTATIC,
-				TransformUtil.HOOKS_COMMON,
+				HOOKS,
 				"filterTheorycraftCategories",
 				Type.getMethodDescriptor(Types.ARRAY_LIST, Types.ARRAY_LIST),
 				false
