@@ -135,11 +135,21 @@ public class TransformerBipedRotationCustomArmor implements ITransformer {
 	    InsnList backupInstructions = ASMUtil.cloneInsnList(rot.instructions);
 	    List<LocalVariableNode> backupLocals = ImmutableList.copyOf(rot.localVariables);
 
-	    success = doTransform(rot);
+	    Throwable caughtException = null;
+	    try {
+		success = doTransform(rot);
+	    }
+	    catch (Throwable anything) {
+		caughtException = anything;
+	    }
+
 	    if (!success) {
 		rot.instructions = backupInstructions;
 		rot.localVariables.clear();
 		rot.localVariables.addAll(backupLocals);
+		if (caughtException != null) {
+		    ThaumcraftFixCore.getLogger().error(caughtException);
+		}
 	    }
 	}
 

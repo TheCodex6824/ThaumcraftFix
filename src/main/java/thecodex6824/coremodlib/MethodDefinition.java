@@ -22,8 +22,10 @@ package thecodex6824.coremodlib;
 
 import java.util.StringJoiner;
 
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.MethodInsnNode;
+import org.objectweb.asm.tree.MethodNode;
 
 public class MethodDefinition {
 
@@ -69,6 +71,10 @@ public class MethodDefinition {
 
     public MethodInsnNode asMethodInsnNode(int opcode) {
 	return new MethodInsnNode(opcode, className, methodName, desc, itf);
+    }
+
+    public MethodNode createNewMethodNode(int access) {
+	return new MethodNode(Opcodes.ASM5, access, methodName, desc, null, null);
     }
 
     @Override

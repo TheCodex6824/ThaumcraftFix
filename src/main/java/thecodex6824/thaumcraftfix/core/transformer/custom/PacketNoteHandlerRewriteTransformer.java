@@ -28,9 +28,7 @@ import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
-import thecodex6824.coremodlib.ASMUtil;
 import thecodex6824.coremodlib.MethodDefinition;
-import thecodex6824.thaumcraftfix.core.ThaumcraftFixCore;
 import thecodex6824.thaumcraftfix.core.transformer.ITransformer;
 import thecodex6824.thaumcraftfix.core.transformer.NetworkTransformers;
 import thecodex6824.thaumcraftfix.core.transformer.TransformUtil;
@@ -53,35 +51,26 @@ public class PacketNoteHandlerRewriteTransformer implements ITransformer {
 		Type.getType("Lnet/minecraftforge/fml/common/network/simpleimpl/IMessage;"),
 		Type.getType("Lthaumcraft/common/lib/network/misc/PacketNote;"), Type.getType("Lnet/minecraftforge/fml/common/network/simpleimpl/MessageContext;")
 		));
-	boolean success = false;
-	if (method != null) {
-	    MethodNode wrapper = new MethodNode(method.access, method.name, method.desc, method.signature,
-		    method.exceptions.toArray(new String[0]));
-	    // change name of old method
-	    method.name = ORIGINAL_METHOD_REDIRECT_NAME;
 
-	    wrapper.instructions.add(new VarInsnNode(Opcodes.ALOAD, 1));
-	    wrapper.instructions.add(new VarInsnNode(Opcodes.ALOAD, 2));
-	    wrapper.instructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-		    Type.getInternalName(NetworkTransformers.Hooks.class),
-		    "handlePacketNote",
-		    Type.getMethodDescriptor(Type.VOID_TYPE,
-			    Type.getType("Lthaumcraft/common/lib/network/misc/PacketNote;"),
-			    Type.getType("Lnet/minecraftforge/fml/common/network/simpleimpl/MessageContext;")),
-		    false
-		    ));
-	    wrapper.instructions.add(new InsnNode(Opcodes.ACONST_NULL));
-	    wrapper.instructions.add(new InsnNode(Opcodes.ARETURN));
+	MethodNode wrapper = new MethodNode(method.access, method.name, method.desc, method.signature,
+		method.exceptions.toArray(new String[0]));
+	// change name of old method
+	method.name = ORIGINAL_METHOD_REDIRECT_NAME;
 
-	    classNode.methods.add(wrapper);
-	    success = true;
-	}
+	wrapper.instructions.add(new VarInsnNode(Opcodes.ALOAD, 1));
+	wrapper.instructions.add(new VarInsnNode(Opcodes.ALOAD, 2));
+	wrapper.instructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
+		Type.getInternalName(NetworkTransformers.Hooks.class),
+		"handlePacketNote",
+		Type.getMethodDescriptor(Type.VOID_TYPE,
+			Type.getType("Lthaumcraft/common/lib/network/misc/PacketNote;"),
+			Type.getType("Lnet/minecraftforge/fml/common/network/simpleimpl/MessageContext;")),
+		false
+		));
+	wrapper.instructions.add(new InsnNode(Opcodes.ACONST_NULL));
+	wrapper.instructions.add(new InsnNode(Opcodes.ARETURN));
 
-	if (!success) {
-	    ThaumcraftFixCore.getLogger().error("Class dump for debugging:");
-	    ThaumcraftFixCore.getLogger().error(ASMUtil.dumpClass(classNode));
-	    throw new RuntimeException("Could not patch PacketNote");
-	}
+	classNode.methods.add(wrapper);
 
 	return true;
     }

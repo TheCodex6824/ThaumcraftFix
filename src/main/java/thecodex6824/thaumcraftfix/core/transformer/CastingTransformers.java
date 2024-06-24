@@ -47,6 +47,7 @@ import thecodex6824.coremodlib.MethodDefinition;
 import thecodex6824.coremodlib.PatchStateMachine;
 import thecodex6824.thaumcraftfix.api.casting.IContainsFocusPackageNode;
 import thecodex6824.thaumcraftfix.core.transformer.custom.ExchangeModInterfaceTransformer;
+import thecodex6824.thaumcraftfix.core.transformer.custom.ThrowingTransformerWrapper;
 
 public class CastingTransformers {
 
@@ -87,7 +88,8 @@ public class CastingTransformers {
 
     private static final String HOOKS = Type.getInternalName(Hooks.class);
 
-    public static final ITransformer EXCHANGE_MOD_INTERFACEIFY = new ExchangeModInterfaceTransformer();
+    public static final ITransformer EXCHANGE_MOD_INTERFACEIFY = new ThrowingTransformerWrapper(
+	    new ExchangeModInterfaceTransformer());
 
     public static final ITransformer FOCUS_PACKAGE_INIT = new GenericStateMachineTransformer(
 	    PatchStateMachine.builder(

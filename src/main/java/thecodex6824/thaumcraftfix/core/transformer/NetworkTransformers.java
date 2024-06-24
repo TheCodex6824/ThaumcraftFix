@@ -58,6 +58,7 @@ import thecodex6824.coremodlib.MethodDefinition;
 import thecodex6824.coremodlib.PatchStateMachine;
 import thecodex6824.thaumcraftfix.ThaumcraftFix;
 import thecodex6824.thaumcraftfix.core.transformer.custom.PacketNoteHandlerRewriteTransformer;
+import thecodex6824.thaumcraftfix.core.transformer.custom.ThrowingTransformerWrapper;
 
 public class NetworkTransformers {
 
@@ -324,7 +325,8 @@ public class NetworkTransformers {
 		);
     };
 
-    public static final Supplier<ITransformer> NOTE_HANDLER = () -> new PacketNoteHandlerRewriteTransformer();
+    public static final Supplier<ITransformer> NOTE_HANDLER = () -> new ThrowingTransformerWrapper(
+	    new PacketNoteHandlerRewriteTransformer());
 
     public static final Supplier<ITransformer> RESEARCH_TABLE_AIDS = () -> {
 	return new GenericStateMachineTransformer(

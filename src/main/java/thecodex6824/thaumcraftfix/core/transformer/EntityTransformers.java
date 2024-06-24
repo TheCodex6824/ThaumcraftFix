@@ -129,6 +129,8 @@ public class EntityTransformers {
     private static final String HOOKS_CLIENT = Type.getInternalName(HooksClient.class);
 
     // pretty much rewrites a model rotation method to not be incompatible with everything
+    // this does not use ThrowingTransformerWrapper because it was intentionally designed to be exceptionally brittle
+    // if it can't apply, it should not crash the game, and it will dump debug info itself
     public static final ITransformer CUSTOM_ARMOR_NOT_CALLING_SUPER = new TransformerBipedRotationCustomArmor();
 
     // compensates for the above transformer by adding a hook to set custom rotation points

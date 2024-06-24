@@ -55,6 +55,7 @@ public final class Types {
     public static final Type I_BLOCK_STATE = Type.getType("Lnet/minecraft/block/state/IBlockState;");
     public static final Type TILE_ENTITY = Type.getType("Lnet/minecraft/tileentity/TileEntity;");
 
+    public static final Type ITEM = Type.getType("Lnet/minecraft/item/Item;");
     public static final Type ITEM_STACK = Type.getType("Lnet/minecraft/item/ItemStack;");
     public static final Type NBT_TAG_COMPOUND = Type.getType("Lnet/minecraft/nbt/NBTTagCompound;");
 

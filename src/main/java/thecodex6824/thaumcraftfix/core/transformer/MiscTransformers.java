@@ -21,9 +21,11 @@
 package thecodex6824.thaumcraftfix.core.transformer;
 
 import thecodex6824.thaumcraftfix.core.transformer.custom.AuraChunkThreadSafetyTransformer;
+import thecodex6824.thaumcraftfix.core.transformer.custom.ThrowingTransformerWrapper;
 
 public class MiscTransformers {
 
-    public static final ITransformer AURA_CHUNK_THREAD_SAFETY = new AuraChunkThreadSafetyTransformer();
+    public static final ITransformer AURA_CHUNK_THREAD_SAFETY = new ThrowingTransformerWrapper(
+	    new AuraChunkThreadSafetyTransformer());
 
 }
