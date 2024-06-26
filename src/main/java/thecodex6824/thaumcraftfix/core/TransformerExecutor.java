@@ -85,6 +85,8 @@ public class TransformerExecutor implements IClassTransformer {
 		    AUG_GOOD_VERSION);
 	}
 
+	transformers.add(BlockTransformers.ARCANE_WORKBENCH_NO_CONCURRENT_USE.get());
+	transformers.add(BlockTransformers.ARCANE_WORKBENCH_NO_CONCURRENT_USE_CHARGER.get());
 	transformers.add(BlockTransformers.BRAIN_JAR_EAT_DELAY.get());
 	transformers.add(BlockTransformers.FOCAL_MANIPULATOR_FOCUS_SLOT.get());
 	transformers.add(BlockTransformers.FOCAL_MANIPULATOR_MAX_COMPLEXITY.get());
