@@ -67,10 +67,15 @@ public final class Types {
     public static final Type I_CASTER = Type.getType("Lthaumcraft/api/casters/ICaster;");
     public static final Type ITEM_CASTER = Type.getType("Lthaumcraft/common/items/casters/ItemCaster;");
 
+    public static final Type TOOL_EVENTS = Type.getType("Lthaumcraft/common/lib/events/ToolEvents;");
+
     public static final Type TILE_FOCAL_MANIPULATOR = Type.getType("Lthaumcraft/common/tiles/crafting/TileFocalManipulator;");
 
     public static final Type SOUND_EVENT = Type.getType("Lnet/minecraft/util/SoundEvent;");
 
     public static final Type RESEARCH_TABLE_DATA = Type.getType("Lthaumcraft/api/research/theorycraft/ResearchTableData;");
+
+    public static final Type SUBSCRIBE_EVENT = Type.getType("Lnet/minecraftforge/fml/common/eventhandler/SubscribeEvent;");
+    public static final Type EVENT_PRIORITY = Type.getType("Lnet/minecraftforge/fml/common/eventhandler/EventPriority;");
 
 }

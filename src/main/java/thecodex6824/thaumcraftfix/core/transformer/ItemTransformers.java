@@ -36,6 +36,7 @@ import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 
 import baubles.api.cap.BaublesCapabilities;
 import it.unimi.dsi.fastutil.ints.IntRBTreeSet;
@@ -50,6 +51,7 @@ import net.minecraftforge.oredict.OreDictionary;
 import thaumcraft.common.items.casters.ItemFocus;
 import thecodex6824.coremodlib.MethodDefinition;
 import thecodex6824.coremodlib.PatchStateMachine;
+import thecodex6824.thaumcraftfix.core.transformer.custom.ChangeEventPriorityTransformer;
 import thecodex6824.thaumcraftfix.core.transformer.custom.PrimordialPearlAnvilEventTransformer;
 import thecodex6824.thaumcraftfix.core.transformer.custom.PrimordialPearlDurabilityBarTransformer;
 import thecodex6824.thaumcraftfix.core.transformer.custom.ThrowingTransformerWrapper;
@@ -209,6 +211,15 @@ public class ItemTransformers {
 			)
 		.build()
 		);
+    };
+
+    public static final Supplier<ITransformer> INFUSION_ENCHANTMENT_DROPS_PRIORITY = () -> {
+	return new ChangeEventPriorityTransformer(Types.TOOL_EVENTS, ImmutableMap.of(
+		new MethodDefinition(Types.TOOL_EVENTS.getInternalName(), false, "harvestBlockEvent",
+			Type.VOID_TYPE, Type.getType("Lnet/minecraftforge/event/world/BlockEvent$HarvestDropsEvent;")), "LOWEST",
+		new MethodDefinition(Types.TOOL_EVENTS.getInternalName(), false, "livingDrops",
+			Type.VOID_TYPE, Type.getType("Lnet/minecraftforge/event/entity/living/LivingDropsEvent;")), "LOWEST"
+		));
     };
 
     public static final Supplier<ITransformer> PRIMORDIAL_PEARL_ANVIL_DUPE_DURABILITY_BAR = () -> new ThrowingTransformerWrapper(
