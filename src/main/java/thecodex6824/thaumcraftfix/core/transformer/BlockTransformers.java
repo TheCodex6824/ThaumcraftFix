@@ -56,6 +56,7 @@ import thecodex6824.coremodlib.LocalVariableDefinition;
 import thecodex6824.coremodlib.MethodDefinition;
 import thecodex6824.coremodlib.PatchStateMachine;
 import thecodex6824.thaumcraftfix.ThaumcraftFix;
+import thecodex6824.thaumcraftfix.core.transformer.custom.BlockApplyOffsetTransformer;
 import thecodex6824.thaumcraftfix.core.transformer.custom.BlockPillarDropFixTransformer;
 import thecodex6824.thaumcraftfix.core.transformer.custom.ThrowingTransformerWrapper;
 
@@ -437,6 +438,12 @@ public class BlockTransformers {
 
     public static final Supplier<ITransformer> PILLAR_DROP_FIX = () -> new ThrowingTransformerWrapper(
 	    new BlockPillarDropFixTransformer());
+
+    public static final Supplier<ITransformer> PLANT_CINDERPEARL_OFFSET = () -> new ThrowingTransformerWrapper(
+	    new BlockApplyOffsetTransformer("thaumcraft/common/blocks/world/plants/BlockPlantCinderpearl"));
+
+    public static final Supplier<ITransformer> PLANT_SHIMMERLEAF_OFFSET = () -> new ThrowingTransformerWrapper(
+	    new BlockApplyOffsetTransformer("thaumcraft/common/blocks/world/plants/BlockPlantShimmerleaf"));
 
     public static final Supplier<ITransformer> TABLE_TOP_SOLID = () -> {
 	return new GenericStateMachineTransformer(

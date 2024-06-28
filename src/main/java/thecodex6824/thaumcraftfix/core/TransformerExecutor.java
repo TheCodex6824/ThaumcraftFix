@@ -94,6 +94,8 @@ public class TransformerExecutor implements IClassTransformer {
 	transformers.add(BlockTransformers.FOCAL_MANIPULATOR_COMPONENTS_CLIENT);
 	transformers.add(BlockTransformers.FOCAL_MANIPULATOR_XP_COST_GUI);
 	transformers.add(BlockTransformers.PILLAR_DROP_FIX.get());
+	transformers.add(BlockTransformers.PLANT_CINDERPEARL_OFFSET.get());
+	transformers.add(BlockTransformers.PLANT_SHIMMERLEAF_OFFSET.get());
 	transformers.add(BlockTransformers.TABLE_TOP_SOLID.get());
 	transformers.add(BlockTransformers.THAUMATORIUM_TOP_EMPTY.get());
 	transformers.add(CastingTransformers.EXCHANGE_MOD_INTERFACEIFY);
