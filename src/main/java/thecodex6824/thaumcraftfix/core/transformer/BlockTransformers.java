@@ -20,8 +20,18 @@
 
 package thecodex6824.thaumcraftfix.core.transformer;
 
+import java.util.ArrayDeque;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.IdentityHashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -32,6 +42,8 @@ import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
+
+import com.google.common.collect.Streams;
 
 import net.minecraft.block.state.BlockFaceShape;
 import net.minecraft.block.state.IBlockState;
@@ -48,7 +60,12 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import thaumcraft.api.aspects.AspectList;
 import thaumcraft.api.blocks.BlocksTC;
+import thaumcraft.api.capabilities.ThaumcraftCapabilities;
+import thaumcraft.api.casters.FocusMedium;
+import thaumcraft.api.casters.FocusNode;
+import thaumcraft.api.casters.FocusNode.EnumSupplyType;
 import thaumcraft.common.container.ContainerArcaneWorkbench;
+import thaumcraft.common.tiles.crafting.FocusElementNode;
 import thaumcraft.common.tiles.crafting.TileArcaneWorkbench;
 import thaumcraft.common.tiles.crafting.TileFocalManipulator;
 import thecodex6824.coremodlib.FieldDefinition;
@@ -63,18 +80,6 @@ import thecodex6824.thaumcraftfix.core.transformer.custom.ThrowingTransformerWra
 public class BlockTransformers {
 
     public static final class HooksCommon {
-
-	public static boolean checkFocusComplexity(TileFocalManipulator tile, EntityPlayer player, int maxComplexity, int computedComplexity) {
-	    boolean result = true;
-	    if (computedComplexity > maxComplexity) {
-		result = false;
-		tile.vis = 0.0F;
-		ThaumcraftFix.instance.getLogger().warn("Player {} ({}) tried to make a focus of complexity {} when the focus has a maximum complexity of {}",
-			player.getName(), player.getUniqueID().toString(), computedComplexity, maxComplexity);
-	    }
-
-	    return result;
-	}
 
 	public static int modifyManipulatorComponentCount(int originalCount, TileFocalManipulator tile, AspectList crystals, EntityPlayer crafter) {
 	    int result = crafter.isCreative() ? -1 : originalCount;
@@ -110,6 +115,112 @@ public class BlockTransformers {
 	    BlockPos real = pos.down();
 	    IBlockState state = world.getBlockState(real);
 	    return state.getBlock() != BlocksTC.arcaneWorkbench || isArcaneWorkbenchAllowed(world, real, player);
+	}
+
+	public static Iterator<FocusElementNode> getNodesInTree(Iterator<FocusElementNode> nodeIterator,
+		HashMap<Integer, FocusElementNode> allNodes, int selectedNode) {
+	    // this is probably never going to get used, but for completeness:
+	    // this solution will hopefully allow using remove and so on with the iterator and have it do the right thing
+	    Set<FocusElementNode> allowedNodes = Collections.newSetFromMap(new IdentityHashMap<FocusElementNode, Boolean>());
+	    FocusElementNode original = allNodes.get(selectedNode);
+	    FocusElementNode cursor = original;
+	    allowedNodes.add(cursor);
+	    while (cursor.parent != -1) {
+		cursor = allNodes.get(cursor.parent);
+		allowedNodes.add(cursor);
+	    }
+
+	    ArrayDeque<FocusElementNode> nodesStack = new ArrayDeque<>();
+	    nodesStack.add(original);
+	    while (!nodesStack.isEmpty()) {
+		FocusElementNode node = nodesStack.pop();
+		allowedNodes.add(node);
+		for (int child : node.children) {
+		    nodesStack.push(allNodes.get(child));
+		}
+	    }
+
+	    return Streams.stream(nodeIterator).filter(allowedNodes::contains).iterator();
+	}
+
+	private static boolean canParentSupplyAll(FocusNode parent, FocusNode child) {
+	    for (EnumSupplyType type : child.mustBeSupplied()) {
+		if (!parent.canSupply(type)) {
+		    return false;
+		}
+	    }
+
+	    return true;
+	}
+
+	public static boolean checkFocus(TileFocalManipulator tile, EntityPlayer player, int maxComplexity, int computedComplexity) {
+	    boolean result = true;
+	    Logger logger = ThaumcraftFix.instance.getLogger();
+	    if (computedComplexity > maxComplexity) {
+		result = false;
+		logger.warn("Player {} ({}) tried to make a focus of complexity {} when the focus has a maximum complexity of {}",
+			player.getName(), player.getUniqueID().toString(), computedComplexity, maxComplexity);
+	    }
+
+	    if (result) {
+		List<FocusElementNode> leafNodes = tile.data.values().stream()
+			.filter(n -> n.children.length == 0)
+			.collect(Collectors.toList());
+		for (FocusElementNode leaf : leafNodes) {
+		    boolean rootFound = false;
+		    boolean mediumFound = false;
+		    HashSet<String> bannedNodes = new HashSet<>();
+		    while (leaf != null && leaf.node != null) {
+			FocusElementNode directParent = leaf.parent != -1 ? tile.data.get(leaf.parent) : null;
+			if (!ThaumcraftCapabilities.knowsResearchStrict(player, leaf.node.getResearch())) {
+			    result = false;
+			    logger.warn("Player {} ({}) tried to make a focus without required research {}",
+				    player.getName(), player.getUniqueID().toString(), leaf.node.getResearch());
+			    break;
+			}
+			else if ((directParent != null && directParent.node != null && !canParentSupplyAll(directParent.node, leaf.node)) ) {
+			    result = false;
+			    logger.warn("Player {} ({}) tried to make a focus with an invalid parent -> child node combo {} -> {}",
+				    player.getName(), player.getUniqueID().toString(), directParent.node.getKey(), leaf.node.getKey());
+			    break;
+			}
+			else if (leaf.node.getKey().equals("ROOT")) {
+			    if (rootFound) {
+				result = false;
+				logger.warn("Player {} ({}) tried to make a focus with multiple root nodes",
+					player.getName(), player.getUniqueID().toString());
+				break;
+			    }
+
+			    rootFound = true;
+			}
+			else if (leaf.node.isExclusive() && !bannedNodes.add(leaf.node.getKey())) {
+			    result = false;
+			    logger.warn("Player {} ({}) tried to make a focus with illegal nodes",
+				    player.getName(), player.getUniqueID().toString());
+			    break;
+			}
+			else if (leaf.node instanceof FocusMedium) {
+			    if (!bannedNodes.isEmpty() && (((FocusMedium) leaf.node).isExclusive() || mediumFound)) {
+				result = false;
+				logger.warn("Player {} ({}) tried to make a focus with illegal mediums",
+					player.getName(), player.getUniqueID().toString());
+				break;
+			    }
+
+			    mediumFound = true;
+			}
+
+			leaf = directParent;
+		    }
+		}
+	    }
+
+	    if (!result) {
+		tile.vis = 0.0F;
+	    }
+
+	    return result;
 	}
 
     }
@@ -266,7 +377,7 @@ public class BlockTransformers {
 		);
     };
 
-    public static final Supplier<ITransformer> FOCAL_MANIPULATOR_MAX_COMPLEXITY = () -> {
+    public static final Supplier<ITransformer> FOCAL_MANIPULATOR_SERVER_CHECKS = () -> {
 	LabelNode newLabel = new LabelNode(new Label());
 	return new GenericStateMachineTransformer(
 		PatchStateMachine.builder(
@@ -293,7 +404,7 @@ public class BlockTransformers {
 			new VarInsnNode(Opcodes.ILOAD, 4),
 			new MethodInsnNode(Opcodes.INVOKESTATIC,
 				HOOKS_COMMON,
-				"checkFocusComplexity",
+				"checkFocus",
 				Type.getMethodDescriptor(Type.BOOLEAN_TYPE, Types.TILE_FOCAL_MANIPULATOR, Types.ENTITY_PLAYER, Type.INT_TYPE, Type.INT_TYPE),
 				false
 				),
@@ -402,6 +513,64 @@ public class BlockTransformers {
 		    )
 	    .build()
 	    );
+
+    public static final Supplier<ITransformer> FOCAL_MANIPULATOR_EXCLUSIVE_NODES_CLIENT = () -> {
+	return new GenericStateMachineTransformer(
+		PatchStateMachine.builder(
+			new MethodDefinition(
+				GUI_MANIPULATOR_CLASS,
+				false,
+				"gatherPartsList",
+				Type.VOID_TYPE
+				)
+			)
+		.findConsecutive()
+		.findNextFieldAccess(new FieldDefinition(
+			Types.TILE_FOCAL_MANIPULATOR.getInternalName(),
+			"data",
+			Types.HASH_MAP
+			))
+		.findNextMethodCall(new MethodDefinition(
+			Types.HASH_MAP.getInternalName(),
+			false,
+			"values",
+			Types.COLLECTION
+			))
+		.findNextMethodCall(new MethodDefinition(
+			Types.COLLECTION.getInternalName(),
+			false,
+			"iterator",
+			Types.ITERATOR
+			))
+		.endConsecutive()
+		.insertInstructionsAfter(
+			new VarInsnNode(Opcodes.ALOAD, 0),
+			new FieldDefinition(
+				GUI_MANIPULATOR_CLASS,
+				"table",
+				Types.TILE_FOCAL_MANIPULATOR
+				).asFieldInsnNode(Opcodes.GETFIELD),
+			new FieldDefinition(
+				Types.TILE_FOCAL_MANIPULATOR.getInternalName(),
+				"data",
+				Types.HASH_MAP
+				).asFieldInsnNode(Opcodes.GETFIELD),
+			new VarInsnNode(Opcodes.ALOAD, 0),
+			new FieldDefinition(
+				GUI_MANIPULATOR_CLASS,
+				"selectedNode",
+				Type.INT_TYPE
+				).asFieldInsnNode(Opcodes.GETFIELD),
+			new MethodInsnNode(Opcodes.INVOKESTATIC,
+				HOOKS_COMMON,
+				"getNodesInTree",
+				Type.getMethodDescriptor(Types.ITERATOR, Types.ITERATOR, Types.HASH_MAP, Type.INT_TYPE),
+				false
+				)
+			)
+		.build()
+		);
+    };
 
     public static final ITransformer FOCAL_MANIPULATOR_XP_COST_GUI = new GenericStateMachineTransformer(
 	    PatchStateMachine.builder(

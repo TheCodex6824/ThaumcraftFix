@@ -21,6 +21,8 @@
 package thecodex6824.thaumcraftfix.core.transformer;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
@@ -41,6 +43,8 @@ public final class Types {
     public static final Type SET = Type.getType(Set.class);
     public static final Type RANDOM = Type.getType(Random.class);
     public static final Type ITERATOR = Type.getType(Iterator.class);
+    public static final Type COLLECTION = Type.getType(Collection.class);
+    public static final Type HASH_MAP = Type.getType(HashMap.class);
 
     public static final Type AXIS_ALIGNED_BB = Type.getType("Lnet/minecraft/util/math/AxisAlignedBB;");
 
