@@ -27,6 +27,7 @@ import java.util.function.Function;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.FieldInsnNode;
+import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.LocalVariableNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
@@ -328,6 +329,31 @@ class PrefabMatchers {
 	@Override
 	public String toString() {
 	    return String.format("Node has an opcode of %s and is casting to type %s", Textifier.OPCODES[opcode], desc.getInternalName());
+	}
+
+    }
+
+    public static class StringLdcMatch implements InstructionMatcher {
+
+	private final String str;
+
+	public StringLdcMatch(String constant) {
+	    str = constant;
+	}
+
+	@Override
+	public MatchResult matches(MethodNode method, AbstractInsnNode node) {
+	    boolean ret = false;
+	    if (node instanceof LdcInsnNode) {
+		ret = str.equals(((LdcInsnNode) node).cst);
+	    }
+
+	    return ret ? MatchResult.matchSingleNode(node) : MatchResult.noMatch();
+	}
+
+	@Override
+	public String toString() {
+	    return String.format("Node is an LDC node loading the string constant \"%s\"", str);
 	}
 
     }

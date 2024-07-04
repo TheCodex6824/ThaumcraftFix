@@ -125,6 +125,7 @@ public class TransformerExecutor implements IClassTransformer {
 	transformers.add(NetworkTransformers.RESEARCH_TABLE_AIDS.get());
 	transformers.add(NetworkTransformers.THAUMATORIUM_RECIPE_SELECTION.get());
 	transformers.add(ResearchTransformers.KNOWLEDGE_GAIN_EVENT_CLIENT.get());
+	transformers.add(ResearchTransformers.PARSE_PAGE_FIRST_PASS.get());
 	transformers.add(ResearchTransformers.RESEARCH_GAIN_EVENT_CLIENT.get());
 	transformers.add(SoundTransformers.SOUND_FIX_FOCAL_MANIPULATOR_CONTAINER.get());
 	transformers.add(TheorycraftTransformers.CARD_ANALYZE_CATEGORIES.get());

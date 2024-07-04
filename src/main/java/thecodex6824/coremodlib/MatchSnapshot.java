@@ -20,30 +20,42 @@
 
 package thecodex6824.coremodlib;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InsnList;
 
 public class MatchSnapshot implements MatchDetails {
 
     private final InsnList matchList;
+    private final InsnList originalList;
     private final AbstractInsnNode matchEnd;
+    private final AbstractInsnNode originalEnd;
 
-    protected MatchSnapshot(AbstractInsnNode matchStart, AbstractInsnNode matchEnd) {
-	if (matchStart != null && matchEnd != null) {
-	    int distance = 0;
-	    AbstractInsnNode cursor = matchStart;
-	    while (cursor != matchEnd) {
-		cursor = cursor.getNext();
-		++distance;
-	    }
+    private Pair<InsnList, Integer> setupMatchList(AbstractInsnNode start, AbstractInsnNode end) {
+	if (start == null || end == null) {
+	    return null;
+	}
 
-	    matchList = ASMUtil.cloneNodeRangeAndDependencies(matchStart, matchEnd);
-	    this.matchEnd = matchList.get(distance);
+	int distance = 0;
+	AbstractInsnNode cursor = start;
+	while (cursor != end) {
+	    cursor = cursor.getNext();
+	    ++distance;
 	}
-	else {
-	    matchList = null;
-	    this.matchEnd = null;
-	}
+
+	return Pair.of(ASMUtil.cloneNodeRangeAndDependencies(start, end), distance);
+    }
+
+    protected MatchSnapshot(AbstractInsnNode originalStart, AbstractInsnNode matchStart,
+	    AbstractInsnNode originalEnd, AbstractInsnNode matchEnd) {
+
+	Pair<InsnList, Integer> match = setupMatchList(originalStart, originalEnd);
+	originalList = match.getLeft();
+	this.originalEnd = originalList != null ? originalList.get(match.getRight()) : null;
+
+	match = setupMatchList(matchStart, matchEnd);
+	matchList = match.getLeft();
+	this.matchEnd = matchList != null ? matchList.get(match.getRight()) : null;
     }
 
     @Override
@@ -56,9 +68,17 @@ public class MatchSnapshot implements MatchDetails {
 	return matchList != null ? matchList.getFirst() : null;
     }
 
+    public AbstractInsnNode originalStart() {
+	return originalList != null ? originalList.getFirst() : null;
+    }
+
     @Override
     public AbstractInsnNode matchEnd() {
 	return matchEnd;
+    }
+
+    public AbstractInsnNode originalEnd() {
+	return originalEnd;
     }
 
 }

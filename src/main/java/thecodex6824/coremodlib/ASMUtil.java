@@ -335,4 +335,20 @@ public final class ASMUtil {
 	return traceOutput.toString();
     }
 
+    public static String dumpBytecode(AbstractInsnNode start, AbstractInsnNode end) {
+	StringWriter traceOutput = new StringWriter();
+	TraceMethodVisitor visitor = new TraceMethodVisitor(new Textifier());
+	while (start != null) {
+	    start.accept(visitor);
+	    if (start == end) {
+		break;
+	    }
+
+	    start = start.getNext();
+	}
+
+	visitor.p.print(new PrintWriter(traceOutput));
+	return traceOutput.toString();
+    }
+
 }

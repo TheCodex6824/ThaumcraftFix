@@ -22,7 +22,6 @@ package thecodex6824.coremodlib;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
@@ -109,6 +108,11 @@ public class PatchBuilders {
 	    matchers.add(new PrefabMatchers.TypeInsnMatch(Opcodes.INSTANCEOF, castDesc));
 	    return (T) this;
 	}
+
+	public T findNextStringConstant(String str) {
+	    matchers.add(new PrefabMatchers.StringLdcMatch(str));
+	    return (T) this;
+	}
     }
 
     public static class ConsecutiveMatchBuilder extends MatchBuilder<ConsecutiveMatchBuilder> {
@@ -167,8 +171,13 @@ public class PatchBuilders {
 
     public static class TransformerBuilder extends MatchBuilder<TransformerBuilder> {
 
+	private static class MatchEntry {
+	    public final List<MatchTransformer> transformers = new ArrayList<>();
+	    public final List<MatchAction> actions = new ArrayList<>();
+	}
+
 	private MethodDefinition method;
-	private Map<InstructionMatcher, List<MatchAction>> matchToActions;
+	private Map<InstructionMatcher, MatchEntry> matchToActions;
 
 	public TransformerBuilder(MethodDefinition targetMethod) {
 	    super();
@@ -176,12 +185,20 @@ public class PatchBuilders {
 	    matchToActions = new IdentityHashMap<>();
 	}
 
+	private List<MatchTransformer> getTransformerList() {
+	    if (matchers.isEmpty()) {
+		matchers.add(new PrefabMatchers.AlwaysMatch());
+	    }
+
+	    return matchToActions.computeIfAbsent(matchers.get(matchers.size() - 1), m -> new MatchEntry()).transformers;
+	}
+
 	private List<MatchAction> getActionList() {
 	    if (matchers.isEmpty()) {
 		matchers.add(new PrefabMatchers.AlwaysMatch());
 	    }
 
-	    return matchToActions.computeIfAbsent(matchers.get(matchers.size() - 1), m -> new ArrayList<>());
+	    return matchToActions.computeIfAbsent(matchers.get(matchers.size() - 1), m -> new MatchEntry()).actions;
 	}
 
 	public ConsecutiveMatchBuilder findConsecutive() {
@@ -215,10 +232,16 @@ public class PatchBuilders {
 	    return this;
 	}
 
+	public TransformerBuilder matchLastNodeOnly() {
+	    getTransformerList().add(new PrefabMatchTransformers.LastNodeOnly());
+	    return this;
+	}
+
 	public PatchStateMachine build() {
 	    ImmutableList.Builder<InstructionStateMachineNode> nodeBuilder = ImmutableList.builder();
 	    for (InstructionMatcher matcher : matchers) {
-		nodeBuilder.add(new InstructionStateMachineNode(matcher, matchToActions.getOrDefault(matcher, Collections.emptyList())));
+		MatchEntry entry = matchToActions.getOrDefault(matcher, new MatchEntry());
+		nodeBuilder.add(new InstructionStateMachineNode(matcher, entry.transformers, entry.actions));
 	    }
 
 	    return new PatchStateMachine(method, nodeBuilder.build());

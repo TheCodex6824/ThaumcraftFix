@@ -43,15 +43,25 @@ public class PatchStateMachine {
     protected static class InstructionStateMachineNode {
 
 	private final InstructionMatcher matcher;
+	private final ImmutableList<MatchTransformer> transformers;
 	private final ImmutableList<MatchAction> actions;
 
-	public InstructionStateMachineNode(InstructionMatcher matcher, List<MatchAction> actions) {
+	public InstructionStateMachineNode(InstructionMatcher matcher, List<MatchTransformer> transformers,
+		List<MatchAction> actions) {
 	    this.matcher = matcher;
+	    this.transformers = ImmutableList.copyOf(transformers);
 	    this.actions = ImmutableList.copyOf(actions);
 	}
 
 	public MatchResult matches(MethodNode method, AbstractInsnNode node) {
-	    return matcher.matches(method, node);
+	    MatchResult result = matcher.matches(method, node);
+	    if (result.matched()) {
+		for (MatchTransformer transformer : transformers) {
+		    transformer.transformMatch(result);
+		}
+	    }
+
+	    return result;
 	}
 
 	public Collection<AbstractInsnNode> runMatchActions(MethodNode method, MatchDetails result, List<? extends MatchDetails> matches) {
@@ -63,9 +73,14 @@ public class PatchStateMachine {
 	    return builder.build();
 	}
 
-	public String describe(MatchDetails result, List<? extends MatchDetails> matches) {
+	public String describe(MatchSnapshot result, List<MatchSnapshot> matches) {
 	    StringBuilder builder = new StringBuilder();
 	    builder.append(String.format("    Condition: %s%n", matcher.toString()));
+	    if (result.originalStart() != result.matchStart() || result.originalEnd() != result.matchEnd()) {
+		builder.append(String.format("    Match was modified:%n    Before:%s%n%n    After:%s%n",
+			ASMUtil.dumpBytecode(result.originalStart(), result.originalEnd()), ASMUtil.dumpBytecode(result.matchStart(), result.matchEnd())));
+	    }
+
 	    if (result.matched()) {
 		builder.append("    Executed actions:" + System.lineSeparator());
 		for (MatchAction action : actions) {
@@ -115,7 +130,7 @@ public class PatchStateMachine {
 		result = allMatches.get(allMatches.size() - 1);
 	    }
 	    else {
-		result = new MatchSnapshot(null, null);
+		result = new MatchSnapshot(null, null, null, null);
 	    }
 
 	    builder.append(String.format("Match details: %s", node.describe(result, allMatches)));
