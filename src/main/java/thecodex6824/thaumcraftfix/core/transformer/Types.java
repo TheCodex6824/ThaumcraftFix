@@ -69,6 +69,9 @@ public final class Types {
     public static final Type WORLD = Type.getType("Lnet/minecraft/world/World;");
     public static final Type WORLD_SERVER = Type.getType("Lnet/minecraft/world/WorldServer;");
 
+    public static final Type ASPECT = Type.getType("Lthaumcraft/api/aspects/Aspect;");
+    public static final Type ASPECT_LIST = Type.getType("Lthaumcraft/api/aspects/AspectList;");
+
     public static final Type FOCUS_PACKAGE = Type.getType("Lthaumcraft/api/casters/FocusPackage;");
     public static final Type I_CASTER = Type.getType("Lthaumcraft/api/casters/ICaster;");
     public static final Type ITEM_CASTER = Type.getType("Lthaumcraft/common/items/casters/ItemCaster;");
