@@ -53,6 +53,7 @@ public final class Types {
     public static final Type ENTITY_LIVING = Type.getType("Lnet/minecraft/entity/EntityLiving;");
     public static final Type ENTITY_PLAYER = Type.getType("Lnet/minecraft/entity/player/EntityPlayer;");
     public static final Type ENTITY_PLAYER_MP = Type.getType("Lnet/minecraft/entity/player/EntityPlayerMP;");
+    public static final Type INVENTORY_PLAYER = Type.getType("Lnet/minecraft/entity/player/InventoryPlayer;");
 
     public static final Type BLOCK = Type.getType("Lnet/minecraft/block/Block;");
     public static final Type BLOCK_FACE_SHAPE = Type.getType("Lnet/minecraft/block/state/BlockFaceShape;");

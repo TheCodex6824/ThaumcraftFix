@@ -112,6 +112,8 @@ public class TransformerExecutor implements IClassTransformer {
 	transformers.add(EntityTransformers.OWNED_CONSTRUCT_ZERO_DROP_CHANCES.get());
 	transformers.add(ItemTransformers.COMPARE_TAGS_RELAXED_NULL_CHECK.get());
 	transformers.add(ItemTransformers.FOCUS_COLOR_NBT.get());
+	transformers.add(ItemTransformers.HAND_MIRROR_STACK_CONTAINER.get());
+	transformers.add(ItemTransformers.HAND_MIRROR_STACK_GUI.get());
 	transformers.add(ItemTransformers.INFUSION_ENCHANTMENT_DROPS_PRIORITY.get());
 	transformers.add(ItemTransformers.PRIMORDIAL_PEARL_ANVIL_DUPE_DURABILITY_BAR.get());
 	transformers.add(ItemTransformers.PRIMORDIAL_PEARL_ANVIL_DUPE_EVENT.get());

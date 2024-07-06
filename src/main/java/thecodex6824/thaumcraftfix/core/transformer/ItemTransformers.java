@@ -40,15 +40,22 @@ import com.google.common.collect.ImmutableMap;
 
 import baubles.api.cap.BaublesCapabilities;
 import it.unimi.dsi.fastutil.ints.IntRBTreeSet;
+import net.minecraft.client.Minecraft;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.RegistrySimple;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.oredict.OreDictionary;
 import thaumcraft.common.items.casters.ItemFocus;
+import thaumcraft.common.items.tools.ItemHandMirror;
+import thecodex6824.coremodlib.FieldDefinition;
 import thecodex6824.coremodlib.MethodDefinition;
 import thecodex6824.coremodlib.PatchStateMachine;
 import thecodex6824.thaumcraftfix.core.transformer.custom.ChangeEventPriorityTransformer;
@@ -58,7 +65,7 @@ import thecodex6824.thaumcraftfix.core.transformer.custom.ThrowingTransformerWra
 
 public class ItemTransformers {
 
-    public static final class Hooks {
+    public static final class HooksCommon {
 
 	public static boolean shouldAllowRunicShield(ItemStack stack) {
 	    return stack.hasCapability(BaublesCapabilities.CAPABILITY_ITEM_BAUBLE, null);
@@ -125,9 +132,44 @@ public class ItemTransformers {
 	    pearl.setHasSubtypes(true);
 	}
 
+	public static ItemStack getHandMirrorStack(ItemStack original, InventoryPlayer playerInv) {
+	    EntityPlayer player = playerInv.player;
+	    ItemStack mirror = player.getHeldItemMainhand();
+	    if (!(mirror.getItem() instanceof ItemHandMirror)) {
+		mirror = player.getHeldItemOffhand();
+		if (!(mirror.getItem() instanceof ItemHandMirror)) {
+		    mirror = ItemStack.EMPTY;
+		}
+	    }
+
+	    if (mirror.isEmpty()) {
+		player.closeScreen();
+	    }
+	    return mirror;
+	}
+
     }
 
-    private static final String HOOKS = Type.getInternalName(Hooks.class);
+    @SideOnly(Side.CLIENT)
+    public static final class HooksClient {
+
+	public static int fixupXSlot(int original, InventoryPlayer playerInv) {
+	    ItemStack maybeMirror = playerInv.player.getHeldItemMainhand();
+	    if (!(maybeMirror.getItem() instanceof ItemHandMirror)) {
+		// so we don't have to check the slot every frame or have 2 patches,
+		// just send the X to the shadow realm if we don't want it displayed
+		original = -Minecraft.getMinecraft().displayWidth - 64;
+	    }
+
+	    return original;
+	}
+
+    }
+
+    private static final String HOOKS_COMMON = Type.getInternalName(HooksCommon.class);
+
+    @SideOnly(Side.CLIENT)
+    private static final String HOOKS_CLIENT = Type.getInternalName(HooksClient.class);
 
     public static final Supplier<ITransformer> COMPARE_TAGS_RELAXED_NULL_CHECK = () -> {
 	LabelNode newLabel = new LabelNode(new Label());
@@ -145,7 +187,7 @@ public class ItemTransformers {
 			new VarInsnNode(Opcodes.ALOAD, 0),
 			new VarInsnNode(Opcodes.ALOAD, 1),
 			new MethodInsnNode(Opcodes.INVOKESTATIC,
-				HOOKS,
+				HOOKS_COMMON,
 				"nullCheckTags",
 				Type.getMethodDescriptor(Type.INT_TYPE, Types.NBT_TAG_COMPOUND, Types.NBT_TAG_COMPOUND),
 				false
@@ -179,7 +221,7 @@ public class ItemTransformers {
 		    new VarInsnNode(Opcodes.ALOAD, 0),
 		    new VarInsnNode(Opcodes.ILOAD, 1),
 		    new MethodInsnNode(Opcodes.INVOKESTATIC,
-			    HOOKS,
+			    HOOKS_COMMON,
 			    "cycleItemStack",
 			    Type.getMethodDescriptor(Types.ITEM_STACK, Types.ITEM_STACK, Types.OBJECT, Type.INT_TYPE),
 			    false
@@ -203,9 +245,68 @@ public class ItemTransformers {
 		.insertInstructionsBefore(
 			new VarInsnNode(Opcodes.ALOAD, 0),
 			new MethodInsnNode(Opcodes.INVOKESTATIC,
-				HOOKS,
+				HOOKS_COMMON,
 				"setFocusStackColor",
 				Type.getMethodDescriptor(Type.VOID_TYPE, Types.ITEM_STACK),
+				false
+				)
+			)
+		.build()
+		);
+    };
+
+    public static final Supplier<ITransformer> HAND_MIRROR_STACK_CONTAINER = () -> {
+	return new GenericStateMachineTransformer(
+		PatchStateMachine.builder(
+			new MethodDefinition(
+				"thaumcraft/common/container/ContainerHandMirror",
+				false,
+				"<init>",
+				Type.VOID_TYPE,
+				Types.INVENTORY_PLAYER, Types.WORLD, Type.INT_TYPE, Type.INT_TYPE, Type.INT_TYPE
+				)
+			)
+		.findNextMethodCall(TransformUtil.remapMethod(new MethodDefinition(
+			Types.INVENTORY_PLAYER.getInternalName(),
+			false,
+			"func_70448_g",
+			Types.ITEM_STACK
+			)))
+		.insertInstructionsAfter(
+			new VarInsnNode(Opcodes.ALOAD, 1),
+			new MethodInsnNode(Opcodes.INVOKESTATIC,
+				HOOKS_COMMON,
+				"getHandMirrorStack",
+				Type.getMethodDescriptor(Types.ITEM_STACK, Types.ITEM_STACK, Types.INVENTORY_PLAYER),
+				false
+				)
+			)
+		.build()
+		);
+    };
+
+    public static final Supplier<ITransformer> HAND_MIRROR_STACK_GUI = () -> {
+	return new GenericStateMachineTransformer(
+		PatchStateMachine.builder(
+			new MethodDefinition(
+				"thaumcraft/client/gui/GuiHandMirror",
+				false,
+				"<init>",
+				Type.VOID_TYPE,
+				Types.INVENTORY_PLAYER, Types.WORLD, Type.INT_TYPE, Type.INT_TYPE, Type.INT_TYPE
+				)
+			)
+		.findNextFieldAccess(TransformUtil.remapField(new FieldDefinition(
+			Types.INVENTORY_PLAYER.getInternalName(),
+			"field_70461_c",
+			Type.INT_TYPE
+			)))
+		.insertInstructionsAfter(
+			new VarInsnNode(Opcodes.ALOAD, 1),
+			new MethodInsnNode(Opcodes.INVOKESTATIC,
+				HOOKS_CLIENT,
+				"fixupXSlot",
+				Type.getMethodDescriptor(Type.INT_TYPE, Type.INT_TYPE, Types.INVENTORY_PLAYER),
 				false
 				)
 			)
@@ -242,7 +343,7 @@ public class ItemTransformers {
 		.insertInstructionsBefore(
 			new VarInsnNode(Opcodes.ALOAD, 0),
 			new MethodInsnNode(Opcodes.INVOKESTATIC,
-				HOOKS,
+				HOOKS_COMMON,
 				"fixPrimordialPearlItem",
 				Type.getMethodDescriptor(Type.VOID_TYPE, Types.ITEM),
 				false
@@ -269,7 +370,7 @@ public class ItemTransformers {
 		InsnList toAdd = new InsnList();
 		toAdd.add(new VarInsnNode(Opcodes.ALOAD, 2));
 		toAdd.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-			HOOKS,
+			HOOKS_COMMON,
 			"shouldAllowRunicShield",
 			Type.getMethodDescriptor(Type.BOOLEAN_TYPE, Types.ITEM_STACK),
 			false
