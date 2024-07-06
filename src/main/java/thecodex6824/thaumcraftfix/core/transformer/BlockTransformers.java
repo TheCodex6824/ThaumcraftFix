@@ -44,6 +44,7 @@ import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
 import com.google.common.collect.Streams;
+import com.google.common.math.DoubleMath;
 
 import net.minecraft.block.state.BlockFaceShape;
 import net.minecraft.block.state.IBlockState;
@@ -221,6 +222,14 @@ public class BlockTransformers {
 	    }
 
 	    return result;
+	}
+
+	public static float handleFocalManipulatorVis(float vis) {
+	    if (DoubleMath.fuzzyEquals(vis, 0.0, 1.0E-4)) {
+		vis = 0.0F;
+	    }
+
+	    return vis;
 	}
 
     }
@@ -565,6 +574,36 @@ public class BlockTransformers {
 				HOOKS_COMMON,
 				"getNodesInTree",
 				Type.getMethodDescriptor(Types.ITERATOR, Types.ITERATOR, Types.HASH_MAP, Type.INT_TYPE),
+				false
+				)
+			)
+		.build()
+		);
+    };
+
+    public static final Supplier<ITransformer> FOCAL_MANIPULATOR_VIS_FP_ISSUES = () -> {
+	return new GenericStateMachineTransformer(
+		PatchStateMachine.builder(TransformUtil.remapMethod(new MethodDefinition(
+			Types.TILE_FOCAL_MANIPULATOR.getInternalName(),
+			false,
+			"func_73660_a",
+			Type.VOID_TYPE
+			)))
+		.findConsecutive()
+		.findNextLocalAccess(2)
+		.findNextOpcode(Opcodes.FSUB)
+		.findNextFieldAccess(new FieldDefinition(
+			Types.TILE_FOCAL_MANIPULATOR.getInternalName(),
+			"vis",
+			Type.FLOAT_TYPE
+			))
+		.endConsecutive()
+		.matchLastNodeOnly()
+		.insertInstructionsBefore(
+			new MethodInsnNode(Opcodes.INVOKESTATIC,
+				HOOKS_COMMON,
+				"handleFocalManipulatorVis",
+				Type.getMethodDescriptor(Type.FLOAT_TYPE, Type.FLOAT_TYPE),
 				false
 				)
 			)
