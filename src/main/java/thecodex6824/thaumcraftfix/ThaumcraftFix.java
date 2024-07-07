@@ -25,7 +25,11 @@ import org.apache.logging.log4j.Logger;
 
 import com.google.common.collect.ImmutableSet;
 
+import net.minecraft.init.Items;
 import net.minecraft.item.Item;
+import net.minecraft.item.Item.ToolMaterial;
+import net.minecraft.item.ItemArmor.ArmorMaterial;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
@@ -41,7 +45,9 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import thaumcraft.api.ThaumcraftMaterials;
 import thaumcraft.api.capabilities.IPlayerKnowledge.EnumKnowledgeType;
+import thaumcraft.api.items.ItemsTC;
 import thaumcraft.api.research.ResearchCategories;
 import thaumcraft.api.research.ResearchCategory;
 import thaumcraft.api.research.ResearchEntry;
@@ -98,8 +104,47 @@ public class ThaumcraftFix {
 	network = new ThaumcraftFixNetworkHandler();
     }
 
+    private static void setToolMaterialRepairItem(ToolMaterial material, ItemStack repair) {
+	try {
+	    material.setRepairItem(repair);
+	}
+	catch (RuntimeException ex) {
+	    // someone already set repair items
+	}
+    }
+
+    private static void setArmorMaterialRepairItem(ArmorMaterial material, ItemStack repair) {
+	try {
+	    material.setRepairItem(repair);
+	}
+	catch (RuntimeException ex) {
+	    // someone already set repair items
+	}
+    }
+
     @EventHandler
-    public void postInit(FMLPostInitializationEvent event) {}
+    public void postInit(FMLPostInitializationEvent event) {
+	// reset repair materials for TC materials
+	// if the class was loaded before now, the items used will have been null and won't register
+	// the individual items have extra code to allow repair, but these are required for generic support
+	setToolMaterialRepairItem(ThaumcraftMaterials.TOOLMAT_ELEMENTAL, new ItemStack(ItemsTC.ingots, 1, 0));
+	setToolMaterialRepairItem(ThaumcraftMaterials.TOOLMAT_THAUMIUM, new ItemStack(ItemsTC.ingots, 1, 0));
+	setToolMaterialRepairItem(ThaumcraftMaterials.TOOLMAT_VOID, new ItemStack(ItemsTC.ingots, 1, 1));
+
+	// these just don't have repair materials defined
+	// should these be replaced with plates? would also need to override every class usage...
+	setArmorMaterialRepairItem(ThaumcraftMaterials.ARMORMAT_CULTIST_LEADER, new ItemStack(Items.IRON_INGOT));
+	setArmorMaterialRepairItem(ThaumcraftMaterials.ARMORMAT_CULTIST_PLATE, new ItemStack(Items.IRON_INGOT));
+	setArmorMaterialRepairItem(ThaumcraftMaterials.ARMORMAT_CULTIST_ROBE, new ItemStack(Items.IRON_INGOT));
+	setArmorMaterialRepairItem(ThaumcraftMaterials.ARMORMAT_FORTRESS, new ItemStack(ItemsTC.ingots, 1, 0));
+	setArmorMaterialRepairItem(ThaumcraftMaterials.ARMORMAT_THAUMIUM, new ItemStack(ItemsTC.ingots, 1, 0));
+	setArmorMaterialRepairItem(ThaumcraftMaterials.ARMORMAT_VOID, new ItemStack(ItemsTC.ingots, 1, 1));
+	setArmorMaterialRepairItem(ThaumcraftMaterials.ARMORMAT_VOIDROBE, new ItemStack(ItemsTC.ingots, 1, 1));
+
+	// these don't have repair materials and are shared across multiple items
+	// it doesn't really make sense to have a single repair material for it
+	// ThaumcraftMaterials.ARMORMAT_SPECIAL
+    }
 
     @EventHandler
     public void loadComplete(FMLLoadCompleteEvent event) {
