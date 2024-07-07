@@ -66,6 +66,10 @@ public final class Types {
     public static final Type ITEM_STACK = Type.getType("Lnet/minecraft/item/ItemStack;");
     public static final Type NBT_TAG_COMPOUND = Type.getType("Lnet/minecraft/nbt/NBTTagCompound;");
 
+    public static final Type I_RECIPE = Type.getType("Lnet/minecraft/item/crafting/IRecipe;");
+    public static final Type INVENTORY_CRAFTING = Type.getType("Lnet/minecraft/inventory/InventoryCrafting;");
+    public static final Type INVENTORY_CRAFT_RESULT = Type.getType("Lnet/minecraft/inventory/InventoryCraftResult;");
+
     public static final Type I_BLOCK_ACCESS = Type.getType("Lnet/minecraft/world/IBlockAccess;");
     public static final Type WORLD = Type.getType("Lnet/minecraft/world/World;");
     public static final Type WORLD_SERVER = Type.getType("Lnet/minecraft/world/WorldServer;");

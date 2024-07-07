@@ -31,11 +31,13 @@ import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
+import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import thaumcraft.api.aspects.AspectList;
 import thaumcraft.api.internal.CommonInternals;
 import thecodex6824.coremodlib.MethodDefinition;
 import thecodex6824.coremodlib.PatchStateMachine;
+import thecodex6824.thaumcraftfix.common.inventory.InventoryCraftingWrapper;
 import thecodex6824.thaumcraftfix.core.transformer.custom.AuraChunkThreadSafetyTransformer;
 import thecodex6824.thaumcraftfix.core.transformer.custom.ThrowingTransformerWrapper;
 
@@ -54,9 +56,46 @@ public class MiscTransformers {
 	    return true;
 	}
 
+	public static InventoryCrafting makeVanillaRecipeWrapper(InventoryCrafting input) {
+	    return new InventoryCraftingWrapper(input);
+	}
+
     }
 
     private static final String HOOKS = Type.getInternalName(Hooks.class);
+
+    public static final Supplier<ITransformer> ARCANE_WORKBENCH_RECIPE_COMPAT = () -> {
+	return new GenericStateMachineTransformer(
+		PatchStateMachine.builder(TransformUtil.remapMethod(new MethodDefinition(
+			"thaumcraft/common/container/ContainerArcaneWorkbench",
+			false,
+			"func_192389_a",
+			Type.VOID_TYPE,
+			Types.WORLD, Types.ENTITY_PLAYER, Types.INVENTORY_CRAFTING, Types.INVENTORY_CRAFT_RESULT
+			)))
+		.findConsecutive()
+		.findNextLocalAccess(3)
+		.findNextMethodCall(TransformUtil.remapMethod(new MethodDefinition(
+			Types.I_RECIPE.getInternalName(),
+			true,
+			"func_77572_b",
+			Types.ITEM_STACK,
+			Types.INVENTORY_CRAFTING
+			)))
+		.endConsecutive()
+		.matchLastNodeOnly()
+		.insertInstructionsBefore(
+			new MethodDefinition(
+				HOOKS,
+				false,
+				"makeVanillaRecipeWrapper",
+				Types.INVENTORY_CRAFTING,
+				Types.INVENTORY_CRAFTING
+				).asMethodInsnNode(Opcodes.INVOKESTATIC)
+			)
+		.build()
+		);
+    };
 
     public static final Supplier<ITransformer> ASPECT_REGISTRY_LOOKUP = () -> {
 	LabelNode registerLabel = new LabelNode(new Label());
