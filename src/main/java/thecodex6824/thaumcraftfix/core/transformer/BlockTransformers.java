@@ -195,6 +195,13 @@ public class BlockTransformers {
 
 			    rootFound = true;
 			}
+			else if (leaf.node instanceof FocusMedium &&
+				!bannedNodes.isEmpty() && (leaf.node.isExclusive() || mediumFound)) {
+
+			    result = false;
+			    logger.warn("Player {} ({}) tried to make a focus with illegal mediums",
+				    player.getName(), player.getUniqueID().toString());
+			}
 			else if (leaf.node.isExclusive() && !bannedNodes.add(leaf.node.getKey())) {
 			    result = false;
 			    logger.warn("Player {} ({}) tried to make a focus with illegal nodes",
@@ -202,13 +209,6 @@ public class BlockTransformers {
 			    break;
 			}
 			else if (leaf.node instanceof FocusMedium) {
-			    if (!bannedNodes.isEmpty() && (((FocusMedium) leaf.node).isExclusive() || mediumFound)) {
-				result = false;
-				logger.warn("Player {} ({}) tried to make a focus with illegal mediums",
-					player.getName(), player.getUniqueID().toString());
-				break;
-			    }
-
 			    mediumFound = true;
 			}
 
