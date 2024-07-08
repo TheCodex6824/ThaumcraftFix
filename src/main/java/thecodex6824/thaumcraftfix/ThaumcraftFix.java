@@ -25,6 +25,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.google.common.collect.ImmutableSet;
 
+import net.minecraft.entity.EntityList;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.Item.ToolMaterial;
@@ -45,6 +46,8 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import net.minecraftforge.fml.common.registry.EntityEntry;
+import net.minecraftforge.fml.common.registry.EntityRegistry;
 import thaumcraft.api.ThaumcraftMaterials;
 import thaumcraft.api.capabilities.IPlayerKnowledge.EnumKnowledgeType;
 import thaumcraft.api.items.ItemsTC;
@@ -53,6 +56,7 @@ import thaumcraft.api.research.ResearchCategory;
 import thaumcraft.api.research.ResearchEntry;
 import thaumcraft.api.research.ResearchStage;
 import thaumcraft.api.research.ResearchStage.Knowledge;
+import thaumcraft.common.entities.monster.EntitySpellBat;
 import thecodex6824.thaumcraftfix.api.ThaumcraftFixApi;
 import thecodex6824.thaumcraftfix.api.internal.ThaumcraftFixApiBridge;
 import thecodex6824.thaumcraftfix.api.research.ResearchCategoryTheorycraftFilter;
@@ -144,6 +148,13 @@ public class ThaumcraftFix {
 	// these don't have repair materials and are shared across multiple items
 	// it doesn't really make sense to have a single repair material for it
 	// ThaumcraftMaterials.ARMORMAT_SPECIAL
+
+	// delete broken spellbat spawn egg
+	EntityEntry spellbat = EntityRegistry.getEntry(EntitySpellBat.class);
+	if (spellbat != null) {
+	    spellbat.setEgg(null);
+	    EntityList.ENTITY_EGGS.remove(spellbat.getRegistryName());
+	}
     }
 
     @EventHandler
