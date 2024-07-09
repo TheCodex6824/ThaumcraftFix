@@ -52,6 +52,8 @@ import thecodex6824.coremodlib.MethodDefinition;
 import thecodex6824.coremodlib.PatchStateMachine;
 import thecodex6824.thaumcraftfix.api.event.EntityInOuterLandsEvent;
 import thecodex6824.thaumcraftfix.api.event.FluxRiftDestroyBlockEvent;
+import thecodex6824.thaumcraftfix.core.transformer.custom.EntityAspectPrefixRemoverTransformer;
+import thecodex6824.thaumcraftfix.core.transformer.custom.ThrowingTransformerWrapper;
 import thecodex6824.thaumcraftfix.core.transformer.custom.TransformerBipedRotationCustomArmor;
 
 public class EntityTransformers {
@@ -260,6 +262,9 @@ public class EntityTransformers {
 		    );
 	};
     }
+
+    public static final Supplier<ITransformer> ENTITY_ASPECTS = () ->
+    new ThrowingTransformerWrapper(new EntityAspectPrefixRemoverTransformer());
 
     public static final Supplier<ITransformer> ADVANCED_CROSSBOW_PROCESS_INTERACT_DEAD =
 	    makeEntityProcessInteractTransformer("thaumcraft/common/entities/construct/EntityTurretCrossbowAdvanced");
