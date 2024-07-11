@@ -1,5 +1,5 @@
 ##########################################
-# Potions
+# POTIONS
 ##########################################
 potion.unhunger=Unhunger
 ##########################################
@@ -330,3 +330,71 @@ research.PRIMALCRUSHER.stage.2=Success! I have created a tool I am calling the P
 # MISC
 ##########################################
 got.pechwand=Hmm, curious. You should investigate this further.
+##########################################
+# SUBTITLES
+##########################################
+thaumcraft.subtitle.brain=Brain whispers
+thaumcraft.subtitle.bubble=Bubbling
+thaumcraft.subtitle.chant=Cultist chants
+thaumcraft.subtitle.clack=Clack noise
+thaumcraft.subtitle.coins=Coins fall
+thaumcraft.subtitle.crabclaw=Eldritch Crab pinches
+thaumcraft.subtitle.crabdeath=Eldritch Crab dies
+thaumcraft.subtitle.crabtalk=Eldritch Crab communicates
+thaumcraft.subtitle.craftfail=Contraption fails
+thaumcraft.subtitle.craftstart=Contraption starts
+thaumcraft.subtitle.creak=Pipe creaks
+thaumcraft.subtitle.crystal=Crystal shines
+thaumcraft.subtitle.dust=Magical noise
+thaumcraft.subtitle.egattack=Eldritch Guardian attacks
+thaumcraft.subtitle.egdeath=Eldritch Guardian dies
+thaumcraft.subtitle.egidle=Eldritch Guardian chants angrily
+thaumcraft.subtitle.egscreech=Eldritch Guardian screeches
+thaumcraft.subtitle.erase=Writing erased
+thaumcraft.subtitle.evilportal=Disturbing portal noise
+thaumcraft.subtitle.fly=Taint Swarm buzzes
+thaumcraft.subtitle.gore=Taint explodes
+thaumcraft.subtitle.grind=Grinding noise
+thaumcraft.subtitle.heartbeat=Heart beats frantically
+thaumcraft.subtitle.hhoff=Device deactivates
+thaumcraft.subtitle.hhon=Device activates
+thaumcraft.subtitle.ice=Ice shoots
+thaumcraft.subtitle.infuser=Infusion progresses
+thaumcraft.subtitle.infuserstart=Infusion activates
+thaumcraft.subtitle.jacobs=Electricity buzzes
+thaumcraft.subtitle.jar=Jar noise
+thaumcraft.subtitle.key=Switch noise
+thaumcraft.subtitle.learn=Research finishes
+thaumcraft.subtitle.monolith=Monolith whispers
+thaumcraft.subtitle.page=Page turns
+thaumcraft.subtitle.pageturn=Page crumbles
+thaumcraft.subtitle.pech_charge=Pech shouts
+thaumcraft.subtitle.pech_death=Pech dies
+thaumcraft.subtitle.pech_dice=Dice rolls
+thaumcraft.subtitle.pech_hit=Pech hurts
+thaumcraft.subtitle.pech_idle=Pech talks
+thaumcraft.subtitle.pech_trade=Pech trades
+thaumcraft.subtitle.poof=Poof noise
+thaumcraft.subtitle.pump=Pumping noise
+thaumcraft.subtitle.rumble=Rumbling noise
+thaumcraft.subtitle.runicshieldcharge=Runic Shield charges
+thaumcraft.subtitle.runicshieldeffect=Runic Shield protects
+thaumcraft.subtitle.scan=Thaumometer scans
+thaumcraft.subtitle.shock=Electricity strikes
+thaumcraft.subtitle.spill=Liquid spills
+thaumcraft.subtitle.squeek=Valve squeaks
+thaumcraft.subtitle.swarm=Taint Swarm sings
+thaumcraft.subtitle.swarmattack=Taint Swarm buzzes angrily
+thaumcraft.subtitle.tentacle=Taintacle grunts
+thaumcraft.subtitle.ticks=Ticking noise
+thaumcraft.subtitle.tool=Mechanism breaks
+thaumcraft.subtitle.upgrade=Contraption upgrades
+thaumcraft.subtitle.urnbreak=Urn breaks
+thaumcraft.subtitle.wand=Infusion finishes
+thaumcraft.subtitle.wandfail=Portal summons
+thaumcraft.subtitle.whispers=Disturbing whispering
+thaumcraft.subtitle.wind=Windy noise
+thaumcraft.subtitle.wispdead=Wisp dies
+thaumcraft.subtitle.wisplive=Wisp communicates
+thaumcraft.subtitle.write=Scribbling
+thaumcraft.subtitle.zap=Zapping noise

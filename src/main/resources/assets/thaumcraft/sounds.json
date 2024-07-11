@@ -1,11 +1,675 @@
 {
+  "brain": {
+    "category": "ambient",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.brain",
+    "sounds": [
+      "thaumcraft:brain1",
+      "thaumcraft:brain2",
+      "thaumcraft:brain3",
+      "thaumcraft:brain4"
+    ]
+  },
+  "bubble": {
+    "category": "block",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.bubble",
+    "sounds": [
+      "thaumcraft:bubble1",
+      "thaumcraft:bubble2",
+      "thaumcraft:bubble3",
+      "thaumcraft:bubble4"
+    ]
+  },
+  "chant": {
+    "category": "hostile",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.chant",
+    "sounds": [
+      "thaumcraft:chant1",
+      "thaumcraft:chant2",
+      "thaumcraft:chant3"
+    ]
+  },
+  "clack": {
+    "category": "ambient",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.clack",
+    "sounds": [
+      "thaumcraft:clack1",
+      "thaumcraft:clack2",
+      "thaumcraft:clack3"
+    ]
+  },
+  "coins": {
+    "category": "master",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.coins",
+    "sounds": [
+      {
+        "name": "thaumcraft:coins",
+        "stream": false
+      }
+    ]
+  },
+  "crabclaw": {
+    "category": "hostile",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.crabclaw",
+    "sounds": [
+      {
+        "name": "thaumcraft:crabclaw",
+        "stream": false
+      }
+    ]
+  },
+  "crabdeath": {
+    "category": "hostile",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.crabdeath",
+    "sounds": [
+      {
+        "name": "thaumcraft:crabdeath",
+        "stream": false
+      }
+    ]
+  },
+  "crabtalk": {
+    "category": "hostile",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.crabtalk",
+    "sounds": [
+      "thaumcraft:crabtalk1",
+      "thaumcraft:crabtalk2",
+      "thaumcraft:crabtalk3"
+    ]
+  },
+  "craftfail": {
+    "category": "master",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.craftfail",
+    "sounds": [
+      {
+        "name": "thaumcraft:craftfail",
+        "stream": false
+      }
+    ]
+  },
+  "craftstart": {
+    "category": "master",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.craftstart",
+    "sounds": [
+      {
+        "name": "thaumcraft:craftstart",
+        "stream": false
+      }
+    ]
+  },
+  "creak": {
+    "category": "block",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.creak",
+    "sounds": [
+      "thaumcraft:creak1",
+      "thaumcraft:creak2"
+    ]
+  },
+  "crystal": {
+    "category": "block",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.crystal",
+    "sounds": [
+      {
+        "name": "thaumcraft:crystal",
+        "stream": false
+      }
+    ]
+  },
+  "dust": {
+    "category": "block",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.dust",
+    "sounds": [
+      {
+        "name": "thaumcraft:dust",
+        "stream": false
+      }
+    ]
+  },
+  "egattack": {
+    "category": "hostile",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.egattack",
+    "sounds": [
+      {
+        "name": "thaumcraft:egattack",
+        "stream": false
+      }
+    ]
+  },
+  "egdeath": {
+    "category": "hostile",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.egdeath",
+    "sounds": [
+      {
+        "name": "thaumcraft:egdeath",
+        "stream": false
+      }
+    ]
+  },
+  "egidle": {
+    "category": "hostile",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.egidle",
+    "sounds": [
+      "thaumcraft:egidle1",
+      "thaumcraft:egidle2"
+    ]
+  },
+  "egscreech": {
+    "category": "hostile",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.egscreech",
+    "sounds": [
+      {
+        "name": "thaumcraft:egscreech",
+        "stream": false
+      }
+    ]
+  },
+  "erase": {
+    "category": "master",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.erase",
+    "sounds": [
+      {
+        "name": "thaumcraft:erase",
+        "stream": false
+      }
+    ]
+  },
+  "evilportal": {
+    "category": "block",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.evilportal",
+    "sounds": [
+      {
+        "name": "thaumcraft:evilportal",
+        "stream": false
+      }
+    ]
+  },
+  "fly": {
+    "category": "ambient",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.fly",
+    "sounds": [
+      "thaumcraft:fly1",
+      "thaumcraft:fly2"
+    ]
+  },
+  "gore": {
+    "category": "block",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.gore",
+    "sounds": [
+      "thaumcraft:gore1",
+      "thaumcraft:gore2"
+    ]
+  },
+  "grind": {
+    "category": "block",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.grind",
+    "sounds": [
+      {
+        "name": "thaumcraft:grind",
+        "stream": false
+      }
+    ]
+  },
+  "heartbeat": {
+    "category": "player",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.heartbeat",
+    "sounds": [
+      {
+        "name": "thaumcraft:heartbeat",
+        "stream": false
+      }
+    ]
+  },
+  "hhoff": {
+    "category": "master",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.hhoff",
+    "sounds": [
+      {
+        "name": "thaumcraft:hhoff",
+        "stream": false
+      }
+    ]
+  },
+  "hhon": {
+    "category": "master",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.hhon",
+    "sounds": [
+      {
+        "name": "thaumcraft:hhon",
+        "stream": false
+      }
+    ]
+  },
+  "ice": {
+    "category": "master",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.ice",
+    "sounds": [
+      "thaumcraft:ice1",
+      "thaumcraft:ice2",
+      "thaumcraft:ice3"
+    ]
+  },
+  "infuser": {
+    "category": "block",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.infuser",
+    "sounds": [
+      {
+        "name": "thaumcraft:infuser",
+        "stream": false
+      }
+    ]
+  },
+  "infuserstart": {
+    "category": "block",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.infuserstarts",
+    "sounds": [
+      {
+        "name": "thaumcraft:infuserstart",
+        "stream": false
+      }
+    ]
+  },
+  "jacobs": {
+    "category": "ambient",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.jacobs",
+    "sounds": [
+      {
+        "name": "thaumcraft:jacobs",
+        "stream": false
+      }
+    ]
+  },
+  "jar": {
+    "category": "block",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.jar",
+    "sounds": [
+      "thaumcraft:jar1",
+      "thaumcraft:jar2",
+      "thaumcraft:jar3",
+      "thaumcraft:jar4"
+    ]
+  },
+  "key": {
+    "category": "ambient",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.key",
+    "sounds": [
+      {
+        "name": "thaumcraft:key",
+        "stream": false
+      }
+    ]
+  },
+  "learn": {
+    "category": "master",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.learn",
+    "sounds": [
+      {
+        "name": "thaumcraft:learn",
+        "stream": false
+      }
+    ]
+  },
+  "monolith": {
+    "category": "ambient",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.monolith",
+    "sounds": [
+      {
+        "name": "thaumcraft:monolith",
+        "stream": false
+      }
+    ]
+  },
+  "page": {
+    "category": "master",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.page",
+    "sounds": [
+      "thaumcraft:page1",
+      "thaumcraft:page2"
+    ]
+  },
+  "pageturn": {
+    "category": "master",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.pageturn",
+    "sounds": [
+      "thaumcraft:pageturn"
+    ]
+  },
+  "pech_charge": {
+    "category": "hostile",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.pech_charge",
+    "sounds": [
+      "thaumcraft:pech_charge1",
+      "thaumcraft:pech_charge2"
+    ]
+  },
+  "pech_death": {
+    "category": "hostile",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.pech_death",
+    "sounds": [
+      {
+        "name": "thaumcraft:pech_death",
+        "stream": false
+      }
+    ]
+  },
+  "pech_dice": {
+    "category": "hostile",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.pech_dice",
+    "sounds": [
+      {
+        "name": "thaumcraft:pech_dice",
+        "stream": false
+      }
+    ]
+  },
+  "pech_hit": {
+    "category": "hostile",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.pech_hit",
+    "sounds": [
+      "thaumcraft:pech_hit1",
+      "thaumcraft:pech_hit2"
+    ]
+  },
+  "pech_idle": {
+    "category": "hostile",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.pech_idle",
+    "sounds": [
+      "thaumcraft:pech_idle1",
+      "thaumcraft:pech_idle2",
+      "thaumcraft:pech_idle3"
+    ]
+  },
+  "pech_trade": {
+    "category": "hostile",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.pech_trade",
+    "sounds": [
+      {
+        "name": "thaumcraft:pech_trade",
+        "stream": false
+      }
+    ]
+  },
+  "poof": {
+    "category": "ambient",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.poof",
+    "sounds": [
+      "thaumcraft:poof1",
+      "thaumcraft:poof2"
+    ]
+  },
+  "pump": {
+    "category": "block",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.pump",
+    "sounds": [
+      "thaumcraft:pump1",
+      "thaumcraft:pump2",
+      "thaumcraft:pump3"
+    ]
+  },
+  "rumble": {
+    "category": "ambient",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.rumble",
+    "sounds": [
+      {
+        "name": "thaumcraft:rumble",
+        "stream": false
+      }
+    ]
+  },
   "runicshieldcharge": {
     "category": "player",
+    "subtitle": "thaumcraft.subtitle.runicshieldcharge",
     "sounds": [
       {
         "name": "thaumcraft:runicshieldcharge",
         "stream": false
       }
+    ]
+  },
+  "runicshieldeffect": {
+    "category": "player",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.runicshieldeffect",
+    "sounds": [
+      {
+        "name": "thaumcraft:runicshieldeffect",
+        "stream": false
+      }
+    ]
+  },
+  "scan": {
+    "category": "master",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.scan",
+    "sounds": [
+      {
+        "name": "thaumcraft:scan",
+        "stream": false
+      }
+    ]
+  },
+  "shock": {
+    "category": "master",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.shock",
+    "sounds": [
+      "thaumcraft:shock1",
+      "thaumcraft:shock2"
+    ]
+  },
+  "spill": {
+    "category": "block",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.spill",
+    "sounds": [
+      {
+        "name": "thaumcraft:spill",
+        "stream": false
+      }
+    ]
+  },
+  "squeek": {
+    "category": "block",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.squeek",
+    "sounds": [
+      "thaumcraft:squeek1",
+      "thaumcraft:squeek2"
+    ]
+  },
+  "swarm": {
+    "category": "hostile",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.swarm",
+    "sounds": [
+      "thaumcraft:swarm1",
+      "thaumcraft:swarm2",
+      "thaumcraft:swarm3"
+    ]
+  },
+  "swarmattack": {
+    "category": "hostile",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.swarmattack",
+    "sounds": [
+      {
+        "name": "thaumcraft:swarmattack",
+        "stream": false
+      }
+    ]
+  },
+  "tentacle": {
+    "category": "hostile",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.tentacle",
+    "sounds": [
+      "thaumcraft:tentacle1",
+      "thaumcraft:tentacle2",
+      "thaumcraft:tentacle3"
+    ]
+  },
+  "ticks": {
+    "category": "ambient",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.ticks",
+    "sounds": [
+      {
+        "name": "thaumcraft:ticks",
+        "stream": false
+      }
+    ]
+  },
+  "tool": {
+    "category": "master",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.tool",
+    "sounds": [
+      "thaumcraft:tool1",
+      "thaumcraft:tool2"
+    ]
+  },
+  "upgrade": {
+    "category": "master",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.upgrade",
+    "sounds": [
+      {
+        "name": "thaumcraft:upgrade",
+        "stream": false
+      }
+    ]
+  },
+  "urnbreak": {
+    "category": "block",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.urnbreak",
+    "sounds": [
+      {
+        "name": "thaumcraft:urnbreak",
+        "stream": false
+      }
+    ]
+  },
+  "wand": {
+    "category": "master",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.wand",
+    "sounds": [
+      "thaumcraft:wand1",
+      "thaumcraft:wand2",
+      "thaumcraft:wand3"
+    ]
+  },
+  "wandfail": {
+    "category": "master",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.wandfail",
+    "sounds": [
+      {
+        "name": "thaumcraft:wandfail",
+        "stream": false
+      }
+    ]
+  },
+  "whispers": {
+    "category": "ambient",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.whispers",
+    "sounds": [
+      {
+        "name": "thaumcraft:whispers",
+        "stream": false
+      }
+    ]
+  },
+  "wind": {
+    "category": "ambient",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.wind",
+    "sounds": [
+      "thaumcraft:wind1",
+      "thaumcraft:wind2"
+    ]
+  },
+  "wispdead": {
+    "category": "hostile",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.wispdead",
+    "sounds": [
+      {
+        "name": "thaumcraft:wispdead",
+        "stream": false
+      }
+    ]
+  },
+  "wisplive": {
+    "category": "hostile",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.wisplive",
+    "sounds": [
+      "thaumcraft:wisplive1",
+      "thaumcraft:wisplive2",
+      "thaumcraft:wisplive3"
+    ]
+  },
+  "write": {
+    "category": "master",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.write",
+    "sounds": [
+      "thaumcraft:write1",
+      "thaumcraft:write2"
+    ]
+  },
+  "zap": {
+    "category": "master",
+    "replace": true,
+    "subtitle": "thaumcraft.subtitle.zap",
+    "sounds": [
+      "thaumcraft:zap1",
+      "thaumcraft:zap2"
     ]
   }
 }
