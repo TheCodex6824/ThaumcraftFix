@@ -1,0 +1,17 @@
+{
+  "type": "forge:ore_shaped",
+  "pattern": [
+    "QQQ",
+    "QQQ",
+    "QQQ"
+  ],
+  "key": {
+    "Q": {
+      "item": "thaumcraft:nugget",
+      "data": 9
+    }
+  },
+  "result": {
+    "item": "minecraft:quartz"
+  }
+}
