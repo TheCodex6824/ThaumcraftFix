@@ -7,8 +7,8 @@
   ],
   "key": {
     "Q": {
-      "item": "thaumcraft:nugget",
-      "data": 9
+      "type": "forge:ore_dict",
+      "ore": "nuggetQuartz"
     }
   },
   "result": {
