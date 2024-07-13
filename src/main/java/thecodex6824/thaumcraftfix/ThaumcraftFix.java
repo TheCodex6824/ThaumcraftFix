@@ -129,9 +129,11 @@ public class ThaumcraftFix {
 	}
     }
     
+    
     //Wrapper function for registering aspects to an entity.
+    @SuppressWarnings("deprecation")
     private static void registerEntityAspects(String entityName, AspectList aspectList) {
-    	ThaumcraftApi.registerEntityTag(entityName, aspectList);
+        ThaumcraftApi.registerEntityTag(entityName, aspectList);
     }
 
     @EventHandler
@@ -186,8 +188,9 @@ public class ThaumcraftFix {
 	registerEntityAspects("FocusCloud", new AspectList().add(Aspect.AURA, 10).add(Aspect.MAGIC, 10).add(Aspect.ALCHEMY, 10));
 	registerEntityAspects("Focusmine", new AspectList().add(Aspect.AURA, 10).add(Aspect.MAGIC, 10).add(Aspect.TRAP, 10));
 	registerEntityAspects("FocusProjectile", new AspectList().add(Aspect.AURA, 10).add(Aspect.MAGIC, 10).add(Aspect.MOTION, 10));
-	registerEntityAspects("Spellbat", new AspectList().add(Aspect.AURA, 10).add(Aspect.MAGIC, 10).add(Aspect.BEAST, 10));
 	
+	//Can be cheesed easily, so comment spellbat aspects out for now.
+	//registerEntityAspects("Spellbat", new AspectList().add(Aspect.AURA, 10).add(Aspect.MAGIC, 10).add(Aspect.BEAST, 10));
 	
 	
 	// delete broken spellbat spawn egg
