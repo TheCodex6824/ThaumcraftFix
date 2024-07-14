@@ -50,11 +50,11 @@ public class MatchSnapshot implements MatchDetails {
 	    AbstractInsnNode originalEnd, AbstractInsnNode matchEnd) {
 
 	Pair<InsnList, Integer> match = setupMatchList(originalStart, originalEnd);
-	originalList = match.getLeft();
+	originalList = match != null ? match.getLeft() : null;
 	this.originalEnd = originalList != null ? originalList.get(match.getRight()) : null;
 
 	match = setupMatchList(matchStart, matchEnd);
-	matchList = match.getLeft();
+	matchList = match != null ? match.getLeft() : null;
 	this.matchEnd = matchList != null ? matchList.get(match.getRight()) : null;
     }
 

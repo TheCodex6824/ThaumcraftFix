@@ -341,7 +341,7 @@ public class BlockTransformers {
 			))
 		.findNextMethodCall(new MethodDefinition(
 			"java/util/List",
-			false,
+			true,
 			"iterator",
 			Types.ITERATOR
 			))
@@ -547,7 +547,7 @@ public class BlockTransformers {
 			))
 		.findNextMethodCall(new MethodDefinition(
 			Types.COLLECTION.getInternalName(),
-			false,
+			true,
 			"iterator",
 			Types.ITERATOR
 			))
@@ -692,7 +692,7 @@ public class BlockTransformers {
 				))
 		.findConsecutive()
 		.findNextMethodCall(TransformUtil.remapMethod(new MethodDefinition(
-			"thaumcraft/common/tiles/crafting/TileThaumatoriumTop",
+			"thaumcraft/common/tiles/crafting/TileThaumatorium",
 			false,
 			"func_191420_l",
 			Type.BOOLEAN_TYPE

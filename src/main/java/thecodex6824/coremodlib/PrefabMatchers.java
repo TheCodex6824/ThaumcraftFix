@@ -266,7 +266,8 @@ class PrefabMatchers {
 	    boolean ret = false;
 	    if (node instanceof MethodInsnNode) {
 		MethodInsnNode methodInsn = (MethodInsnNode) node;
-		ret = methodInsn.name.equals(methodDef.name()) && methodInsn.desc.equals(methodDef.desc());
+		ret = methodInsn.owner.equals(methodDef.declaringClass()) && methodInsn.name.equals(methodDef.name())
+			&& methodInsn.desc.equals(methodDef.desc()) && methodInsn.itf == methodDef.declaringClassIsInterface();
 	    }
 
 	    return ret ? MatchResult.matchSingleNode(node) : MatchResult.noMatch();
