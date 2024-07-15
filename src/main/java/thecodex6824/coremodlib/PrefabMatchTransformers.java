@@ -20,18 +20,50 @@
 
 package thecodex6824.coremodlib;
 
+import java.util.List;
+
+import org.objectweb.asm.tree.InsnList;
+import org.objectweb.asm.tree.MethodNode;
+
 class PrefabMatchTransformers {
 
     public static class LastNodeOnly implements MatchTransformer {
 
 	@Override
-	public void transformMatch(MutableMatchDetails match) {
+	public void transformMatch(MethodNode method, MutableMatchDetails match,
+		List<? extends MutableMatchDetails> previousMatches) {
 	    match.setMatchStart(match.matchEnd());
 	}
 
 	@Override
 	public String toString() {
 	    return "Trims match to only contain the last node";
+	}
+
+    }
+
+    public static class MakeMatchRange implements MatchTransformer {
+
+	@Override
+	public void transformMatch(MethodNode method, MutableMatchDetails match,
+		List<? extends MutableMatchDetails> previousMatches) {
+	    if (previousMatches.isEmpty()) {
+		throw new IllegalStateException("Cannot make a match range out of a single match");
+	    }
+
+	    MutableMatchDetails otherMatch = previousMatches.remove(previousMatches.size() - 1);
+	    InsnList insns = method.instructions;
+	    if (insns.indexOf(otherMatch.matchStart()) < insns.indexOf(match.matchStart())) {
+		match.setMatchStart(otherMatch.matchStart());
+	    }
+	    if (insns.indexOf(otherMatch.matchEnd()) > insns.indexOf(match.matchEnd())) {
+		match.setMatchEnd(otherMatch.matchEnd());
+	    }
+	}
+
+	@Override
+	public String toString() {
+	    return "Combines the last 2 matches into a single match range";
 	}
 
     }

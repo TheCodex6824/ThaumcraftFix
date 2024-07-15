@@ -22,25 +22,37 @@ package thecodex6824.thaumcraftfix.core.transformer;
 
 import java.util.function.Supplier;
 
+import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.FrameNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
+import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import com.mojang.authlib.GameProfile;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.projectile.EntityArrow;
+import net.minecraft.init.Items;
 import net.minecraft.inventory.EntityEquipmentSlot;
+import net.minecraft.item.ItemArrow;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.FakePlayerFactory;
 import net.minecraftforge.fml.common.eventhandler.Event.Result;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -52,6 +64,7 @@ import thecodex6824.coremodlib.MethodDefinition;
 import thecodex6824.coremodlib.PatchStateMachine;
 import thecodex6824.thaumcraftfix.api.event.EntityInOuterLandsEvent;
 import thecodex6824.thaumcraftfix.api.event.FluxRiftDestroyBlockEvent;
+import thecodex6824.thaumcraftfix.core.transformer.custom.ChangeVariableTypeTransformer;
 import thecodex6824.thaumcraftfix.core.transformer.custom.EntityAspectPrefixRemoverTransformer;
 import thecodex6824.thaumcraftfix.core.transformer.custom.ThrowingTransformerWrapper;
 import thecodex6824.thaumcraftfix.core.transformer.custom.TransformerBipedRotationCustomArmor;
@@ -82,6 +95,37 @@ public class EntityTransformers {
 
 	public static boolean fireFluxRiftDestroyBlockEvent(EntityFluxRift rift, BlockPos pos, IBlockState state) {
 	    return MinecraftForge.EVENT_BUS.post(new FluxRiftDestroyBlockEvent(rift, pos, state));
+	}
+
+	public static EntityArrow fireArrow(EntityLivingBase shooter, float range) {
+	    ItemStack arrow = shooter.getHeldItemMainhand();
+	    EntityArrow entity = null;
+	    if (arrow.getItem() instanceof ItemArrow) {
+		entity = ((ItemArrow) arrow.getItem()).createArrow(shooter.getEntityWorld(), arrow, shooter);
+		// if damage would be less than normal Thaumcraft would make it, increase it
+		if (entity.getDamage() < 2.25) {
+		    entity.setDamage(2.25 + range * 2.0F + shooter.getRNG().nextGaussian() * 0.25);
+		}
+	    }
+
+	    return entity;
+	}
+
+	public static boolean isArrowInfinite(EntityLivingBase shooter) {
+	    EntityPlayer fakePlayer = null;
+	    // might as well check this in case anyones adds a fake player at some point
+	    if (shooter instanceof EntityPlayer) {
+		fakePlayer = (EntityPlayer) shooter;
+	    }
+	    else if (!shooter.getEntityWorld().isRemote) {
+		// Long#toHexString is used to try to get a unique username that fits in the normal length limit
+		fakePlayer = FakePlayerFactory.get((WorldServer) shooter.getEntityWorld(),
+			new GameProfile(shooter.getUniqueID(), Long.toHexString(shooter.getUniqueID().getLeastSignificantBits())));
+	    }
+
+	    ItemStack arrow = shooter.getHeldItemMainhand();
+	    return arrow.getItem() instanceof ItemArrow ?
+		    ((ItemArrow) arrow.getItem()).isInfinite(arrow, new ItemStack(Items.BOW), fakePlayer) : null;
 	}
 
     }
@@ -372,5 +416,110 @@ public class EntityTransformers {
 	    })
 	    .build()
 	    );
+
+    // since the arrow type returned by createArrow is EntityArrow and not EntityTippedArrow,
+    // most method and field accesses need to be converted to use EntityArrow
+    // both the new instance and setPotionEffect call are excluded
+    public static final Supplier<ITransformer> CROSSBOW_FIRE_ARROW_CLASS = () -> new ThrowingTransformerWrapper(
+	    new ChangeVariableTypeTransformer(
+		    TransformUtil.remapMethod(new MethodDefinition(
+			    "thaumcraft/common/entities/construct/EntityTurretCrossbow",
+			    false,
+			    "func_82196_d",
+			    Type.VOID_TYPE,
+			    Types.ENTITY_LIVING_BASE, Type.FLOAT_TYPE
+			    )),
+		    Types.ENTITY_TIPPED_ARROW,
+		    Types.ENTITY_ARROW,
+		    false,
+		    ImmutableSet.of(
+			    TransformUtil.remapMethod(new MethodDefinition(
+				    Types.ENTITY_TIPPED_ARROW.getInternalName(),
+				    false,
+				    "func_184555_a",
+				    Type.VOID_TYPE,
+				    Types.ITEM_STACK
+				    )).name()),
+		    true
+		    ));
+
+    public static final Supplier<ITransformer> CROSSBOW_FIRE_ARROW_LOGIC = () -> {
+	LabelNode afterArrowCreation = new LabelNode(new Label());
+	LabelNode afterShrink = new LabelNode(new Label());
+	return new GenericStateMachineTransformer(
+		PatchStateMachine.builder(
+			TransformUtil.remapMethod(new MethodDefinition(
+				"thaumcraft/common/entities/construct/EntityTurretCrossbow",
+				false,
+				"func_82196_d",
+				Type.VOID_TYPE,
+				Types.ENTITY_LIVING_BASE, Type.FLOAT_TYPE
+				)))
+		.findNextNewObject(Types.ENTITY_TIPPED_ARROW)
+		.findNextMethodCall(TransformUtil.remapMethod(new MethodDefinition(
+			Types.ENTITY_TIPPED_ARROW.getInternalName(),
+			false,
+			"func_184555_a",
+			Type.VOID_TYPE,
+			Types.ITEM_STACK
+			)))
+		.combineLastTwoMatches()
+		.insertInstructionsSurrounding()
+		.before(
+			new VarInsnNode(Opcodes.ALOAD, 0),
+			new VarInsnNode(Opcodes.FLOAD, 2),
+			new MethodInsnNode(Opcodes.INVOKESTATIC,
+				HOOKS_COMMON,
+				"fireArrow",
+				Type.getMethodDescriptor(Types.ENTITY_ARROW, Types.ENTITY_LIVING_BASE, Type.FLOAT_TYPE),
+				false
+				),
+			new InsnNode(Opcodes.DUP),
+			new JumpInsnNode(Opcodes.IFNONNULL, afterArrowCreation)
+			)
+		.after(
+			afterArrowCreation,
+			// note: do not add an arrow local here, as there is an append frame later on doing the same thing
+			new FrameNode(Opcodes.F_SAME1, 0, null, 1, new Object[] { Types.ENTITY_ARROW.getInternalName() }),
+			new VarInsnNode(Opcodes.ASTORE, 3)
+			)
+		.endAction()
+		.findConsecutive()
+		.findNextLocalAccess(0)
+		.findNextMethodCall(TransformUtil.remapMethod(new MethodDefinition(
+			"thaumcraft/common/entities/construct/EntityTurretCrossbow",
+			false,
+			"func_184614_ca",
+			Types.ITEM_STACK
+			)))
+		// this could be ILOAD_1, ILOAD, LDC, etc if someone rewrote this method
+		.findAny()
+		.findNextMethodCall(TransformUtil.remapMethod(new MethodDefinition(
+			Types.ITEM_STACK.getInternalName(),
+			false,
+			"func_190918_g",
+			Type.VOID_TYPE,
+			Type.INT_TYPE
+			)))
+		.endConsecutive()
+		.insertInstructionsSurrounding()
+		.before(
+			new VarInsnNode(Opcodes.ALOAD, 0),
+			new MethodInsnNode(Opcodes.INVOKESTATIC,
+				HOOKS_COMMON,
+				"isArrowInfinite",
+				Type.getMethodDescriptor(Type.BOOLEAN_TYPE, Types.ENTITY_LIVING_BASE),
+				false
+				),
+			new JumpInsnNode(Opcodes.IFNE, afterShrink)
+			)
+		.after(
+			afterShrink,
+			new FrameNode(Opcodes.F_SAME, 0, null, 0, null)
+			)
+		.endAction()
+		.build(), true, 1
+		);
+    };
 
 }

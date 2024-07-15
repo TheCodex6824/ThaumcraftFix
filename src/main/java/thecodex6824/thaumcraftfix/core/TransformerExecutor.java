@@ -112,6 +112,11 @@ public class TransformerExecutor implements IClassTransformer {
 	transformers.add(EntityTransformers.GOLEM_PROCESS_INTERACT_DEAD.get());
 	transformers.add(EntityTransformers.OWNED_CONSTRUCT_PROCESS_INTERACT_DEAD.get());
 	transformers.add(EntityTransformers.OWNED_CONSTRUCT_ZERO_DROP_CHANCES.get());
+
+	// the ordering of these is important
+	transformers.add(EntityTransformers.CROSSBOW_FIRE_ARROW_CLASS.get());
+	transformers.add(EntityTransformers.CROSSBOW_FIRE_ARROW_LOGIC.get());
+
 	transformers.add(ItemTransformers.COMPARE_TAGS_RELAXED_NULL_CHECK.get());
 	transformers.add(ItemTransformers.FOCUS_COLOR_NBT.get());
 	transformers.add(ItemTransformers.HAND_MIRROR_STACK_CONTAINER.get());

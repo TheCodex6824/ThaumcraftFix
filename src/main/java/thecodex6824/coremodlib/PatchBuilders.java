@@ -113,6 +113,11 @@ public class PatchBuilders {
 	    matchers.add(new PrefabMatchers.StringLdcMatch(str));
 	    return (T) this;
 	}
+
+	public T findNextNewObject(Type newType) {
+	    matchers.add(new PrefabMatchers.TypeInsnMatch(Opcodes.NEW, newType));
+	    return (T) this;
+	}
     }
 
     public static class ConsecutiveMatchBuilder extends MatchBuilder<ConsecutiveMatchBuilder> {
@@ -234,6 +239,11 @@ public class PatchBuilders {
 
 	public TransformerBuilder matchLastNodeOnly() {
 	    getTransformerList().add(new PrefabMatchTransformers.LastNodeOnly());
+	    return this;
+	}
+
+	public TransformerBuilder combineLastTwoMatches() {
+	    getTransformerList().add(new PrefabMatchTransformers.MakeMatchRange());
 	    return this;
 	}
 
