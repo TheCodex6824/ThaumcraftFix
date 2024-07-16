@@ -43,6 +43,7 @@ import net.minecraft.client.model.ModelBiped;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.IEntityOwnable;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.init.Items;
@@ -52,6 +53,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.common.util.FakePlayerFactory;
 import net.minecraftforge.fml.common.eventhandler.Event.Result;
 import net.minecraftforge.fml.relauncher.Side;
@@ -118,12 +120,30 @@ public class EntityTransformers {
 		fakePlayer = (EntityPlayer) shooter;
 	    }
 	    else if (!shooter.getEntityWorld().isRemote) {
-		// Long#toHexString is used to try to get a unique username that fits in the normal length limit
+		String fakeUsername = "TF";
+		if (shooter instanceof IEntityOwnable && ((IEntityOwnable) shooter).getOwnerId() != null) {
+		    // do not use getOwner here, as the owner may be offline
+		    fakeUsername += Long.toHexString(((IEntityOwnable) shooter).getOwnerId().getLeastSignificantBits());
+		    if (fakeUsername.length() > 16) {
+			// trim username to normal length
+			fakeUsername = fakeUsername.substring(0, 16);
+		    }
+		}
+		else {
+		    // spelling is to keep username <= 16 characters
+		    fakeUsername += "UnownedCrssbw";
+		}
 		fakePlayer = FakePlayerFactory.get((WorldServer) shooter.getEntityWorld(),
-			new GameProfile(shooter.getUniqueID(), Long.toHexString(shooter.getUniqueID().getLeastSignificantBits())));
+			new GameProfile(null, fakeUsername));
+		// synchronize the worlds, as the crossbow could be in a different dimension
+		fakePlayer.setWorld(shooter.getEntityWorld());
+		((FakePlayer) fakePlayer).interactionManager.setWorld((WorldServer) shooter.getEntityWorld());
 	    }
 
 	    ItemStack arrow = shooter.getHeldItemMainhand();
+	    // we pass a normal bow as the firing item so the arrow is consumed if it normally would
+	    // special "arrows" like quivers will always return true here and instead damage the item or such
+	    // this makes those items work as intended instead of being eaten by the crossbow
 	    return arrow.getItem() instanceof ItemArrow ?
 		    ((ItemArrow) arrow.getItem()).isInfinite(arrow, new ItemStack(Items.BOW), fakePlayer) : null;
 	}
