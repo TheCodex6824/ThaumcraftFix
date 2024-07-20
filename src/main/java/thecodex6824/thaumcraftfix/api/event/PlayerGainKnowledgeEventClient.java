@@ -1,3 +1,23 @@
+/**
+ *  Thaumcraft Fix
+ *  Copyright (c) 2024 TheCodex6824.
+ *
+ *  This file is part of Thaumcraft Fix.
+ *
+ *  Thaumcraft Fix is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU Lesser General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  Thaumcraft Fix is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU Lesser General Public License for more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with Thaumcraft Fix.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package thecodex6824.thaumcraftfix.api.event;
 
 import javax.annotation.Nullable;
@@ -11,6 +31,14 @@ import thaumcraft.api.research.ResearchCategory;
 import thaumcraft.api.research.ResearchEvent;
 import thecodex6824.thaumcraftfix.api.ThaumcraftFixApi;
 
+/**
+ * This event is fired on the <strong>client side only</strong> when a player gains knowledge points
+ * (in the form of observations or theorycraft / research points).
+ * <p>
+ * Unlike {@link thaumcraft.api.research.ResearchEvent.Knowledge ResearchEvent.Knowledge}, this event
+ * will always fire on the client, even outside of singleplayer. Note that because this event inherits
+ * <code>ResearchEvent.Knowledge</code>, event handlers listening for that event will also receive this one.
+ */
 public class PlayerGainKnowledgeEventClient extends ResearchEvent.Knowledge {
 
     private static final String CANCEL_LOG_TEXT =
@@ -18,6 +46,15 @@ public class PlayerGainKnowledgeEventClient extends ResearchEvent.Knowledge {
 	    + "This is unsupported, but will only be a no-op instead of crashing the game." + System.lineSeparator()
 	    + "To silence this warning, make sure that the event trying to be canceled is a server-side event, where canceling actually does things.";
 
+    /**
+     * Creates a new <code>PlayerGainKnowledgeEventClient</code>.
+     * @param player The {@link net.minecraft.entity.player.EntityPlayer EntityPlayer} receiving the knowledge.
+     * Since this is the client event, this will always be the local player.
+     * @param type The {@link thaumcraft.api.capabilities.IPlayerKnowledge.EnumKnowledgeType EnumKnowledgeType} to give
+     * @param category The {@link thaumcraft.api.research.ResearchCategory ResearchCategory} of knowledge to give.
+     * This <strong>is allowed</strong> to be null.
+     * @param amount The amount of knowledge to grant
+     */
     public PlayerGainKnowledgeEventClient(EntityPlayer player, EnumKnowledgeType type, @Nullable ResearchCategory category, int amount) {
 	super(player, type, category, amount);
     }

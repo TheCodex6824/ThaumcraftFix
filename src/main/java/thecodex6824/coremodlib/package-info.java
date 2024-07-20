@@ -18,14 +18,14 @@
  *  along with Thaumcraft Fix.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+/**
+ * <strong>Stop.</strong>
+ * <p>
+ * This is not (currently) an external API. It may change without warning. Use this at
+ * your own risk - bug reports about API breakages in this package will not be accepted.
+ * If you want to use this package, first consider using the
+ * <a href="https://github.com/SpongePowered/Mixin/wiki">Mixin</href> library, and only if you really want to
+ * still use this, ask the maintainer to consider making this a stable API.
+ */
+@javax.annotation.ParametersAreNonnullByDefault
 package thecodex6824.coremodlib;
-
-import org.objectweb.asm.tree.AbstractInsnNode;
-
-public interface MutableMatchDetails extends MatchDetails {
-
-    public void setMatchStart(AbstractInsnNode newStart);
-
-    public void setMatchEnd(AbstractInsnNode newEnd);
-
-}
