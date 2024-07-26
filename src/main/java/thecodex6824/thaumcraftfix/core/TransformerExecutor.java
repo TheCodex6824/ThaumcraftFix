@@ -59,6 +59,16 @@ public class TransformerExecutor implements IClassTransformer {
 	}
     }
 
+    private boolean isThaumicWandsPresent() {
+	try {
+	    Class.forName("de.zpenguin.thaumicwands.api.ThaumicWandsAPI");
+	    return true;
+	}
+	catch (Exception ex) {
+	    return false;
+	}
+    }
+
     private void initTransformers() {
 	transformers = new ArrayList<>();
 	if (!isOldAugmentationPresent()) {
@@ -85,8 +95,11 @@ public class TransformerExecutor implements IClassTransformer {
 		    AUG_GOOD_VERSION);
 	}
 
-	transformers.add(BlockTransformers.ARCANE_WORKBENCH_NO_CONCURRENT_USE.get());
-	transformers.add(BlockTransformers.ARCANE_WORKBENCH_NO_CONCURRENT_USE_CHARGER.get());
+	// Thaumic Wands deletes the code we want to hook into, and uses custom arcane workbench stuff
+	if (!isThaumicWandsPresent()) {
+	    transformers.add(BlockTransformers.ARCANE_WORKBENCH_NO_CONCURRENT_USE.get());
+	    transformers.add(BlockTransformers.ARCANE_WORKBENCH_NO_CONCURRENT_USE_CHARGER.get());
+	}
 	transformers.add(BlockTransformers.BRAIN_JAR_EAT_DELAY.get());
 	transformers.add(BlockTransformers.FOCAL_MANIPULATOR_FOCUS_SLOT.get());
 	transformers.add(BlockTransformers.FOCAL_MANIPULATOR_COMPONENTS);

@@ -100,22 +100,31 @@ public class BlockTransformers {
 	    return side == EnumFacing.UP && original == BlockFaceShape.UNDEFINED ? BlockFaceShape.SOLID : original;
 	}
 
-	public static boolean isArcaneWorkbenchAllowed(World world, BlockPos pos, EntityPlayer player) {
-	    TileEntity tile = world.getTileEntity(pos);
-	    boolean allowed = tile instanceof TileArcaneWorkbench &&
-		    !(((TileArcaneWorkbench) tile).inventoryCraft.eventHandler instanceof ContainerArcaneWorkbench);
-	    if (!allowed && player != null) {
-		player.sendStatusMessage(new TextComponentTranslation("thaumcraftfix.alreadyinuse")
-			.setStyle(new Style().setColor(TextFormatting.DARK_PURPLE)), true);
+	public static boolean isArcaneWorkbenchNotAllowed(boolean original, World world, BlockPos pos, EntityPlayer player) {
+	    // original will be true if this call happened on the client
+	    boolean notAllowed = original;
+	    if (!notAllowed) {
+		TileEntity tile = world.getTileEntity(pos);
+		notAllowed = !(tile instanceof TileArcaneWorkbench) ||
+			((TileArcaneWorkbench) tile).inventoryCraft.eventHandler instanceof ContainerArcaneWorkbench;
+		if (notAllowed && player != null) {
+		    player.sendStatusMessage(new TextComponentTranslation("thaumcraftfix.alreadyinuse")
+			    .setStyle(new Style().setColor(TextFormatting.DARK_PURPLE)), true);
+		}
 	    }
 
-	    return allowed;
+	    return notAllowed;
 	}
 
-	public static boolean isArcaneWorkbenchAllowedForCharger(World world, BlockPos pos, EntityPlayer player) {
-	    BlockPos real = pos.down();
-	    IBlockState state = world.getBlockState(real);
-	    return state.getBlock() != BlocksTC.arcaneWorkbench || isArcaneWorkbenchAllowed(world, real, player);
+	public static boolean isArcaneWorkbenchNotAllowedForCharger(boolean original, World world, BlockPos pos, EntityPlayer player) {
+	    boolean notAllowed = original;
+	    if (!notAllowed) {
+		BlockPos real = pos.down();
+		IBlockState state = world.getBlockState(real);
+		notAllowed = state.getBlock() == BlocksTC.arcaneWorkbench && isArcaneWorkbenchNotAllowed(original, world, real, player);
+	    }
+
+	    return notAllowed;
 	}
 
 	public static Iterator<FocusElementNode> getNodesInTree(Iterator<FocusElementNode> nodeIterator,
@@ -257,7 +266,6 @@ public class BlockTransformers {
     private static final String HOOKS_CLIENT = Type.getInternalName(HooksClient.class);
 
     public static final Supplier<ITransformer> ARCANE_WORKBENCH_NO_CONCURRENT_USE = () -> {
-	LabelNode newLabel = new LabelNode(new Label());
 	return new GenericStateMachineTransformer(
 		PatchStateMachine.builder(
 			TransformUtil.remapMethod(new MethodDefinition(
@@ -268,29 +276,27 @@ public class BlockTransformers {
 				Types.WORLD, Types.BLOCK_POS, Types.I_BLOCK_STATE, Types.ENTITY_PLAYER,
 				Type.getType("Lnet/minecraft/util/EnumHand;"), Types.ENUM_FACING, Type.FLOAT_TYPE, Type.FLOAT_TYPE, Type.FLOAT_TYPE
 				)))
-		.findNextLocalAccess(4)
-		.insertInstructionsBefore(
+		.findNextFieldAccess(TransformUtil.remapField(new FieldDefinition(
+			Types.WORLD.getInternalName(),
+			"field_72995_K",
+			Type.BOOLEAN_TYPE
+			)))
+		.insertInstructionsAfter(
 			new VarInsnNode(Opcodes.ALOAD, 1),
 			new VarInsnNode(Opcodes.ALOAD, 2),
 			new VarInsnNode(Opcodes.ALOAD, 4),
 			new MethodInsnNode(Opcodes.INVOKESTATIC,
 				HOOKS_COMMON,
-				"isArcaneWorkbenchAllowed",
-				Type.getMethodDescriptor(Type.BOOLEAN_TYPE, Types.WORLD, Types.BLOCK_POS, Types.ENTITY_PLAYER),
+				"isArcaneWorkbenchNotAllowed",
+				Type.getMethodDescriptor(Type.BOOLEAN_TYPE, Type.BOOLEAN_TYPE, Types.WORLD, Types.BLOCK_POS, Types.ENTITY_PLAYER),
 				false
-				),
-			new JumpInsnNode(Opcodes.IFNE, newLabel),
-			new InsnNode(Opcodes.ICONST_1),
-			new InsnNode(Opcodes.IRETURN),
-			newLabel,
-			new FrameNode(Opcodes.F_SAME, 0, null, 0, null)
+				)
 			)
 		.build(), true, 1
 		);
     };
 
     public static final Supplier<ITransformer> ARCANE_WORKBENCH_NO_CONCURRENT_USE_CHARGER = () -> {
-	LabelNode newLabel = new LabelNode(new Label());
 	return new GenericStateMachineTransformer(
 		PatchStateMachine.builder(
 			TransformUtil.remapMethod(new MethodDefinition(
@@ -301,24 +307,21 @@ public class BlockTransformers {
 				Types.WORLD, Types.BLOCK_POS, Types.I_BLOCK_STATE, Types.ENTITY_PLAYER,
 				Type.getType("Lnet/minecraft/util/EnumHand;"), Types.ENUM_FACING, Type.FLOAT_TYPE, Type.FLOAT_TYPE, Type.FLOAT_TYPE
 				)))
-		.findNextLocalAccess(1)
-		// this is intentional, we want the second access
-		.findNextLocalAccess(1)
-		.insertInstructionsBefore(
+		.findNextFieldAccess(TransformUtil.remapField(new FieldDefinition(
+			Types.WORLD.getInternalName(),
+			"field_72995_K",
+			Type.BOOLEAN_TYPE
+			)))
+		.insertInstructionsAfter(
 			new VarInsnNode(Opcodes.ALOAD, 1),
 			new VarInsnNode(Opcodes.ALOAD, 2),
 			new VarInsnNode(Opcodes.ALOAD, 4),
 			new MethodInsnNode(Opcodes.INVOKESTATIC,
 				HOOKS_COMMON,
-				"isArcaneWorkbenchAllowedForCharger",
-				Type.getMethodDescriptor(Type.BOOLEAN_TYPE, Types.WORLD, Types.BLOCK_POS, Types.ENTITY_PLAYER),
+				"isArcaneWorkbenchNotAllowedForCharger",
+				Type.getMethodDescriptor(Type.BOOLEAN_TYPE, Type.BOOLEAN_TYPE, Types.WORLD, Types.BLOCK_POS, Types.ENTITY_PLAYER),
 				false
-				),
-			new JumpInsnNode(Opcodes.IFNE, newLabel),
-			new InsnNode(Opcodes.ICONST_1),
-			new InsnNode(Opcodes.IRETURN),
-			newLabel,
-			new FrameNode(Opcodes.F_SAME, 0, null, 0, null)
+				)
 			)
 		.build(), true, 1
 		);
