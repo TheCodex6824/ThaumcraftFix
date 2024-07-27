@@ -228,7 +228,8 @@ public class NetworkTransformers {
 
 	public static int checkProgressSyncStage(int originalStage, EntityPlayer player, ResearchEntry entry) {
 	    int logicStage = originalStage;
-	    if (logicStage < 0 && ResearchManager.doesPlayerHaveRequisites(player, entry.getKey())) {
+	    boolean hasParents = entry.getParents() != null && entry.getParents().length > 0;
+	    if (logicStage < 0 && hasParents && ResearchManager.doesPlayerHaveRequisites(player, entry.getKey())) {
 		logicStage = Integer.MAX_VALUE;
 	    }
 
