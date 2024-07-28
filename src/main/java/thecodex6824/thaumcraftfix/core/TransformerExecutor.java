@@ -140,6 +140,7 @@ public class TransformerExecutor implements IClassTransformer {
 	transformers.add(ItemTransformers.PRIMORDIAL_PEARL_ANVIL_DUPE_PROPS.get());
 	transformers.add(MiscTransformers.ARCANE_WORKBENCH_RECIPE_COMPAT.get());
 	transformers.add(MiscTransformers.ASPECT_REGISTRY_LOOKUP.get());
+	transformers.add(MiscTransformers.ASPECT_RECIPE_MATCHES.get());
 	transformers.add(MiscTransformers.AURA_CHUNK_THREAD_SAFETY);
 	transformers.add(NetworkTransformers.FOCAL_MANIPULATOR_DATA.get());
 	transformers.add(NetworkTransformers.LOGISTICS_REQUEST.get());
