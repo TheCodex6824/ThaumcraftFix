@@ -28,6 +28,7 @@ import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -49,14 +50,23 @@ import com.google.common.math.DoubleMath;
 import net.minecraft.block.state.BlockFaceShape;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.SoundEvents;
+import net.minecraft.item.ItemStack;
+import net.minecraft.network.play.server.SPacketParticles;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import thaumcraft.api.aspects.AspectList;
@@ -69,6 +79,7 @@ import thaumcraft.common.container.ContainerArcaneWorkbench;
 import thaumcraft.common.tiles.crafting.FocusElementNode;
 import thaumcraft.common.tiles.crafting.TileArcaneWorkbench;
 import thaumcraft.common.tiles.crafting.TileFocalManipulator;
+import thaumcraft.common.tiles.devices.TileInfernalFurnace;
 import thecodex6824.coremodlib.FieldDefinition;
 import thecodex6824.coremodlib.LocalVariableDefinition;
 import thecodex6824.coremodlib.MethodDefinition;
@@ -239,6 +250,40 @@ public class BlockTransformers {
 	    }
 
 	    return vis;
+	}
+
+	public static ItemStack passStackToFurnace(ItemStack original, Entity item) {
+	    return item.isDead ? ItemStack.EMPTY : original;
+	}
+
+	public static ItemStack getStackToSet(ItemStack original, Entity item) {
+	    item.setDead();
+	    return ((EntityItem) item).getItem();
+	}
+
+	public static void destroyItemEffectsThatActuallyWork(TileInfernalFurnace furnace) {
+	    ThreadLocalRandom rand = ThreadLocalRandom.current();
+	    BlockPos pos = furnace.getPos();
+	    World world = furnace.getWorld();
+	    world.playSound(null, pos, SoundEvents.BLOCK_LAVA_EXTINGUISH,
+		    SoundCategory.BLOCKS, 0.3F, 2.6F + (rand.nextFloat() - rand.nextFloat()) * 0.8F);
+	    for (int i = 0; i < 16; ++i) {
+		float pX = pos.getX() + rand.nextFloat();
+		float pY = pos.getY() + 0.5F;
+		float pZ = pos.getZ() + rand.nextFloat();
+		SPacketParticles packet = new SPacketParticles(EnumParticleTypes.LAVA, false, pX, pY, pZ,
+			0.0F, 0.0F, 0.0F, 0.0F, rand.nextInt(1) + 1);
+		for (EntityPlayerMP player : FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayers()) {
+		    if (player.dimension == world.provider.getDimension()) {
+			double dX = pX - player.posX;
+			double dY = pY - (player.posY + player.eyeHeight);
+			double dZ = pZ - player.posZ;
+			if (dX * dX + dY * dY + dZ * dZ < 64 * 64) {
+			    player.connection.sendPacket(packet);
+			}
+		    }
+		}
+	    }
 	}
 
     }
@@ -646,6 +691,78 @@ public class BlockTransformers {
 		    )
 	    .build()
 	    );
+
+    public static final Supplier<ITransformer> INFERNAL_FURNACE_DESTROY_EFFECTS = () -> {
+	return new GenericStateMachineTransformer(
+		PatchStateMachine.builder(
+			TransformUtil.remapMethod(new MethodDefinition(
+				"thaumcraft/common/tiles/devices/TileInfernalFurnace",
+				false,
+				"destroyItem",
+				Type.VOID_TYPE
+				)))
+		.findNextOpcode(Opcodes.RETURN)
+		.insertInstructionsBefore(
+			new VarInsnNode(Opcodes.ALOAD, 0),
+			new MethodDefinition(
+				HOOKS_COMMON,
+				false,
+				"destroyItemEffectsThatActuallyWork",
+				Type.VOID_TYPE,
+				Type.getType("Lthaumcraft/common/tiles/devices/TileInfernalFurnace;")
+				).asMethodInsnNode(Opcodes.INVOKESTATIC)
+			)
+		.build()
+		);
+    };
+
+    public static final Supplier<ITransformer> INFERNAL_FURNACE_ITEM_CHECKS = () -> {
+	return new GenericStateMachineTransformer(
+		PatchStateMachine.builder(
+			TransformUtil.remapMethod(new MethodDefinition(
+				"thaumcraft/common/blocks/devices/BlockInfernalFurnace",
+				false,
+				"func_180634_a",
+				Type.VOID_TYPE,
+				Types.WORLD, Types.BLOCK_POS, Types.I_BLOCK_STATE, Types.ENTITY
+				)))
+		.findNextMethodCall(new MethodDefinition(
+			"thaumcraft/common/tiles/devices/TileInfernalFurnace",
+			false,
+			"addItemsToInventory",
+			Types.ITEM_STACK,
+			Types.ITEM_STACK
+			))
+		.insertInstructionsBefore(
+			new VarInsnNode(Opcodes.ALOAD, 4),
+			new MethodDefinition(
+				HOOKS_COMMON,
+				false,
+				"passStackToFurnace",
+				Types.ITEM_STACK,
+				Types.ITEM_STACK, Types.ENTITY
+				).asMethodInsnNode(Opcodes.INVOKESTATIC)
+			)
+		.findNextMethodCall(TransformUtil.remapMethod(new MethodDefinition(
+			Types.ENTITY_ITEM.getInternalName(),
+			false,
+			"func_92058_a",
+			Type.VOID_TYPE,
+			Types.ITEM_STACK
+			)))
+		.insertInstructionsBefore(
+			new VarInsnNode(Opcodes.ALOAD, 4),
+			new MethodDefinition(
+				HOOKS_COMMON,
+				false,
+				"getStackToSet",
+				Types.ITEM_STACK,
+				Types.ITEM_STACK, Types.ENTITY
+				).asMethodInsnNode(Opcodes.INVOKESTATIC)
+			)
+		.build()
+		);
+    };
 
     public static final Supplier<ITransformer> PILLAR_DROP_FIX = () -> new ThrowingTransformerWrapper(
 	    new BlockPillarDropFixTransformer());

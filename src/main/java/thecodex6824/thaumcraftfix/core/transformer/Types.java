@@ -50,6 +50,7 @@ public final class Types {
     public static final Type NON_NULL_LIST = Type.getType("Lnet/minecraft/util/NonNullList;");
 
     public static final Type ENTITY = Type.getType("Lnet/minecraft/entity/Entity;");
+    public static final Type ENTITY_ITEM = Type.getType("Lnet/minecraft/entity/item/EntityItem;");
     public static final Type ENTITY_LIVING_BASE = Type.getType("Lnet/minecraft/entity/EntityLivingBase;");
     public static final Type ENTITY_LIVING = Type.getType("Lnet/minecraft/entity/EntityLiving;");
 

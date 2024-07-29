@@ -108,6 +108,8 @@ public class TransformerExecutor implements IClassTransformer {
 	transformers.add(BlockTransformers.FOCAL_MANIPULATOR_SERVER_CHECKS.get());
 	transformers.add(BlockTransformers.FOCAL_MANIPULATOR_VIS_FP_ISSUES.get());
 	transformers.add(BlockTransformers.FOCAL_MANIPULATOR_XP_COST_GUI);
+	transformers.add(BlockTransformers.INFERNAL_FURNACE_DESTROY_EFFECTS.get());
+	transformers.add(BlockTransformers.INFERNAL_FURNACE_ITEM_CHECKS.get());
 	transformers.add(BlockTransformers.PILLAR_DROP_FIX.get());
 	transformers.add(BlockTransformers.PLANT_CINDERPEARL_OFFSET.get());
 	transformers.add(BlockTransformers.PLANT_SHIMMERLEAF_OFFSET.get());
