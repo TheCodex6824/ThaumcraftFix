@@ -267,23 +267,22 @@ public class BlockTransformers {
 	    World world = furnace.getWorld();
 	    world.playSound(null, pos, SoundEvents.BLOCK_LAVA_EXTINGUISH,
 		    SoundCategory.BLOCKS, 0.3F, 2.6F + (rand.nextFloat() - rand.nextFloat()) * 0.8F);
-	    for (int i = 0; i < 16; ++i) {
-		float pX = pos.getX() + rand.nextFloat();
-		float pY = pos.getY() + 0.5F;
-		float pZ = pos.getZ() + rand.nextFloat();
-		SPacketParticles packet = new SPacketParticles(EnumParticleTypes.LAVA, false, pX, pY, pZ,
-			0.0F, 0.0F, 0.0F, 0.0F, rand.nextInt(1) + 1);
-		for (EntityPlayerMP player : FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayers()) {
-		    if (player.dimension == world.provider.getDimension()) {
-			double dX = pX - player.posX;
-			double dY = pY - (player.posY + player.eyeHeight);
-			double dZ = pZ - player.posZ;
-			if (dX * dX + dY * dY + dZ * dZ < 64 * 64) {
-			    player.connection.sendPacket(packet);
-			}
+	    float pX = pos.getX() + rand.nextFloat();
+	    float pY = pos.getY() + 0.5F;
+	    float pZ = pos.getZ() + rand.nextFloat();
+	    SPacketParticles packet = new SPacketParticles(EnumParticleTypes.LAVA, false, pX, pY, pZ,
+		    0.0F, 0.0F, 0.0F, 0.0F, rand.nextInt(3) + 2);
+	    for (EntityPlayerMP player : FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayers()) {
+		if (player.dimension == world.provider.getDimension()) {
+		    double dX = pX - player.posX;
+		    double dY = pY - (player.posY + player.eyeHeight);
+		    double dZ = pZ - player.posZ;
+		    if (dX * dX + dY * dY + dZ * dZ < 64 * 64) {
+			player.connection.sendPacket(packet);
 		    }
 		}
 	    }
+
 	}
 
     }
