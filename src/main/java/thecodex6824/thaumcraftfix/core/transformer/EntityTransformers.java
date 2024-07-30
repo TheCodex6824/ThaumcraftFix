@@ -370,6 +370,31 @@ public class EntityTransformers {
 		);
     };
 
+    public static final Supplier<ITransformer> PECH_ADD_STACK = () -> {
+	return new GenericStateMachineTransformer(
+		PatchStateMachine.builder(
+			new MethodDefinition(
+				"thaumcraft/common/container/ContainerPech",
+				false,
+				"addStack",
+				Type.VOID_TYPE,
+				Types.ITEM_STACK
+				)
+			)
+		.findNextMethodCall(TransformUtil.remapMethod(new MethodDefinition(
+			Types.ITEM_STACK.getInternalName(),
+			false,
+			"func_190917_f",
+			Type.VOID_TYPE,
+			Type.INT_TYPE
+			)))
+		.insertInstructionsAfter(
+			new InsnNode(Opcodes.RETURN)
+			)
+		.build()
+		);
+    };
+
     // fixes armor counting twice visually for void robe armor
     // I get a lot of reports/questions about it, so here it is
     public static final ITransformer VOID_ROBE_ARMOR_DISPLAY = new GenericStateMachineTransformer(
