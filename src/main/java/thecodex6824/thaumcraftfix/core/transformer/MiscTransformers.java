@@ -49,6 +49,7 @@ import thecodex6824.coremodlib.PatchStateMachine;
 import thecodex6824.thaumcraftfix.common.inventory.FakeArcaneWorkbenchInventory;
 import thecodex6824.thaumcraftfix.common.inventory.InventoryCraftingWrapper;
 import thecodex6824.thaumcraftfix.core.transformer.custom.AuraChunkThreadSafetyTransformer;
+import thecodex6824.thaumcraftfix.core.transformer.custom.ChangeVariableTypeTransformer;
 import thecodex6824.thaumcraftfix.core.transformer.custom.ThrowingTransformerWrapper;
 
 public class MiscTransformers {
@@ -232,7 +233,20 @@ public class MiscTransformers {
 		);
     };
 
-    public static final ITransformer AURA_CHUNK_THREAD_SAFETY = new ThrowingTransformerWrapper(
+    public static final Supplier<ITransformer> AURA_CHUNK_THREAD_SAFETY = () -> new ThrowingTransformerWrapper(
 	    new AuraChunkThreadSafetyTransformer());
+
+    public static final Supplier<ITransformer> OBJ_MODEL_NO_SCALA = () -> new ThrowingTransformerWrapper(
+	    new ChangeVariableTypeTransformer(new MethodDefinition(
+		    "thaumcraft/client/lib/obj/MeshLoader",
+		    false,
+		    "addFace",
+		    Type.VOID_TYPE,
+		    Types.STRING
+		    ),
+		    Type.getType("Lscala/NotImplementedError;"),
+		    Type.getType(UnsupportedOperationException.class),
+		    false
+		    ));
 
 }

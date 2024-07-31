@@ -79,8 +79,8 @@ public class ChangeVariableTypeTransformer implements ITransformer {
 	    AbstractInsnNode node = method.instructions.get(i);
 	    if (node instanceof TypeInsnNode && (!ignoreNew || node.getOpcode() != Opcodes.NEW)) {
 		TypeInsnNode typeNode = (TypeInsnNode) node;
-		if (typeNode.desc.equals(from.getDescriptor())) {
-		    typeNode.desc = to.getDescriptor();
+		if (typeNode.desc.equals(from.getInternalName())) {
+		    typeNode.desc = to.getInternalName();
 		    didSomething = true;
 		}
 	    }
@@ -89,7 +89,9 @@ public class ChangeVariableTypeTransformer implements ITransformer {
 		if (!ignored.contains(methodNode.name) && methodNode.owner.equals(from.getInternalName())) {
 		    methodNode.owner = to.getInternalName();
 		    methodNode.itf = itf;
-		    methodNode.setOpcode(itf ? Opcodes.INVOKEINTERFACE : Opcodes.INVOKEVIRTUAL);
+		    if (node.getOpcode() != Opcodes.INVOKESPECIAL) {
+			methodNode.setOpcode(itf ? Opcodes.INVOKEINTERFACE : Opcodes.INVOKEVIRTUAL);
+		    }
 		    didSomething = true;
 		}
 	    }
