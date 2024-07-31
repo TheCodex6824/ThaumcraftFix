@@ -23,7 +23,6 @@ package thecodex6824.thaumcraftfix.core;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
@@ -43,35 +42,11 @@ import thecodex6824.thaumcraftfix.core.transformer.WorldGenTransformers;
 
 public class TransformerExecutor implements IClassTransformer {
 
-    private static final String AUG_GOOD_VERSION = "2.1.14";
-
     private List<ITransformer> transformers;
-
-    private boolean isOldAugmentationPresent() {
-	try {
-	    Class<?> augApi = Class.forName("thecodex6824.thaumicaugmentation.api.ThaumicAugmentationAPI");
-	    String apiVersion = (String) augApi.getField("API_VERSION").get(null);
-	    return new ComparableVersion(apiVersion).compareTo(new ComparableVersion(AUG_GOOD_VERSION)) < 0;
-	}
-	catch (Exception ex) {
-	    // assume we don't have it
-	    return false;
-	}
-    }
-
-    private boolean isThaumicWandsPresent() {
-	try {
-	    Class.forName("de.zpenguin.thaumicwands.api.ThaumicWandsAPI");
-	    return true;
-	}
-	catch (Exception ex) {
-	    return false;
-	}
-    }
 
     private void initTransformers() {
 	transformers = new ArrayList<>();
-	if (!isOldAugmentationPresent()) {
+	if (!ThaumcraftFixCore.isOldThaumicAugmentationDetected()) {
 	    transformers.add(EntityTransformers.CUSTOM_ARMOR_NOT_CALLING_SUPER);
 	    transformers.add(EntityTransformers.CUSTOM_ARMOR_ROTATION_POINTS);
 	    transformers.add(EntityTransformers.ELDRITCH_GUARDIAN_FOG);
@@ -92,11 +67,11 @@ public class TransformerExecutor implements IClassTransformer {
 	    ThaumcraftFixCore.getLogger().warn("An old version of Thaumic Augmentation was detected."
 		    + " Some of the fixes normally provided by Thaumcraft Fix will be handled by Thaumic Augmentation instead."
 		    + " Consider updating Thaumic Augmentation to version {} or newer, as Thaumcraft Fix will probably have better compatibility and less of a chance of issues occuring.",
-		    AUG_GOOD_VERSION);
+		    ThaumcraftFixCore.AUG_GOOD_VERSION);
 	}
 
 	// Thaumic Wands deletes the code we want to hook into, and uses custom arcane workbench stuff
-	if (!isThaumicWandsPresent()) {
+	if (!ThaumcraftFixCore.isThaumicWandsDetected()) {
 	    transformers.add(BlockTransformers.ARCANE_WORKBENCH_NO_CONCURRENT_USE.get());
 	    transformers.add(BlockTransformers.ARCANE_WORKBENCH_NO_CONCURRENT_USE_CHARGER.get());
 	}
@@ -180,6 +155,10 @@ public class TransformerExecutor implements IClassTransformer {
 
     @Override
     public byte[] transform(String name, String transformedName, byte[] basicClass) {
+	if (!ThaumcraftFixCore.isInitComplete()) {
+	    return basicClass;
+	}
+
 	if (transformers == null) {
 	    initTransformers();
 	}

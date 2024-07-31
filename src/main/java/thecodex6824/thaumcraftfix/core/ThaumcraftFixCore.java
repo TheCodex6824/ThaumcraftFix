@@ -24,6 +24,7 @@ import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.maven.artifact.versioning.ComparableVersion;
 
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin.MCVersion;
@@ -37,8 +38,13 @@ import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin.TransformerExclusions
 @TransformerExclusions("thecodex6824.thaumcraftfix.core")
 public class ThaumcraftFixCore implements IFMLLoadingPlugin {
 
+    protected static final String AUG_GOOD_VERSION = "2.1.14";
+
     private static Logger log = LogManager.getLogger("thaumcraftfixcore");
     private static boolean debug = false;
+    private static boolean ready = false;
+    private static boolean oldAug = false;
+    private static boolean thaumicWands = false;
 
     public static Logger getLogger() {
 	return log;
@@ -46,6 +52,18 @@ public class ThaumcraftFixCore implements IFMLLoadingPlugin {
 
     public static boolean isDebugEnabled() {
 	return debug;
+    }
+
+    public static boolean isInitComplete() {
+	return ready;
+    }
+
+    public static boolean isOldThaumicAugmentationDetected() {
+	return oldAug;
+    }
+
+    public static boolean isThaumicWandsDetected() {
+	return thaumicWands;
     }
 
     @Override
@@ -81,6 +99,28 @@ public class ThaumcraftFixCore implements IFMLLoadingPlugin {
 	}
 
 	debug = debugBoolTrue || debugIntTrue;
+
+	// Thaumic Augmentation detection
+	try {
+	    Class<?> augApi = Class.forName("thecodex6824.thaumicaugmentation.api.ThaumicAugmentationAPI");
+	    String apiVersion = (String) augApi.getField("API_VERSION").get(null);
+	    oldAug = new ComparableVersion(apiVersion).compareTo(new ComparableVersion(AUG_GOOD_VERSION)) < 0;
+	}
+	catch (Exception ex) {
+	    // assume we don't have it
+	}
+
+	// Thaumic Wands detection
+	// I don't like depending on internal classes existing, but the coremod list from the
+	// injectData map doesn't seem to be working with cleanroom (?)
+	try {
+	    Class.forName("de.zpenguin.thaumicwands.asm.ThaumicWandsCore");
+	    thaumicWands = true;
+	}
+	catch (Exception ex) {}
+
+	ready = true;
+	log.info("Thaumcraft Fix coremod initialized");
     }
 
 }
