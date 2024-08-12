@@ -42,6 +42,7 @@ import baubles.api.cap.BaublesCapabilities;
 import it.unimi.dsi.fastutil.ints.IntRBTreeSet;
 import net.minecraft.client.Minecraft;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.Item;
@@ -146,6 +147,15 @@ public class ItemTransformers {
 		player.closeScreen();
 	    }
 	    return mirror;
+	}
+
+	public static int getItemConsumeAmount(int original, EntityLivingBase entity) {
+	    return entity instanceof EntityPlayer && ((EntityPlayer) entity).isCreative() ?
+		    0 : original;
+	}
+
+	public static boolean skipGivingPhial(EntityPlayer player) {
+	    return player.isCreative();
 	}
 
     }
@@ -323,6 +333,76 @@ public class ItemTransformers {
 		)));
     };
 
+    public static final Supplier<ITransformer> PHIAL_CONSUMPTION_CREATIVE = () -> {
+	LabelNode afterSpawn = new LabelNode(new Label());
+	return new GenericStateMachineTransformer(
+		PatchStateMachine.builder(TransformUtil.remapMethod(new MethodDefinition(
+			"thaumcraft/common/items/consumables/ItemPhial",
+			false,
+			"onItemUseFirst",
+			Types.ENUM_ACTION_RESULT,
+			Types.ENTITY_PLAYER, Types.WORLD, Types.BLOCK_POS, Types.ENUM_FACING,
+			Type.FLOAT_TYPE, Type.FLOAT_TYPE, Type.FLOAT_TYPE, Types.ENUM_HAND
+			)))
+		// set the stack shrink amount to 0
+		.findNextMethodCall(TransformUtil.remapMethod(new MethodDefinition(
+			Types.ITEM_STACK.getInternalName(),
+			false,
+			"func_190918_g",
+			Type.VOID_TYPE,
+			Type.INT_TYPE
+			)))
+		.insertInstructionsBefore(
+			new VarInsnNode(Opcodes.ALOAD, 1),
+			new MethodInsnNode(Opcodes.INVOKESTATIC,
+				HOOKS_COMMON,
+				"getItemConsumeAmount",
+				Type.getMethodDescriptor(Type.INT_TYPE, Type.INT_TYPE, Types.ENTITY_LIVING_BASE),
+				false
+				)
+			)
+		// jump over giving the phial to the player
+		// this works by finding the label after the spawnEntity call, which
+		// should also be a jump target from the addItemStackToInventory call
+		// this means we get the frame "for free", which is good because
+		// the frames for all 3 patch sites are different
+		// we have to find the label for it and not just put it after spawnEntity
+		// because some sites have extra pops etc after that call
+		.findConsecutive()
+		.findNextLocalAccess(1)
+		.findNextFieldAccess(TransformUtil.remapField(new FieldDefinition(
+			Types.ENTITY_PLAYER.getInternalName(),
+			"field_71071_by",
+			Types.INVENTORY_PLAYER
+			)))
+		.endConsecutive()
+		.findNextMethodCall(TransformUtil.remapMethod(new MethodDefinition(
+			Types.WORLD.getInternalName(),
+			false,
+			"func_72838_d",
+			Type.BOOLEAN_TYPE,
+			Types.ENTITY
+			)))
+		.findNextInstructionType(LabelNode.class)
+		.combineLastTwoMatches()
+		.combineLastTwoMatches()
+		.insertInstructionsSurrounding()
+		.before(
+			new VarInsnNode(Opcodes.ALOAD, 1),
+			new MethodInsnNode(Opcodes.INVOKESTATIC,
+				HOOKS_COMMON,
+				"skipGivingPhial",
+				Type.getMethodDescriptor(Type.BOOLEAN_TYPE, Types.ENTITY_PLAYER),
+				false
+				),
+			new JumpInsnNode(Opcodes.IFNE, afterSpawn)
+			)
+		.after(afterSpawn)
+		.endAction()
+		.build()
+		);
+    };
+
     public static final Supplier<ITransformer> PRIMORDIAL_PEARL_ANVIL_DUPE_DURABILITY_BAR = () -> new ThrowingTransformerWrapper(
 	    new PrimordialPearlDurabilityBarTransformer());
 
@@ -383,5 +463,34 @@ public class ItemTransformers {
 	    })
 	    .build()
 	    );
+
+    public static final Supplier<ITransformer> SANITY_SOAP_CREATIVE = () -> {
+	return new GenericStateMachineTransformer(
+		PatchStateMachine.builder(TransformUtil.remapMethod(new MethodDefinition(
+			"thaumcraft/common/items/consumables/ItemSanitySoap",
+			false,
+			"func_77615_a",
+			Type.VOID_TYPE,
+			Types.ITEM_STACK, Types.WORLD, Types.ENTITY_LIVING_BASE, Type.INT_TYPE
+			)))
+		.findNextMethodCall(TransformUtil.remapMethod(new MethodDefinition(
+			Types.ITEM_STACK.getInternalName(),
+			false,
+			"func_190918_g",
+			Type.VOID_TYPE,
+			Type.INT_TYPE
+			)))
+		.insertInstructionsBefore(
+			new VarInsnNode(Opcodes.ALOAD, 3),
+			new MethodInsnNode(Opcodes.INVOKESTATIC,
+				HOOKS_COMMON,
+				"getItemConsumeAmount",
+				Type.getMethodDescriptor(Type.INT_TYPE, Type.INT_TYPE, Types.ENTITY_LIVING_BASE),
+				false
+				)
+			)
+		.build()
+		);
+    };
 
 }

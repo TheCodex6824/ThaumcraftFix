@@ -317,7 +317,7 @@ public class BlockTransformers {
 				"func_180639_a",
 				Type.BOOLEAN_TYPE,
 				Types.WORLD, Types.BLOCK_POS, Types.I_BLOCK_STATE, Types.ENTITY_PLAYER,
-				Type.getType("Lnet/minecraft/util/EnumHand;"), Types.ENUM_FACING, Type.FLOAT_TYPE, Type.FLOAT_TYPE, Type.FLOAT_TYPE
+				Types.ENUM_HAND, Types.ENUM_FACING, Type.FLOAT_TYPE, Type.FLOAT_TYPE, Type.FLOAT_TYPE
 				)))
 		.findNextFieldAccess(TransformUtil.remapField(new FieldDefinition(
 			Types.WORLD.getInternalName(),
@@ -348,7 +348,7 @@ public class BlockTransformers {
 				"func_180639_a",
 				Type.BOOLEAN_TYPE,
 				Types.WORLD, Types.BLOCK_POS, Types.I_BLOCK_STATE, Types.ENTITY_PLAYER,
-				Type.getType("Lnet/minecraft/util/EnumHand;"), Types.ENUM_FACING, Type.FLOAT_TYPE, Type.FLOAT_TYPE, Type.FLOAT_TYPE
+				Types.ENUM_HAND, Types.ENUM_FACING, Type.FLOAT_TYPE, Type.FLOAT_TYPE, Type.FLOAT_TYPE
 				)))
 		.findNextFieldAccess(TransformUtil.remapField(new FieldDefinition(
 			Types.WORLD.getInternalName(),

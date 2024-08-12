@@ -113,9 +113,11 @@ public class TransformerExecutor implements IClassTransformer {
 	transformers.add(ItemTransformers.HAND_MIRROR_STACK_CONTAINER.get());
 	transformers.add(ItemTransformers.HAND_MIRROR_STACK_GUI.get());
 	transformers.add(ItemTransformers.INFUSION_ENCHANTMENT_DROPS_PRIORITY.get());
+	transformers.add(ItemTransformers.PHIAL_CONSUMPTION_CREATIVE.get());
 	transformers.add(ItemTransformers.PRIMORDIAL_PEARL_ANVIL_DUPE_DURABILITY_BAR.get());
 	transformers.add(ItemTransformers.PRIMORDIAL_PEARL_ANVIL_DUPE_EVENT.get());
 	transformers.add(ItemTransformers.PRIMORDIAL_PEARL_ANVIL_DUPE_PROPS.get());
+	transformers.add(ItemTransformers.SANITY_SOAP_CREATIVE.get());
 	transformers.add(MiscTransformers.ARCANE_WORKBENCH_RECIPE_COMPAT.get());
 	transformers.add(MiscTransformers.ASPECT_REGISTRY_LOOKUP.get());
 	transformers.add(MiscTransformers.ASPECT_RECIPE_MATCHES.get());

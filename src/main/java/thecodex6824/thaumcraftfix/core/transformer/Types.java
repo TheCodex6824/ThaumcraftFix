@@ -71,6 +71,8 @@ public final class Types {
     public static final Type ITEM = Type.getType("Lnet/minecraft/item/Item;");
     public static final Type ITEM_STACK = Type.getType("Lnet/minecraft/item/ItemStack;");
     public static final Type NBT_TAG_COMPOUND = Type.getType("Lnet/minecraft/nbt/NBTTagCompound;");
+    public static final Type ENUM_HAND = Type.getType("Lnet/minecraft/util/EnumHand;");
+    public static final Type ENUM_ACTION_RESULT = Type.getType("Lnet/minecraft/util/EnumActionResult;");
 
     public static final Type I_RECIPE = Type.getType("Lnet/minecraft/item/crafting/IRecipe;");
     public static final Type INVENTORY_CRAFTING = Type.getType("Lnet/minecraft/inventory/InventoryCrafting;");

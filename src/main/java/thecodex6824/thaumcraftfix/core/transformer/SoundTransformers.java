@@ -149,7 +149,7 @@ public class SoundTransformers {
 	    false,
 	    "func_77659_a",
 	    Type.getType("Lnet/minecraft/util/ActionResult;"),
-	    Types.WORLD, Types.ENTITY_PLAYER, Type.getType("Lnet/minecraft/util/EnumHand;")
+	    Types.WORLD, Types.ENTITY_PLAYER, Types.ENUM_HAND
 	    )),
 	    Types.ENTITY_PLAYER, 2);
 
@@ -159,7 +159,7 @@ public class SoundTransformers {
 	    "onItemUseFirst",
 	    Type.getType("Lnet/minecraft/util/EnumActionResult;"),
 	    Types.ENTITY_PLAYER, Types.WORLD, Types.BLOCK_POS, Types.ENUM_FACING, Type.FLOAT_TYPE,
-	    Type.FLOAT_TYPE, Type.FLOAT_TYPE, Type.getType("Lnet/minecraft/util/EnumHand;")
+	    Type.FLOAT_TYPE, Type.FLOAT_TYPE, Types.ENUM_HAND
 	    ),
 	    Types.ENTITY_PLAYER, 1);
 
@@ -169,7 +169,7 @@ public class SoundTransformers {
 	    "onItemUseFirst",
 	    Type.getType("Lnet/minecraft/util/EnumActionResult;"),
 	    Types.ENTITY_PLAYER, Types.WORLD, Types.BLOCK_POS, Types.ENUM_FACING, Type.FLOAT_TYPE,
-	    Type.FLOAT_TYPE, Type.FLOAT_TYPE, Type.getType("Lnet/minecraft/util/EnumHand;")
+	    Type.FLOAT_TYPE, Type.FLOAT_TYPE, Types.ENUM_HAND
 	    ),
 	    Types.ENTITY_PLAYER, 1);
 
@@ -187,7 +187,7 @@ public class SoundTransformers {
 	    false,
 	    "func_77659_a",
 	    Type.getType("Lnet/minecraft/util/ActionResult;"),
-	    Types.WORLD, Types.ENTITY_PLAYER, Type.getType("Lnet/minecraft/util/EnumHand;")
+	    Types.WORLD, Types.ENTITY_PLAYER, Types.ENUM_HAND
 	    )),
 	    Types.ENTITY_PLAYER, 2);
 

@@ -305,7 +305,7 @@ public class EntityTransformers {
 				    false,
 				    "func_184645_a",
 				    Type.BOOLEAN_TYPE,
-				    Types.ENTITY_PLAYER, Type.getType("Lnet/minecraft/util/EnumHand;")
+				    Types.ENTITY_PLAYER, Types.ENUM_HAND
 				    )
 				    ))
 		    .findNextFieldAccess(TransformUtil.remapField(new FieldDefinition(
