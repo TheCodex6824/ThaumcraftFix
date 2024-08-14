@@ -46,6 +46,7 @@ import thaumcraft.common.blocks.world.ore.ShardType;
 import thaumcraft.common.lib.crafting.ContainerFake;
 import thecodex6824.coremodlib.MethodDefinition;
 import thecodex6824.coremodlib.PatchStateMachine;
+import thecodex6824.thaumcraftfix.ThaumcraftFix;
 import thecodex6824.thaumcraftfix.common.inventory.FakeArcaneWorkbenchInventory;
 import thecodex6824.thaumcraftfix.common.inventory.InventoryCraftingWrapper;
 import thecodex6824.thaumcraftfix.core.transformer.custom.AuraChunkThreadSafetyTransformer;
@@ -73,7 +74,7 @@ public class MiscTransformers {
 
 	@Nullable
 	public static InventoryCrafting createFilledInventoryForRecipe(IRecipe recipe) {
-	    if (!recipe.canFit(3, 3)) {
+	    if (recipe.isDynamic() || !recipe.canFit(3, 3)) {
 		return null;
 	    }
 
@@ -119,7 +120,15 @@ public class MiscTransformers {
 		}
 	    }
 
-	    return recipe.matches(ret, null) ? ret : null;
+	    boolean matches = false;
+	    try {
+		matches = recipe.matches(ret, null);
+	    }
+	    catch (Exception ex) {
+		ThaumcraftFix.instance.getLogger().error("Failed calling IRecipe#matches", ex);
+	    }
+
+	    return matches ? ret : null;
 	}
 
     }
