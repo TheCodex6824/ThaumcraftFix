@@ -38,6 +38,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraftforge.common.crafting.IShapedRecipe;
+import net.minecraftforge.oredict.OreDictionary;
 import thaumcraft.api.ThaumcraftApiHelper;
 import thaumcraft.api.aspects.AspectList;
 import thaumcraft.api.crafting.IArcaneRecipe;
@@ -60,7 +61,12 @@ public class MiscTransformers {
 	public static boolean handleEmptyAspectList(ItemStack stack, AspectList list) {
 	    if (list == null || list.size() == 0) {
 		try {
-		    CommonInternals.objectTags.remove(CommonInternals.generateUniqueItemstackId(stack));
+		    if (stack.isItemStackDamageable() || !stack.getHasSubtypes()) {
+			stack = stack.copy();
+			stack.setItemDamage(OreDictionary.WILDCARD_VALUE);
+		    }
+		    CommonInternals.objectTags.putIfAbsent(CommonInternals.generateUniqueItemstackId(stack),
+			    new AspectList());
 		} catch (Exception ex) {}
 		return false;
 	    }
