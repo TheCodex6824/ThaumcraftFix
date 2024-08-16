@@ -22,7 +22,7 @@ package thecodex6824.thaumcraftfix.core.transformer.custom;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.FieldNode;
 
 import com.google.common.collect.ImmutableSet;
 
@@ -30,15 +30,11 @@ import thecodex6824.thaumcraftfix.core.transformer.ITransformer;
 
 public class AuraChunkThreadSafetyTransformer implements ITransformer {
 
-    private static final ImmutableSet<String> METHODS_NEEDING_SYNC = ImmutableSet.of(
-	    "getBase",
-	    "setBase",
-	    "getVis",
-	    "setVis",
-	    "getFlux",
-	    "setFlux",
-	    "getLoc",
-	    "setLoc"
+    private static final ImmutableSet<String> FIELDS_NEEDING_VOLATILE = ImmutableSet.of(
+	    "loc",
+	    "base",
+	    "vis",
+	    "flux"
 	    );
 
     @Override
@@ -48,21 +44,23 @@ public class AuraChunkThreadSafetyTransformer implements ITransformer {
 
     @Override
     public boolean transform(ClassNode classNode, String name, String transformedName) {
-	for (MethodNode method : classNode.methods) {
-	    if (METHODS_NEEDING_SYNC.contains(method.name)) {
+	for (FieldNode field : classNode.fields) {
+	    if (FIELDS_NEEDING_VOLATILE.contains(field.name)) {
 		/*
-		 * Applying synchronized to these methods can be thought of as adding a mutex to the class,
-		 * that is acquired when any of these methods is entered and released when returning.
+		 * Applying volatile to these fields will make sure reads/writes are atomic and changes are visible
+		 * to other threads. Volatile is enough since every operation on these variables we care about
+		 * is a single action (load/store). Users of AuraChunk might use increments or other operations
+		 * that are not safe with volatile, but we can't do anything about that without modifying a
+		 * lot more code. Even if we locked the entire AuraChunk those accesses would still have data
+		 * races since the lock would be released during the operation, instead of being held for
+		 * the entire operation.
+		 *
 		 * The AuraChunk instances are stored in a ConcurrentHashMap, which is good, but that only
 		 * protects access to the map itself, and not the individual AuraChunk instances. Since
-		 * ConcurrentHashMap doesn't lock, there is nothing stopping the aura thread and some other thread
-		 * (probably the server thread) from trying to modify something at the same time.
-		 *
-		 * We don't technically need to lock the entire object when changing just one field, and having one
-		 * lock each for vis, flux, etc would be better, but that would require more drastic changes that I
-		 * don't think are worth it right now.
+		 * ConcurrentHashMap doesn't lock, there is nothing ensuring the changes are visible to other
+		 * threads or some thread isn't trying to modify something at the same time as another.
 		 */
-		method.access |= Opcodes.ACC_SYNCHRONIZED;
+		field.access |= Opcodes.ACC_VOLATILE;
 	    }
 	}
 
