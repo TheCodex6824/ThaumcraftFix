@@ -57,6 +57,9 @@ public final class Types {
     public static final Type ENTITY_PLAYER = Type.getType("Lnet/minecraft/entity/player/EntityPlayer;");
     public static final Type ENTITY_PLAYER_MP = Type.getType("Lnet/minecraft/entity/player/EntityPlayerMP;");
     public static final Type INVENTORY_PLAYER = Type.getType("Lnet/minecraft/entity/player/InventoryPlayer;");
+    public static final Type FAKE_PLAYER = Type.getType("Lnet/minecraftforge/common/util/FakePlayer;");
+    public static final Type FAKE_PLAYER_FACTORY = Type.getType("Lnet/minecraftforge/common/util/FakePlayerFactory;");
+    public static final Type GAME_PROFILE = Type.getType("Lcom/mojang/authlib/GameProfile;");
 
     public static final Type ENTITY_ARROW = Type.getType("Lnet/minecraft/entity/projectile/EntityArrow;");
     public static final Type ENTITY_TIPPED_ARROW = Type.getType("Lnet/minecraft/entity/projectile/EntityTippedArrow;");

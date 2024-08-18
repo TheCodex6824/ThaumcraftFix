@@ -50,7 +50,9 @@ import net.minecraft.init.Items;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemArrow;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.FakePlayer;
@@ -146,6 +148,27 @@ public class EntityTransformers {
 	    // this makes those items work as intended instead of being eaten by the crossbow
 	    return arrow.getItem() instanceof ItemArrow ?
 		    ((ItemArrow) arrow.getItem()).isInfinite(arrow, new ItemStack(Items.BOW), fakePlayer) : null;
+	}
+
+	public static FakePlayer makeBoreFakePlayer(FakePlayer original) {
+	    return new FakePlayer(original.getServerWorld(), original.getGameProfile()) {
+		@Override
+		public void setHeldItem(EnumHand hand, ItemStack stack) {
+		    switch (hand) {
+		    case MAIN_HAND:
+			inventory.mainInventory.set(inventory.currentItem, stack);
+			break;
+		    case OFF_HAND:
+			inventory.offHandInventory.set(0, stack);
+			break;
+		    default: throw new IllegalArgumentException("Invalid hand " + hand);
+		    }
+		}
+	    };
+	}
+
+	public static boolean isBoreTargetAir(World world, BlockPos target, boolean original) {
+	    return world.isAirBlock(target);
 	}
 
     }
@@ -461,6 +484,67 @@ public class EntityTransformers {
 	    })
 	    .build()
 	    );
+
+    public static final Supplier<ITransformer> BORE_FIX_RUMBLE = () -> {
+	return new GenericStateMachineTransformer(
+		PatchStateMachine.builder(
+			new MethodDefinition(
+				"thaumcraft/common/entities/construct/EntityArcaneBore",
+				false,
+				"dig",
+				Type.BOOLEAN_TYPE
+				)
+			)
+		.findNextMethodCall(TransformUtil.remapMethod(new MethodDefinition(
+			Types.WORLD.getInternalName(),
+			false,
+			"func_175698_g",
+			Type.BOOLEAN_TYPE,
+			Types.BLOCK_POS
+			)))
+		.insertInstructionsSurrounding()
+		.before(new InsnNode(Opcodes.DUP2))
+		.after(
+			new MethodInsnNode(Opcodes.INVOKESTATIC,
+				HOOKS_COMMON,
+				"isBoreTargetAir",
+				Type.getMethodDescriptor(Type.BOOLEAN_TYPE, Types.WORLD, Types.BLOCK_POS, Type.BOOLEAN_TYPE),
+				false
+				)
+			)
+		.endAction()
+		.build()
+		);
+    };
+
+    public static final Supplier<ITransformer> BORE_NO_EQUIP_SOUND = () -> {
+	return new GenericStateMachineTransformer(
+		PatchStateMachine.builder(
+			new MethodDefinition(
+				"thaumcraft/common/entities/construct/EntityArcaneBore",
+				false,
+				"dig",
+				Type.BOOLEAN_TYPE
+				)
+			)
+		.findNextMethodCall(new MethodDefinition(
+			Types.FAKE_PLAYER_FACTORY.getInternalName(),
+			false,
+			"get",
+			Types.FAKE_PLAYER,
+			Types.WORLD_SERVER, Types.GAME_PROFILE
+			))
+		.insertInstructionsAfter(
+			new MethodInsnNode(Opcodes.INVOKESTATIC,
+				HOOKS_COMMON,
+				"makeBoreFakePlayer",
+				Type.getMethodDescriptor(Types.FAKE_PLAYER, Types.FAKE_PLAYER),
+				false
+				)
+			)
+		.build()
+		);
+    };
 
     // since the arrow type returned by createArrow is EntityArrow and not EntityTippedArrow,
     // most method and field accesses need to be converted to use EntityArrow

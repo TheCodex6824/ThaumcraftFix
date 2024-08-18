@@ -96,6 +96,8 @@ public class TransformerExecutor implements IClassTransformer {
 	transformers.add(CastingTransformers.TOUCH_MOD_AVOID_PLAYER_CAST_TARGET);
 	transformers.add(CastingTransformers.TOUCH_MOD_AVOID_PLAYER_CAST_TRAJECTORY);
 	transformers.add(EntityTransformers.ADVANCED_CROSSBOW_PROCESS_INTERACT_DEAD.get());
+	transformers.add(EntityTransformers.BORE_FIX_RUMBLE.get());
+	transformers.add(EntityTransformers.BORE_NO_EQUIP_SOUND.get());
 	transformers.add(EntityTransformers.BORE_PROCESS_INTERACT_DEAD.get());
 	transformers.add(EntityTransformers.CROSSBOW_PROCESS_INTERACT_DEAD.get());
 	transformers.add(EntityTransformers.ENTITY_ASPECTS.get());
