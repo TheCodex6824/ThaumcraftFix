@@ -22,7 +22,9 @@ package thecodex6824.thaumcraftfix.client;
 
 import java.util.Random;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.world.World;
@@ -32,12 +34,16 @@ import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.relauncher.Side;
 import thaumcraft.api.items.ItemsTC;
 import thaumcraft.client.fx.FXDispatcher;
+import thaumcraft.client.lib.events.RenderEventHandler;
 import thaumcraft.common.entities.monster.EntityFireBat;
 import thaumcraft.common.entities.monster.EntityWisp;
 import thaumcraft.common.items.ItemTCBase;
+import thaumcraft.common.items.tools.ItemThaumometer;
 import thecodex6824.thaumcraftfix.api.ThaumcraftFixApi;
 
 @EventBusSubscriber(modid = ThaumcraftFixApi.MODID, value = Side.CLIENT)
@@ -71,6 +77,28 @@ public class ClientEventHandler {
 			entity.prevPosZ + (random.nextFloat() - random.nextFloat()) * 0.2F,
 			0, 0, 0
 			);
+	    }
+	}
+    }
+
+    @SubscribeEvent
+    public static void onClientTick(TickEvent.ClientTickEvent event) {
+	if (event.phase == Phase.START) {
+	    boolean validMeter = false;
+	    Entity thaum = RenderEventHandler.thaumTarget;
+	    if (thaum != null && !thaum.isDead && (!(thaum instanceof EntityLivingBase) || ((EntityLivingBase) thaum).getHealth() > 0.0F)) {
+		Entity renderView = Minecraft.getMinecraft().getRenderViewEntity();
+		if (renderView instanceof EntityLivingBase) {
+		    EntityLivingBase living = (EntityLivingBase) renderView;
+		    if (living.getHeldItemMainhand().getItem() instanceof ItemThaumometer ||
+			    living.getHeldItemOffhand().getItem() instanceof ItemThaumometer) {
+			validMeter = true;
+		    }
+		}
+	    }
+
+	    if (!validMeter) {
+		RenderEventHandler.thaumTarget = null;
 	    }
 	}
     }
