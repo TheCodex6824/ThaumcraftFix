@@ -104,4 +104,6 @@ public final class Types {
     public static final Type SUBSCRIBE_EVENT = Type.getType("Lnet/minecraftforge/fml/common/eventhandler/SubscribeEvent;");
     public static final Type EVENT_PRIORITY = Type.getType("Lnet/minecraftforge/fml/common/eventhandler/EventPriority;");
 
+    public static final Type TEXTURE_ATLAS_SPRITE = Type.getType("Lnet/minecraft/client/renderer/texture/TextureAtlasSprite;");
+
 }

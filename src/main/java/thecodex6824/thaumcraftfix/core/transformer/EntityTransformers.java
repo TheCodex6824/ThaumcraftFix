@@ -41,7 +41,9 @@ import com.google.common.collect.ImmutableSet;
 import com.mojang.authlib.GameProfile;
 
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBiped;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
@@ -261,6 +263,11 @@ public class EntityTransformers {
 	    }
 
 	    return f;
+	}
+
+	public static TextureAtlasSprite getBlockParticleTexture(TextureAtlasSprite old, IBlockState state) {
+	    return Minecraft.getMinecraft().getBlockRendererDispatcher()
+		    .getModelForState(state).getParticleTexture();
 	}
 
     }
@@ -592,6 +599,40 @@ public class EntityTransformers {
 				HOOKS_COMMON,
 				"makeBoreFakePlayer",
 				Type.getMethodDescriptor(Types.FAKE_PLAYER, Types.FAKE_PLAYER),
+				false
+				)
+			)
+		.build()
+		);
+    };
+
+    public static final Supplier<ITransformer> BORE_PARTICLE_TEXTURE = () -> {
+	return new GenericStateMachineTransformer(
+		PatchStateMachine.builder(
+			new MethodDefinition(
+				"thaumcraft/client/fx/particles/FXBoreParticles",
+				false,
+				"<init>",
+				Type.VOID_TYPE,
+				Types.WORLD, Type.DOUBLE_TYPE, Type.DOUBLE_TYPE, Type.DOUBLE_TYPE,
+				Type.DOUBLE_TYPE, Type.DOUBLE_TYPE, Type.DOUBLE_TYPE,
+				Types.I_BLOCK_STATE, Type.INT_TYPE
+				)
+			)
+		.findNextMethodCall(TransformUtil.remapMethod(new MethodDefinition(
+			"thaumcraft/client/fx/particles/FXBoreParticles",
+			false,
+			"func_187117_a",
+			Type.VOID_TYPE,
+			Types.TEXTURE_ATLAS_SPRITE
+			)))
+		.insertInstructionsBefore(
+			new VarInsnNode(Opcodes.ALOAD, 14),
+			new MethodInsnNode(Opcodes.INVOKESTATIC,
+				HOOKS_CLIENT,
+				"getBlockParticleTexture",
+				Type.getMethodDescriptor(Types.TEXTURE_ATLAS_SPRITE, Types.TEXTURE_ATLAS_SPRITE,
+					Types.I_BLOCK_STATE),
 				false
 				)
 			)
