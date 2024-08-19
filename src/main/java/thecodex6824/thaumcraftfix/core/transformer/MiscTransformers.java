@@ -20,6 +20,8 @@
 
 package thecodex6824.thaumcraftfix.core.transformer;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
@@ -37,6 +39,7 @@ import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.Ingredient;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.crafting.IShapedRecipe;
 import net.minecraftforge.oredict.OreDictionary;
 import thaumcraft.api.ThaumcraftApiHelper;
@@ -77,6 +80,8 @@ public class MiscTransformers {
 	public static InventoryCrafting makeVanillaRecipeWrapper(InventoryCrafting input) {
 	    return new InventoryCraftingWrapper(input);
 	}
+
+	private static final Set<ResourceLocation> BROKEN_RECIPES = new HashSet<ResourceLocation>();
 
 	@Nullable
 	public static InventoryCrafting createFilledInventoryForRecipe(IRecipe recipe) {
@@ -131,7 +136,10 @@ public class MiscTransformers {
 		matches = recipe.matches(ret, null);
 	    }
 	    catch (Exception ex) {
-		ThaumcraftFix.instance.getLogger().error("Failed calling IRecipe#matches", ex);
+		if (BROKEN_RECIPES.add(recipe.getRegistryName())) {
+		    ThaumcraftFix.instance.getLogger().error("Failed calling IRecipe#matches", ex);
+		    ThaumcraftFix.instance.getLogger().error("Note: future errors with this recipe will not be logged");
+		}
 	    }
 
 	    return matches ? ret : null;
