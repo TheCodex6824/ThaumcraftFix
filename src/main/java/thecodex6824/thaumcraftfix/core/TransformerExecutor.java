@@ -99,6 +99,7 @@ public class TransformerExecutor implements IClassTransformer {
 	transformers.add(EntityTransformers.BORE_FIX_RUMBLE.get());
 	transformers.add(EntityTransformers.BORE_NO_EQUIP_SOUND.get());
 	transformers.add(EntityTransformers.BORE_PROCESS_INTERACT_DEAD.get());
+	transformers.add(EntityTransformers.BORE_SPIRAL_MISSES.get());
 	transformers.add(EntityTransformers.CROSSBOW_PROCESS_INTERACT_DEAD.get());
 	transformers.add(EntityTransformers.ENTITY_ASPECTS.get());
 	transformers.add(EntityTransformers.GOLEM_PROCESS_INTERACT_DEAD.get());

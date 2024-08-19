@@ -47,6 +47,7 @@ public final class Types {
     public static final Type HASH_MAP = Type.getType(HashMap.class);
 
     public static final Type AXIS_ALIGNED_BB = Type.getType("Lnet/minecraft/util/math/AxisAlignedBB;");
+    public static final Type VEC_3D = Type.getType("Lnet/minecraft/util/math/Vec3d;");
     public static final Type NON_NULL_LIST = Type.getType("Lnet/minecraft/util/NonNullList;");
 
     public static final Type ENTITY = Type.getType("Lnet/minecraft/entity/Entity;");

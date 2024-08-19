@@ -204,9 +204,11 @@ class PrefabMatchers {
     public static class FieldMatch implements InstructionMatcher {
 
 	private final FieldDefinition fieldDef;
+	private final FieldAccessType type;
 
-	public FieldMatch(FieldDefinition field) {
+	public FieldMatch(FieldDefinition field, FieldAccessType access) {
 	    fieldDef = field;
+	    type = access;
 	}
 
 	@Override
@@ -214,7 +216,8 @@ class PrefabMatchers {
 	    boolean ret = false;
 	    if (node instanceof FieldInsnNode) {
 		FieldInsnNode field = (FieldInsnNode) node;
-		ret = field.name.equals(fieldDef.name()) && field.desc.equals(fieldDef.desc());
+		ret = field.name.equals(fieldDef.name()) && field.desc.equals(fieldDef.desc()) &&
+			type.matches(field.getOpcode());
 	    }
 
 	    return ret ? MatchResult.matchSingleNode(node) : MatchResult.noMatch();

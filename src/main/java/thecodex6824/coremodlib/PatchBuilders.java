@@ -80,7 +80,11 @@ public class PatchBuilders {
 	}
 
 	public T findNextFieldAccess(FieldDefinition fieldDef) {
-	    matchers.add(new PrefabMatchers.FieldMatch(fieldDef));
+	    return findNextFieldAccess(fieldDef, FieldAccessType.ALL);
+	}
+
+	public T findNextFieldAccess(FieldDefinition fieldDef, FieldAccessType access) {
+	    matchers.add(new PrefabMatchers.FieldMatch(fieldDef, access));
 	    return (T) this;
 	}
 

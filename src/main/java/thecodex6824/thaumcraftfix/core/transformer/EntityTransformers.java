@@ -20,6 +20,8 @@
 
 package thecodex6824.thaumcraftfix.core.transformer;
 
+import java.lang.reflect.Field;
+import java.util.Map;
 import java.util.function.Supplier;
 
 import org.objectweb.asm.Label;
@@ -50,8 +52,10 @@ import net.minecraft.init.Items;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemArrow;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumHand;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
@@ -63,11 +67,15 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import thaumcraft.client.renderers.models.gear.ModelCustomArmor;
 import thaumcraft.common.config.ModConfig;
 import thaumcraft.common.entities.EntityFluxRift;
+import thaumcraft.common.entities.construct.EntityArcaneBore;
+import thaumcraft.common.lib.utils.Utils;
+import thecodex6824.coremodlib.FieldAccessType;
 import thecodex6824.coremodlib.FieldDefinition;
 import thecodex6824.coremodlib.MethodDefinition;
 import thecodex6824.coremodlib.PatchStateMachine;
 import thecodex6824.thaumcraftfix.api.event.EntityInOuterLandsEvent;
 import thecodex6824.thaumcraftfix.api.event.FluxRiftDestroyBlockEvent;
+import thecodex6824.thaumcraftfix.common.util.NoEquipSoundFakePlayer;
 import thecodex6824.thaumcraftfix.core.transformer.custom.ChangeVariableTypeTransformer;
 import thecodex6824.thaumcraftfix.core.transformer.custom.EntityAspectPrefixRemoverTransformer;
 import thecodex6824.thaumcraftfix.core.transformer.custom.ThrowingTransformerWrapper;
@@ -150,25 +158,70 @@ public class EntityTransformers {
 		    ((ItemArrow) arrow.getItem()).isInfinite(arrow, new ItemStack(Items.BOW), fakePlayer) : null;
 	}
 
-	public static FakePlayer makeBoreFakePlayer(FakePlayer original) {
-	    return new FakePlayer(original.getServerWorld(), original.getGameProfile()) {
-		@Override
-		public void setHeldItem(EnumHand hand, ItemStack stack) {
-		    switch (hand) {
-		    case MAIN_HAND:
-			inventory.mainInventory.set(inventory.currentItem, stack);
-			break;
-		    case OFF_HAND:
-			inventory.offHandInventory.set(0, stack);
-			break;
-		    default: throw new IllegalArgumentException("Invalid hand " + hand);
-		    }
+	private static Field FAKE_PLAYER_MAP = null;
+
+	@SuppressWarnings("unchecked")
+	private static void setFakePlayerMapEntry(FakePlayer toInsert) {
+	    try {
+		if (FAKE_PLAYER_MAP == null) {
+		    FAKE_PLAYER_MAP = FakePlayerFactory.class.getDeclaredField("fakePlayers");
+		    FAKE_PLAYER_MAP.setAccessible(true);
 		}
-	    };
+
+		((Map<GameProfile, FakePlayer>) FAKE_PLAYER_MAP.get(null)).put(toInsert.getGameProfile(),
+			toInsert);
+	    }
+	    catch (Exception ex) {
+		throw new RuntimeException(ex);
+	    }
+	}
+
+	public static FakePlayer makeBoreFakePlayer(FakePlayer original) {
+	    if (!(original instanceof NoEquipSoundFakePlayer)) {
+		FakePlayer newPlayer = new NoEquipSoundFakePlayer(original.getServerWorld(), original.getGameProfile());
+		setFakePlayerMapEntry(newPlayer);
+		original = newPlayer;
+	    }
+
+	    return original;
 	}
 
 	public static boolean isBoreTargetAir(World world, BlockPos target, boolean original) {
+	    // TC calls setBlockToAir and checks the return value, expecting it to be true (block set to air)
+	    // however, the block was already set to air, so it returns false
 	    return world.isAirBlock(target);
+	}
+
+	public static int modSpiral(int old, EntityArcaneBore bore) {
+	    // remove the extra angle increment based on radius
+	    // this seems to cause the bore to "miss" some blocks
+	    int radMod = Math.max(0, (10 - Math.abs((int) bore.currentRadius)) * 2);
+	    return old - radMod;
+	}
+
+	public static Vec3d modRotation(Vec3d old, EntityArcaneBore bore) {
+	    EnumFacing facing = bore.getFacing();
+	    // add 0.5 instead of eyeheight, since players probably want symmetrical tunnels
+	    // flooring the coordinates instead of just truncating is also required
+	    Vec3d src = new Vec3d(MathHelper.floor(bore.posX) + 0.5 + facing.getXOffset(),
+		    MathHelper.floor(bore.posY) + 0.5 + facing.getYOffset(),
+		    MathHelper.floor(bore.posZ) + 0.5 + facing.getZOffset());
+	    Vec3d vec = new Vec3d(0, bore.currentRadius, 0);
+	    vec = Utils.rotateAroundZ(vec, (float) Math.toRadians(bore.spiral));
+	    vec = Utils.rotateAroundY(vec, (float) Math.toRadians(facing.getHorizontalAngle()));
+	    vec = Utils.rotateAroundX(vec, (float) Math.PI / 2.0F * facing.getYOffset());
+	    Vec3d res = src.add(vec.x, vec.y, vec.z);
+	    return res;
+	}
+
+	public static double getFixedDistanceSq(EntityArcaneBore bore, BlockPos target, double old) {
+	    // TC's check compares the center of the target block with the uncentered bore pos
+	    // this causes the top parts of the tunnel to be different from the bottom
+
+	    // flooring the coordinates also helps make sure the tunnel doesn't become asymmetrical
+	    // from the bore not being at the exact center of the block
+	    return target.distanceSqToCenter(MathHelper.floor(bore.posX) + 0.5, MathHelper.floor(bore.posY) + 0.5,
+		    MathHelper.floor(bore.posZ) + 0.5);
 	}
 
     }
@@ -539,6 +592,78 @@ public class EntityTransformers {
 				HOOKS_COMMON,
 				"makeBoreFakePlayer",
 				Type.getMethodDescriptor(Types.FAKE_PLAYER, Types.FAKE_PLAYER),
+				false
+				)
+			)
+		.build()
+		);
+    };
+
+    public static final Supplier<ITransformer> BORE_SPIRAL_MISSES = () -> {
+	return new GenericStateMachineTransformer(
+		PatchStateMachine.builder(
+			new MethodDefinition(
+				"thaumcraft/common/entities/construct/EntityArcaneBore",
+				false,
+				"findNextBlockToDig",
+				Type.VOID_TYPE
+				)
+			)
+		.findNextMethodCall(TransformUtil.remapMethod(new MethodDefinition(
+			"thaumcraft/common/entities/construct/EntityArcaneBore",
+			false,
+			"func_174831_c",
+			Type.DOUBLE_TYPE,
+			Types.BLOCK_POS
+			)))
+		.insertInstructionsSurrounding()
+		.before(new InsnNode(Opcodes.DUP2))
+		.after(
+			new MethodInsnNode(Opcodes.INVOKESTATIC,
+				HOOKS_COMMON,
+				"getFixedDistanceSq",
+				Type.getMethodDescriptor(Type.DOUBLE_TYPE, Type.getType("Lthaumcraft/common/entities/construct/EntityArcaneBore;"),
+					Types.BLOCK_POS, Type.DOUBLE_TYPE),
+				false
+				)
+			)
+		.endAction()
+		.findNextFieldAccess(new FieldDefinition(
+			"thaumcraft/common/entities/construct/EntityArcaneBore",
+			"spiral",
+			Type.INT_TYPE
+			), FieldAccessType.STORE)
+		.insertInstructionsBefore(
+			new VarInsnNode(Opcodes.ALOAD, 0),
+			new MethodInsnNode(Opcodes.INVOKESTATIC,
+				HOOKS_COMMON,
+				"modSpiral",
+				Type.getMethodDescriptor(Type.INT_TYPE, Type.INT_TYPE,
+					Type.getType("Lthaumcraft/common/entities/construct/EntityArcaneBore;")),
+				false
+				)
+			)
+		.findNextMethodCall(new MethodDefinition(
+			"thaumcraft/common/lib/utils/Utils",
+			false,
+			"rotateAroundX",
+			Types.VEC_3D,
+			Types.VEC_3D, Type.FLOAT_TYPE
+			))
+		.findNextMethodCall(TransformUtil.remapMethod(new MethodDefinition(
+			Types.VEC_3D.getInternalName(),
+			false,
+			"func_72441_c",
+			Types.VEC_3D,
+			Type.DOUBLE_TYPE, Type.DOUBLE_TYPE, Type.DOUBLE_TYPE
+			)))
+		.insertInstructionsAfter(
+			new VarInsnNode(Opcodes.ALOAD, 0),
+			new MethodInsnNode(Opcodes.INVOKESTATIC,
+				HOOKS_COMMON,
+				"modRotation",
+				Type.getMethodDescriptor(Types.VEC_3D, Types.VEC_3D,
+					Type.getType("Lthaumcraft/common/entities/construct/EntityArcaneBore;")),
 				false
 				)
 			)
