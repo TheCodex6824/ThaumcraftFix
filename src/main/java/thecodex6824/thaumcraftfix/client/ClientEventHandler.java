@@ -20,9 +20,13 @@
 
 package thecodex6824.thaumcraftfix.client;
 
+import java.lang.reflect.Field;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.particle.Particle;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -32,6 +36,7 @@ import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
+import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
@@ -39,11 +44,13 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.relauncher.Side;
 import thaumcraft.api.items.ItemsTC;
 import thaumcraft.client.fx.FXDispatcher;
+import thaumcraft.client.fx.ParticleEngine;
 import thaumcraft.client.lib.events.RenderEventHandler;
 import thaumcraft.common.entities.monster.EntityFireBat;
 import thaumcraft.common.entities.monster.EntityWisp;
 import thaumcraft.common.items.ItemTCBase;
 import thaumcraft.common.items.tools.ItemThaumometer;
+import thecodex6824.thaumcraftfix.ThaumcraftFix;
 import thecodex6824.thaumcraftfix.api.ThaumcraftFixApi;
 
 @EventBusSubscriber(modid = ThaumcraftFixApi.MODID, value = Side.CLIENT)
@@ -100,6 +107,68 @@ public class ClientEventHandler {
 	    if (!validMeter) {
 		RenderEventHandler.thaumTarget = null;
 	    }
+	}
+    }
+
+    private static Field PARTICLES = null;
+    private static Field PARTICLES_DELAYED = null;
+    private static Field PARTICLE_DELAY_DIM = null;
+
+    private static int getDimension(Object particleDelay) {
+	try {
+	    return PARTICLE_DELAY_DIM.getInt(particleDelay);
+	}
+	catch (Exception ex) {
+	    throw new RuntimeException(ex);
+	}
+    }
+
+    @SubscribeEvent
+    @SuppressWarnings("unchecked")
+    public static void onClientWorldUnload(WorldEvent.Unload event) {
+	int unloadedDim = event.getWorld().provider.getDimension();
+	try {
+	    if (PARTICLES == null || PARTICLES_DELAYED == null || PARTICLE_DELAY_DIM == null) {
+		PARTICLES = ParticleEngine.class.getDeclaredField("particles");
+		PARTICLES.setAccessible(true);
+
+		PARTICLES_DELAYED = ParticleEngine.class.getDeclaredField("particlesDelayed");
+		PARTICLES_DELAYED.setAccessible(true);
+
+		// ParticleDelay is not public so we can't name it
+		Class<?> particleDelay = null;
+		for (Class<?> c : ParticleEngine.class.getDeclaredClasses()) {
+		    if (c.getSimpleName().equals("ParticleDelay")) {
+			particleDelay = c;
+			break;
+		    }
+		}
+
+		if (particleDelay == null) {
+		    throw new RuntimeException("Can't find ParticleEngine$ParticleDelay");
+		}
+
+		PARTICLE_DELAY_DIM = particleDelay.getDeclaredField("dim");
+		PARTICLE_DELAY_DIM.setAccessible(true);
+	    }
+
+	    Map<Integer, ? extends List<Particle>>[] particleMaps = (Map<Integer, ? extends List<Particle>>[]) PARTICLES.get(null);
+	    for (int layer = 0; layer < particleMaps.length; ++layer) {
+		List<Particle> list = particleMaps[layer].get(unloadedDim);
+		if (list != null) {
+		    for (Particle p : list) {
+			p.setExpired();
+		    }
+
+		    list.clear();
+		}
+	    }
+
+	    List<?> delayed = (List<?>) PARTICLES_DELAYED.get(null);
+	    delayed.removeIf(p -> getDimension(p) == unloadedDim);
+	}
+	catch (Exception ex) {
+	    ThaumcraftFix.instance.getLogger().error("Failed to clear Thaumcraft particle lists", ex);
 	}
     }
 
