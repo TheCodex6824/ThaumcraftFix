@@ -66,10 +66,12 @@ import net.minecraftforge.common.util.FakePlayerFactory;
 import net.minecraftforge.fml.common.eventhandler.Event.Result;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import thaumcraft.api.blocks.BlocksTC;
 import thaumcraft.client.renderers.models.gear.ModelCustomArmor;
 import thaumcraft.common.config.ModConfig;
 import thaumcraft.common.entities.EntityFluxRift;
 import thaumcraft.common.entities.construct.EntityArcaneBore;
+import thaumcraft.common.lib.enchantment.EnumInfusionEnchantment;
 import thaumcraft.common.lib.utils.Utils;
 import thecodex6824.coremodlib.FieldAccessType;
 import thecodex6824.coremodlib.FieldDefinition;
@@ -188,10 +190,17 @@ public class EntityTransformers {
 	    return original;
 	}
 
-	public static boolean isBoreTargetAir(World world, BlockPos target, boolean original) {
+	public static boolean isBoreTargetAir(World world, BlockPos target, boolean original, EntityArcaneBore bore) {
 	    // TC calls setBlockToAir and checks the return value, expecting it to be true (block set to air)
 	    // however, the block was already set to air, so it returns false
-	    return world.isAirBlock(target);
+	    boolean air = world.isAirBlock(target);
+	    if (air && world.getLight(target) < 8 && EnumInfusionEnchantment.getInfusionEnchantmentLevel(
+		    bore.getHeldItemMainhand(), EnumInfusionEnchantment.LAMPLIGHT) > 0) {
+
+		world.setBlockState(target, BlocksTC.effectGlimmer.getDefaultState());
+	    }
+
+	    return air;
 	}
 
 	public static int modSpiral(int old, EntityArcaneBore bore) {
@@ -417,7 +426,7 @@ public class EntityTransformers {
 	    makeEntityProcessInteractTransformer("thaumcraft/common/entities/construct/EntityTurretCrossbowAdvanced");
 
     public static final Supplier<ITransformer> BORE_PROCESS_INTERACT_DEAD =
-	    makeEntityProcessInteractTransformer("thaumcraft/common/entities/construct/EntityArcaneBore");
+	    makeEntityProcessInteractTransformer(Types.ENTITY_ARCANE_BORE.getInternalName());
 
     public static final Supplier<ITransformer> CROSSBOW_PROCESS_INTERACT_DEAD =
 	    makeEntityProcessInteractTransformer("thaumcraft/common/entities/construct/EntityTurretCrossbow");
@@ -549,7 +558,7 @@ public class EntityTransformers {
 	return new GenericStateMachineTransformer(
 		PatchStateMachine.builder(
 			new MethodDefinition(
-				"thaumcraft/common/entities/construct/EntityArcaneBore",
+				Types.ENTITY_ARCANE_BORE.getInternalName(),
 				false,
 				"dig",
 				Type.BOOLEAN_TYPE
@@ -565,10 +574,12 @@ public class EntityTransformers {
 		.insertInstructionsSurrounding()
 		.before(new InsnNode(Opcodes.DUP2))
 		.after(
+			new VarInsnNode(Opcodes.ALOAD, 0),
 			new MethodInsnNode(Opcodes.INVOKESTATIC,
 				HOOKS_COMMON,
 				"isBoreTargetAir",
-				Type.getMethodDescriptor(Type.BOOLEAN_TYPE, Types.WORLD, Types.BLOCK_POS, Type.BOOLEAN_TYPE),
+				Type.getMethodDescriptor(Type.BOOLEAN_TYPE, Types.WORLD, Types.BLOCK_POS,
+					Type.BOOLEAN_TYPE, Types.ENTITY_ARCANE_BORE),
 				false
 				)
 			)
@@ -581,7 +592,7 @@ public class EntityTransformers {
 	return new GenericStateMachineTransformer(
 		PatchStateMachine.builder(
 			new MethodDefinition(
-				"thaumcraft/common/entities/construct/EntityArcaneBore",
+				Types.ENTITY_ARCANE_BORE.getInternalName(),
 				false,
 				"dig",
 				Type.BOOLEAN_TYPE
@@ -644,7 +655,7 @@ public class EntityTransformers {
 	return new GenericStateMachineTransformer(
 		PatchStateMachine.builder(
 			new MethodDefinition(
-				"thaumcraft/common/entities/construct/EntityArcaneBore",
+				Types.ENTITY_ARCANE_BORE.getInternalName(),
 				false,
 				"findNextBlockToDig",
 				Type.VOID_TYPE
@@ -663,14 +674,14 @@ public class EntityTransformers {
 			new MethodInsnNode(Opcodes.INVOKESTATIC,
 				HOOKS_COMMON,
 				"getFixedDistanceSq",
-				Type.getMethodDescriptor(Type.DOUBLE_TYPE, Type.getType("Lthaumcraft/common/entities/construct/EntityArcaneBore;"),
+				Type.getMethodDescriptor(Type.DOUBLE_TYPE, Types.ENTITY_ARCANE_BORE,
 					Types.BLOCK_POS, Type.DOUBLE_TYPE),
 				false
 				)
 			)
 		.endAction()
 		.findNextFieldAccess(new FieldDefinition(
-			"thaumcraft/common/entities/construct/EntityArcaneBore",
+			Types.ENTITY_ARCANE_BORE.getInternalName(),
 			"spiral",
 			Type.INT_TYPE
 			), FieldAccessType.STORE)
@@ -680,7 +691,7 @@ public class EntityTransformers {
 				HOOKS_COMMON,
 				"modSpiral",
 				Type.getMethodDescriptor(Type.INT_TYPE, Type.INT_TYPE,
-					Type.getType("Lthaumcraft/common/entities/construct/EntityArcaneBore;")),
+					Types.ENTITY_ARCANE_BORE),
 				false
 				)
 			)
@@ -704,7 +715,7 @@ public class EntityTransformers {
 				HOOKS_COMMON,
 				"modRotation",
 				Type.getMethodDescriptor(Types.VEC_3D, Types.VEC_3D,
-					Type.getType("Lthaumcraft/common/entities/construct/EntityArcaneBore;")),
+					Types.ENTITY_ARCANE_BORE),
 				false
 				)
 			)

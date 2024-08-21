@@ -86,6 +86,11 @@ public final class Types {
     public static final Type WORLD = Type.getType("Lnet/minecraft/world/World;");
     public static final Type WORLD_SERVER = Type.getType("Lnet/minecraft/world/WorldServer;");
 
+    public static final Type SUBSCRIBE_EVENT = Type.getType("Lnet/minecraftforge/fml/common/eventhandler/SubscribeEvent;");
+    public static final Type EVENT_PRIORITY = Type.getType("Lnet/minecraftforge/fml/common/eventhandler/EventPriority;");
+
+    public static final Type TEXTURE_ATLAS_SPRITE = Type.getType("Lnet/minecraft/client/renderer/texture/TextureAtlasSprite;");
+
     public static final Type ASPECT = Type.getType("Lthaumcraft/api/aspects/Aspect;");
     public static final Type ASPECT_LIST = Type.getType("Lthaumcraft/api/aspects/AspectList;");
 
@@ -101,9 +106,6 @@ public final class Types {
 
     public static final Type RESEARCH_TABLE_DATA = Type.getType("Lthaumcraft/api/research/theorycraft/ResearchTableData;");
 
-    public static final Type SUBSCRIBE_EVENT = Type.getType("Lnet/minecraftforge/fml/common/eventhandler/SubscribeEvent;");
-    public static final Type EVENT_PRIORITY = Type.getType("Lnet/minecraftforge/fml/common/eventhandler/EventPriority;");
-
-    public static final Type TEXTURE_ATLAS_SPRITE = Type.getType("Lnet/minecraft/client/renderer/texture/TextureAtlasSprite;");
+    public static final Type ENTITY_ARCANE_BORE = Type.getType("Lthaumcraft/common/entities/construct/EntityArcaneBore;");
 
 }
