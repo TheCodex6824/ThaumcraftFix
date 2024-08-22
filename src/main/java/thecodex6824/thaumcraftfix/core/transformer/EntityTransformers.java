@@ -56,6 +56,7 @@ import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemArrow;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -220,8 +221,13 @@ public class EntityTransformers {
 		    MathHelper.floor(bore.posZ) + 0.5 + facing.getZOffset());
 	    Vec3d vec = new Vec3d(0, bore.currentRadius, 0);
 	    vec = Utils.rotateAroundZ(vec, (float) Math.toRadians(bore.spiral));
-	    vec = Utils.rotateAroundY(vec, (float) Math.toRadians(facing.getHorizontalAngle()));
-	    vec = Utils.rotateAroundX(vec, (float) Math.PI / 2.0F * facing.getYOffset());
+	    if (facing.getAxis() != Axis.Y) {
+		// if the facing is in the Y axis, the horizontal angle is -90
+		vec = Utils.rotateAroundY(vec, (float) Math.toRadians(facing.getHorizontalAngle()));
+	    }
+	    else {
+		vec = Utils.rotateAroundX(vec, (float) Math.PI / 2.0F * facing.getYOffset());
+	    }
 	    Vec3d res = src.add(vec.x, vec.y, vec.z);
 	    return res;
 	}
