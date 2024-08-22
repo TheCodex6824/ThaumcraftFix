@@ -44,6 +44,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
@@ -194,7 +195,7 @@ public class EntityTransformers {
 	    // TC calls setBlockToAir and checks the return value, expecting it to be true (block set to air)
 	    // however, the block was already set to air, so it returns false
 	    boolean air = world.isAirBlock(target);
-	    if (air && world.getLight(target) < 8 && EnumInfusionEnchantment.getInfusionEnchantmentLevel(
+	    if (air && world.getLight(target) < 10 && EnumInfusionEnchantment.getInfusionEnchantmentLevel(
 		    bore.getHeldItemMainhand(), EnumInfusionEnchantment.LAMPLIGHT) > 0) {
 
 		world.setBlockState(target, BlocksTC.effectGlimmer.getDefaultState());
@@ -277,6 +278,26 @@ public class EntityTransformers {
 	public static TextureAtlasSprite getBlockParticleTexture(TextureAtlasSprite old, IBlockState state) {
 	    return Minecraft.getMinecraft().getBlockRendererDispatcher()
 		    .getModelForState(state).getParticleTexture();
+	}
+
+	private static boolean boreHasLamplighter(EntityArcaneBore bore) {
+	    ItemStack held = bore.getHeldItemMainhand();
+	    return !held.isEmpty() && EnumInfusionEnchantment.getInfusionEnchantmentLevel(held,
+		    EnumInfusionEnchantment.LAMPLIGHT) > 0;
+	}
+
+	public static boolean doesBoreHaveProperties(EntityArcaneBore bore, boolean original) {
+	    return original || boreHasLamplighter(bore);
+	}
+
+	public static int drawLamplightText(EntityArcaneBore bore, int position) {
+	    if (boreHasLamplighter(bore)) {
+		String text = I18n.format("enchantment.infusion.LAMPLIGHT");
+		Minecraft.getMinecraft().fontRenderer.drawStringWithShadow(text, 4.0F, 34 + position, 0xffff00);
+		position += 9;
+	    }
+
+	    return position;
 	}
 
     }
@@ -554,7 +575,7 @@ public class EntityTransformers {
 	    .build()
 	    );
 
-    public static final Supplier<ITransformer> BORE_FIX_RUMBLE = () -> {
+    public static final Supplier<ITransformer> BORE_FIX_RUMBLE_AND_LAMPLIGHT = () -> {
 	return new GenericStateMachineTransformer(
 		PatchStateMachine.builder(
 			new MethodDefinition(
@@ -584,6 +605,49 @@ public class EntityTransformers {
 				)
 			)
 		.endAction()
+		.build()
+		);
+    };
+
+    public static final Supplier<ITransformer> BORE_GUI_PROPERTIES = () -> {
+	MethodDefinition hasSilkTouch = new MethodDefinition(
+		Types.ENTITY_ARCANE_BORE.getInternalName(),
+		false,
+		"hasSilkTouch",
+		Type.BOOLEAN_TYPE
+		);
+	return new GenericStateMachineTransformer(PatchStateMachine.builder(
+		TransformUtil.remapMethod(new MethodDefinition(
+			"thaumcraft/client/gui/GuiArcaneBore",
+			false,
+			"func_146976_a",
+			Type.VOID_TYPE,
+			Type.FLOAT_TYPE, Type.INT_TYPE, Type.INT_TYPE
+			)))
+		.findNextMethodCall(hasSilkTouch)
+		.insertInstructionsSurrounding()
+		.before(new InsnNode(Opcodes.DUP))
+		.after(
+			new MethodInsnNode(Opcodes.INVOKESTATIC,
+				HOOKS_CLIENT,
+				"doesBoreHaveProperties",
+				Type.getMethodDescriptor(Type.BOOLEAN_TYPE, Types.ENTITY_ARCANE_BORE, Type.BOOLEAN_TYPE),
+				false
+				)
+			)
+		.endAction()
+		.findNextMethodCall(hasSilkTouch)
+		.insertInstructionsBefore(
+			new InsnNode(Opcodes.DUP),
+			new VarInsnNode(Opcodes.ILOAD, 8),
+			new MethodInsnNode(Opcodes.INVOKESTATIC,
+				HOOKS_CLIENT,
+				"drawLamplightText",
+				Type.getMethodDescriptor(Type.INT_TYPE, Types.ENTITY_ARCANE_BORE, Type.INT_TYPE),
+				false
+				),
+			new VarInsnNode(Opcodes.ISTORE, 8)
+			)
 		.build()
 		);
     };
