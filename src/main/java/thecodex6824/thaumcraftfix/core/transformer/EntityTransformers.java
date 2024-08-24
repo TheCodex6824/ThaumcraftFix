@@ -182,13 +182,18 @@ public class EntityTransformers {
 	    }
 	}
 
-	public static FakePlayer makeBoreFakePlayer(FakePlayer original) {
+	public static FakePlayer makeBoreFakePlayer(FakePlayer original, EntityArcaneBore bore) {
 	    if (!(original instanceof NoEquipSoundFakePlayer)) {
 		FakePlayer newPlayer = new NoEquipSoundFakePlayer(original.getServerWorld(), original.getGameProfile());
 		setFakePlayerMapEntry(newPlayer);
 		original = newPlayer;
 	    }
 
+	    float radiusLeft = bore.getDigRadius() - bore.currentRadius;
+	    int destructive = EnumInfusionEnchantment.getInfusionEnchantmentLevel(bore.getHeldItemMainhand(),
+		    EnumInfusionEnchantment.DESTRUCTIVE);
+	    // sneaking will cause only a single block to be broken, to keep the circle shape
+	    original.setSneaking(radiusLeft <= destructive);
 	    return original;
 	}
 
@@ -212,6 +217,19 @@ public class EntityTransformers {
 	    return old - radMod;
 	}
 
+	public static float modCurrentRadius(float old, EntityArcaneBore bore) {
+	    // 1 was already added by Thaumcraft
+	    int spiralStep = EnumInfusionEnchantment.getInfusionEnchantmentLevel(bore.getHeldItemMainhand(),
+		    EnumInfusionEnchantment.DESTRUCTIVE) * 2; // + 1;
+	    return old + spiralStep;
+	}
+
+	public static float modCurrentRadiusReset(float zero, EntityArcaneBore bore) {
+	    int spiralStep = EnumInfusionEnchantment.getInfusionEnchantmentLevel(bore.getHeldItemMainhand(),
+		    EnumInfusionEnchantment.DESTRUCTIVE) * 2 + 1;
+	    return spiralStep > 1 ? (bore.currentRadius - bore.getDigRadius()) % spiralStep : 0;
+	}
+
 	public static Vec3d modRotation(Vec3d old, EntityArcaneBore bore) {
 	    EnumFacing facing = bore.getFacing();
 	    // add 0.5 instead of eyeheight, since players probably want symmetrical tunnels
@@ -229,6 +247,7 @@ public class EntityTransformers {
 		vec = Utils.rotateAroundX(vec, (float) Math.PI / 2.0F * facing.getYOffset());
 	    }
 	    Vec3d res = src.add(vec.x, vec.y, vec.z);
+	    //bore.world.setBlockState(new BlockPos(res), Blocks.AIR.getDefaultState());
 	    return res;
 	}
 
@@ -676,10 +695,11 @@ public class EntityTransformers {
 			Types.WORLD_SERVER, Types.GAME_PROFILE
 			))
 		.insertInstructionsAfter(
+			new VarInsnNode(Opcodes.ALOAD, 0),
 			new MethodInsnNode(Opcodes.INVOKESTATIC,
 				HOOKS_COMMON,
 				"makeBoreFakePlayer",
-				Type.getMethodDescriptor(Types.FAKE_PLAYER, Types.FAKE_PLAYER),
+				Type.getMethodDescriptor(Types.FAKE_PLAYER, Types.FAKE_PLAYER, Types.ENTITY_ARCANE_BORE),
 				false
 				)
 			)
@@ -721,7 +741,12 @@ public class EntityTransformers {
 		);
     };
 
-    public static final Supplier<ITransformer> BORE_SPIRAL_MISSES = () -> {
+    public static final Supplier<ITransformer> BORE_SPIRAL_TWEAKS = () -> {
+	FieldDefinition currentRadius = new FieldDefinition(
+		Types.ENTITY_ARCANE_BORE.getInternalName(),
+		"currentRadius",
+		Type.FLOAT_TYPE
+		);
 	return new GenericStateMachineTransformer(
 		PatchStateMachine.builder(
 			new MethodDefinition(
@@ -761,6 +786,26 @@ public class EntityTransformers {
 				HOOKS_COMMON,
 				"modSpiral",
 				Type.getMethodDescriptor(Type.INT_TYPE, Type.INT_TYPE,
+					Types.ENTITY_ARCANE_BORE),
+				false
+				)
+			)
+		.findNextFieldAccess(currentRadius, FieldAccessType.STORE)
+		.insertInstructionsBefore(new VarInsnNode(Opcodes.ALOAD, 0),
+			new MethodInsnNode(Opcodes.INVOKESTATIC,
+				HOOKS_COMMON,
+				"modCurrentRadius",
+				Type.getMethodDescriptor(Type.FLOAT_TYPE, Type.FLOAT_TYPE,
+					Types.ENTITY_ARCANE_BORE),
+				false
+				)
+			)
+		.findNextFieldAccess(currentRadius, FieldAccessType.STORE)
+		.insertInstructionsBefore(new VarInsnNode(Opcodes.ALOAD, 0),
+			new MethodInsnNode(Opcodes.INVOKESTATIC,
+				HOOKS_COMMON,
+				"modCurrentRadiusReset",
+				Type.getMethodDescriptor(Type.FLOAT_TYPE, Type.FLOAT_TYPE,
 					Types.ENTITY_ARCANE_BORE),
 				false
 				)
