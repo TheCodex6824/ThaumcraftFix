@@ -31,6 +31,7 @@ import net.minecraft.launchwrapper.IClassTransformer;
 import thecodex6824.thaumcraftfix.core.transformer.BlockTransformers;
 import thecodex6824.thaumcraftfix.core.transformer.CastingTransformers;
 import thecodex6824.thaumcraftfix.core.transformer.EntityTransformers;
+import thecodex6824.thaumcraftfix.core.transformer.FeatureTransformers;
 import thecodex6824.thaumcraftfix.core.transformer.ITransformer;
 import thecodex6824.thaumcraftfix.core.transformer.ItemTransformers;
 import thecodex6824.thaumcraftfix.core.transformer.MiscTransformers;
@@ -113,6 +114,9 @@ public class TransformerExecutor implements IClassTransformer {
 	transformers.add(EntityTransformers.CROSSBOW_FIRE_ARROW_CLASS.get());
 	transformers.add(EntityTransformers.CROSSBOW_FIRE_ARROW_LOGIC.get());
 
+	transformers.add(FeatureTransformers.GENERATE_AURA.get());
+	transformers.add(FeatureTransformers.GENERATE_CRYSTALS.get());
+	transformers.add(FeatureTransformers.GENERATE_VEGETATION.get());
 	transformers.add(ItemTransformers.COMPARE_TAGS_RELAXED_NULL_CHECK.get());
 	transformers.add(ItemTransformers.FOCUS_COLOR_NBT.get());
 	transformers.add(ItemTransformers.HAND_MIRROR_STACK_CONTAINER.get());

@@ -85,6 +85,7 @@ public final class Types {
     public static final Type I_BLOCK_ACCESS = Type.getType("Lnet/minecraft/world/IBlockAccess;");
     public static final Type WORLD = Type.getType("Lnet/minecraft/world/World;");
     public static final Type WORLD_SERVER = Type.getType("Lnet/minecraft/world/WorldServer;");
+    public static final Type CHUNK = Type.getType("Lnet/minecraft/world/chunk/Chunk;");
 
     public static final Type SUBSCRIBE_EVENT = Type.getType("Lnet/minecraftforge/fml/common/eventhandler/SubscribeEvent;");
     public static final Type EVENT_PRIORITY = Type.getType("Lnet/minecraftforge/fml/common/eventhandler/EventPriority;");

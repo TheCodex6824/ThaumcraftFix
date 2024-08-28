@@ -27,6 +27,8 @@ import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
@@ -42,6 +44,9 @@ import thaumcraft.common.blocks.basic.BlockPillar;
 import thaumcraft.common.lib.crafting.DustTriggerMultiblock;
 import thaumcraft.common.lib.events.PlayerEvents;
 import thecodex6824.thaumcraftfix.api.ThaumcraftFixApi;
+import thecodex6824.thaumcraftfix.api.aura.CapabilityOriginalAuraInfo;
+import thecodex6824.thaumcraftfix.api.aura.OriginalAuraInfo;
+import thecodex6824.thaumcraftfix.common.util.SimpleCapabilityProvider;
 
 @EventBusSubscriber(modid = ThaumcraftFixApi.MODID)
 public class CommonEventHandler {
@@ -56,6 +61,12 @@ public class CommonEventHandler {
 		event.setCanceled(true);
 	    }
 	}
+    }
+
+    @SubscribeEvent
+    public static void onAttachCapabilityChunk(AttachCapabilitiesEvent<Chunk> event) {
+	event.addCapability(new ResourceLocation(ThaumcraftFixApi.MODID, "original_aura_info"),
+		new SimpleCapabilityProvider<>(new OriginalAuraInfo(), CapabilityOriginalAuraInfo.AURA_INFO));
     }
 
     private static Field TRIGGER_RESEARCH = null;

@@ -22,12 +22,31 @@ package thecodex6824.thaumcraftfix.api.internal;
 
 import java.util.Set;
 
+import net.minecraft.world.DimensionType;
+import net.minecraft.world.biome.Biome;
 import thaumcraft.api.research.ResearchCategory;
 
 public class ThaumcraftFixApiBridge {
 
     public static interface InternalImplementation {
+	public void reloadConfig();
+
 	Set<ResearchCategory> getAllowedTheorycraftCategories();
+
+	public Set<Biome> auraAllowedBiomes();
+	public Set<DimensionType> auraAllowedDimensions();
+	public boolean isControllingAuraGen();
+	public void setControlAuraGen(boolean handle);
+
+	public Set<Biome> crystalAllowedBiomes();
+	public Set<DimensionType> crystalAllowedDimensions();
+	public boolean isControllingCrystalGen();
+	public void setControlCrystalGen(boolean handle);
+
+	public Set<Biome> vegetationAllowedBiomes();
+	public Set<DimensionType> vegetationAllowedDimensions();
+	public boolean isControllingVegetationGen();
+	public void setControlVegetationGen(boolean handle);
     }
 
     private static InternalImplementation impl;

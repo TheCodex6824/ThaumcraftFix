@@ -493,7 +493,7 @@ public class BlockTransformers {
 		    new InsnNode(Opcodes.DUP),
 		    new FieldDefinition(
 			    Types.TILE_FOCAL_MANIPULATOR.getInternalName(),
-			    "crystals",
+			    "controlCrystals",
 			    Type.getType("Lthaumcraft/api/aspects/AspectList;")
 			    ).asFieldInsnNode(Opcodes.GETFIELD),
 		    new VarInsnNode(Opcodes.ALOAD, 2),

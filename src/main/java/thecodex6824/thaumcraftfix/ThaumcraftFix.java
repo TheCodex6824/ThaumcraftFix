@@ -20,6 +20,8 @@
 
 package thecodex6824.thaumcraftfix;
 
+import javax.annotation.Nullable;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -31,6 +33,12 @@ import net.minecraft.item.Item;
 import net.minecraft.item.Item.ToolMaterial;
 import net.minecraft.item.ItemArmor.ArmorMaterial;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumFacing;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.Capability.IStorage;
+import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
@@ -48,6 +56,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 import thaumcraft.api.ThaumcraftApi;
 import thaumcraft.api.ThaumcraftMaterials;
 import thaumcraft.api.aspects.Aspect;
@@ -61,10 +70,13 @@ import thaumcraft.api.research.ResearchStage;
 import thaumcraft.api.research.ResearchStage.Knowledge;
 import thaumcraft.common.entities.monster.EntitySpellBat;
 import thecodex6824.thaumcraftfix.api.ThaumcraftFixApi;
+import thecodex6824.thaumcraftfix.api.aura.IOriginalAuraInfo;
+import thecodex6824.thaumcraftfix.api.aura.OriginalAuraInfo;
 import thecodex6824.thaumcraftfix.api.internal.ThaumcraftFixApiBridge;
 import thecodex6824.thaumcraftfix.api.research.ResearchCategoryTheorycraftFilter;
 import thecodex6824.thaumcraftfix.common.internal.DefaultApiImplementation;
 import thecodex6824.thaumcraftfix.common.network.ThaumcraftFixNetworkHandler;
+import thecodex6824.thaumcraftfix.common.world.AuraFinalizerWorldGenerator;
 
 @Mod(modid = ThaumcraftFixApi.MODID, name = "Thaumcraft Fix", version = ThaumcraftFix.VERSION, useMetadata = true,
 certificateFingerprint = "@FINGERPRINT@")
@@ -92,6 +104,24 @@ public class ThaumcraftFix {
     public void preInit(FMLPreInitializationEvent event) {
 	logger = event.getModLog();
 	ThaumcraftFixApiBridge.setImplementation(new DefaultApiImplementation());
+	CapabilityManager.INSTANCE.register(IOriginalAuraInfo.class, new IStorage<IOriginalAuraInfo>() {
+	    @Override
+	    public void readNBT(Capability<IOriginalAuraInfo> capability, IOriginalAuraInfo instance, EnumFacing side, NBTBase nbt) {
+		if (!(instance instanceof OriginalAuraInfo) || !(nbt instanceof NBTTagCompound))
+		    throw new UnsupportedOperationException("Can't deserialize non-API implementation");
+
+		((OriginalAuraInfo) instance).deserializeNBT((NBTTagCompound) nbt);
+	    }
+
+	    @Override
+	    @Nullable
+	    public NBTBase writeNBT(Capability<IOriginalAuraInfo> capability, IOriginalAuraInfo instance, EnumFacing side) {
+		if (!(instance instanceof OriginalAuraInfo))
+		    throw new UnsupportedOperationException("Can't serialize non-API implementation");
+
+		return ((OriginalAuraInfo) instance).serializeNBT();
+	    }
+	}, OriginalAuraInfo::new);
     }
 
     @SubscribeEvent(priority = EventPriority.LOW)
@@ -109,6 +139,7 @@ public class ThaumcraftFix {
     @EventHandler
     public void init(FMLInitializationEvent event) {
 	network = new ThaumcraftFixNetworkHandler();
+	GameRegistry.registerWorldGenerator(new AuraFinalizerWorldGenerator(), Integer.MAX_VALUE);
     }
 
     private static void setToolMaterialRepairItem(ToolMaterial material, ItemStack repair) {
@@ -138,6 +169,8 @@ public class ThaumcraftFix {
 
     @EventHandler
     public void postInit(FMLPostInitializationEvent event) {
+	ThaumcraftFixApiBridge.implementation().reloadConfig();
+
 	// reset repair materials for TC materials
 	// if the class was loaded before now, the items used will have been null and won't register
 	// the individual items have extra code to allow repair, but these are required for generic support

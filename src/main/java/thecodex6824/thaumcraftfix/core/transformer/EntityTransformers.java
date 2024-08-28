@@ -569,7 +569,7 @@ public class EntityTransformers {
 		    )))
 	    .findNextLocalAccess(5)
 	    .findNextMethodCall(TransformUtil.remapMethod(new MethodDefinition(
-		    "net/minecraft/world/World",
+		    Types.WORLD.getInternalName(),
 		    false,
 		    "func_175623_d",
 		    Type.BOOLEAN_TYPE,
