@@ -38,7 +38,7 @@ public class FeatureTransformers {
 
     public static final class Hooks {
 
-	public static int generateAura(int original, Chunk chunk) {
+	public static int shouldGenerateAura(int original, Chunk chunk) {
 	    if (original >= 0 || !FeatureControl.isControllingAuraGen()) {
 		return original;
 	    }

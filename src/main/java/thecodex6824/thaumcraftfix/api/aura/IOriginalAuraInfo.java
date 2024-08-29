@@ -20,51 +20,62 @@
 
 package thecodex6824.thaumcraftfix.api.aura;
 
+import java.util.Optional;
+
 /**
- * Capability that holds the statistics for an controlAura chunk,
+ * Capability that holds the statistics for an aura chunk,
  * at the time it was generated. Useful for detecting modifications
- * to the controlAura, or restoring it to its original values. Mods (including FeatureControl)
- * can, and are expected to, modify this at worldgen time to reflect the final values
- * of the generated controlAura.
+ * to the aura, or restoring it to its original values. Mods can,
+ * and are expected to, modify this at worldgen time to reflect the final values
+ * of the generated aura.
+ *
+ * In the event this mod is installed after worldgen time, aura
+ * information will not have been recorded. In this case,
+ * the getter methods of this capability should return empty Optional instances.
+ * Using Optional here allows callers to differentiate between the lack of aura
+ * information and auras that actually have zero values.
  */
 public interface IOriginalAuraInfo {
 
     /**
-     * Returns the base controlAura level, also known as the vis cap.
-     * @return The base controlAura level
+     * Returns the base aura level, also known as the vis cap.
+     * An empty Optional means that this value was never recorded.
+     * @return The base aura level
      */
-    public short getBase();
+    public Optional<Short> getBase();
 
     /**
-     * Sets the base controlAura level.
-     * @param newBase The new base controlAura level
+     * Sets the base aura level.
+     * @param newBase The new base aura level
      */
     public void setBase(short newBase);
 
     /**
-     * Returns the amount of vis in the controlAura, which can be
+     * Returns the amount of vis in the aura, which can be
      * different from the vis cap.
+     * An empty Optional means that this value was never recorded.
      * @return The vis level
      */
-    public float getVis();
+    public Optional<Float> getVis();
 
     /**
-     * Sets the amount of vis in the controlAura.
+     * Sets the amount of vis in the aura.
      * @param newVis The new vis level
      */
     public void setVis(float newVis);
 
     /**
-     * Returns the amount of flux in the controlAura. Vanilla Thaumcraft
+     * Returns the amount of flux in the aura. Vanilla Thaumcraft
      * barely adds any flux, if any, at worldgen time, but mods
      * like Thaumic Augmentation may add some as part of their
      * worldgen.
+     * An empty Optional means that this value was never recorded.
      * @return The amount of flux in the controlAura
      */
-    public float getFlux();
+    public Optional<Float> getFlux();
 
     /**
-     * Sets the amount of flux in the controlAura.
+     * Sets the amount of flux in the aura.
      * @param newFlux The new flux level
      */
     public void setFlux(float newFlux);

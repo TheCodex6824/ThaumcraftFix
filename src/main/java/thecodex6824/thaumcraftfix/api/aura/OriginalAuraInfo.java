@@ -20,7 +20,10 @@
 
 package thecodex6824.thaumcraftfix.api.aura;
 
+import java.util.Optional;
+
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.common.util.INBTSerializable;
 
 /**
@@ -29,56 +32,76 @@ import net.minecraftforge.common.util.INBTSerializable;
  */
 public class OriginalAuraInfo implements IOriginalAuraInfo, INBTSerializable<NBTTagCompound> {
 
-    protected short base;
-    protected float vis;
-    protected float flux;
+    protected static final String KEY_BASE = "base";
+    protected static final String KEY_VIS = "vis";
+    protected static final String KEY_FLUX = "flux";
 
-    public OriginalAuraInfo() {}
+    protected Optional<Short> base;
+    protected Optional<Float> vis;
+    protected Optional<Float> flux;
+
+    public OriginalAuraInfo() {
+	base = Optional.empty();
+	vis = Optional.empty();
+	flux = Optional.empty();
+    }
 
     @Override
-    public short getBase() {
+    public Optional<Short> getBase() {
 	return base;
     }
 
     @Override
     public void setBase(short newBase) {
-	base = newBase;
+	base = Optional.of(newBase);
     }
 
     @Override
-    public float getVis() {
+    public Optional<Float> getVis() {
 	return vis;
     }
 
     @Override
     public void setVis(float newVis) {
-	vis = newVis;
+	vis = Optional.of(newVis);
     }
 
     @Override
-    public float getFlux() {
+    public Optional<Float> getFlux() {
 	return flux;
     }
 
     @Override
     public void setFlux(float newFlux) {
-	flux = newFlux;
+	flux = Optional.of(newFlux);
     }
 
     @Override
     public NBTTagCompound serializeNBT() {
 	NBTTagCompound tag = new NBTTagCompound();
-	tag.setShort("base", base);
-	tag.setFloat("vis", vis);
-	tag.setFloat("flux", flux);
+	if (base.isPresent()) {
+	    tag.setShort(KEY_BASE, base.get());
+	}
+	if (vis.isPresent()) {
+	    tag.setFloat(KEY_VIS, vis.get());
+	}
+	if (flux.isPresent()) {
+	    tag.setFloat(KEY_FLUX, flux.get());
+	}
 	return tag;
     }
 
     @Override
     public void deserializeNBT(NBTTagCompound nbt) {
-	base = nbt.getShort("base");
-	vis = nbt.getFloat("vis");
-	flux = nbt.getFloat("flux");
+	if (nbt.hasKey(KEY_BASE, NBT.TAG_SHORT)) {
+	    base = Optional.of(nbt.getShort("base"));
+	}
+	if (nbt.hasKey(KEY_VIS, NBT.TAG_FLOAT)) {
+	    vis = Optional.of(nbt.getFloat("vis"));
+	}
+	if (nbt.hasKey(KEY_FLUX, NBT.TAG_FLOAT)) {
+	    flux = Optional.of(nbt.getFloat("flux"));
+	}
     }
 
 }
