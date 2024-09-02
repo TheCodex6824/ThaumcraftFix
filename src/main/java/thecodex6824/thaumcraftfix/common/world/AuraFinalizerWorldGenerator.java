@@ -30,7 +30,7 @@ import net.minecraft.world.gen.IChunkGenerator;
 import net.minecraftforge.fml.common.IWorldGenerator;
 import thaumcraft.common.world.aura.AuraChunk;
 import thaumcraft.common.world.aura.AuraHandler;
-import thecodex6824.thaumcraftfix.api.FeatureControl;
+import thecodex6824.thaumcraftfix.api.FeatureControlApi;
 import thecodex6824.thaumcraftfix.api.aura.CapabilityOriginalAuraInfo;
 import thecodex6824.thaumcraftfix.api.aura.IOriginalAuraInfo;
 
@@ -40,11 +40,11 @@ public class AuraFinalizerWorldGenerator implements IWorldGenerator {
     public void generate(Random random, int chunkX, int chunkZ, World world, IChunkGenerator chunkGenerator,
 	    IChunkProvider chunkProvider) {
 
-	if (FeatureControl.isControllingAuraGen()) {
+	if (FeatureControlApi.isControllingAuraGen()) {
 	    Biome biome = world.getBiome(new BlockPos(chunkX * 16 + 8, 64, chunkZ * 16 + 8));
 	    // we already stopped Thaumcraft earlier, but someone else might have set something
-	    if (!FeatureControl.auraAllowedDimensions().contains(world.provider.getDimensionType()) ||
-		    !FeatureControl.auraAllowedBiomes().contains(biome)) {
+	    if (!FeatureControlApi.auraAllowedDimensions().contains(world.provider.getDimensionType()) ||
+		    !FeatureControlApi.auraAllowedBiomes().contains(biome)) {
 		AuraChunk chunk = AuraHandler.getAuraChunk(world.provider.getDimension(), chunkX, chunkZ);
 		chunk.setBase((short) 0);
 		chunk.setVis(0.0F);

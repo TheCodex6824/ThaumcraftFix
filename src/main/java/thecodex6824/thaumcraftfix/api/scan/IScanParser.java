@@ -18,26 +18,23 @@
  *  along with Thaumcraft Fix.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package thecodex6824.thaumcraftfix;
+package thecodex6824.thaumcraftfix.api.scan;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.util.Collection;
 
-import net.minecraft.entity.player.EntityPlayer;
+import com.google.gson.JsonElement;
+
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.relauncher.Side;
+import thaumcraft.api.research.IScanThing;
 
-public interface IProxy {
+/**
+ * Interface for registering parsers that convert JSON into a Thaumcraft IScanThing.
+ * @author TheCodex6824
+ */
+public interface IScanParser {
 
-    public void construction();
+    public boolean matches(ResourceLocation type);
 
-    public void scheduleTask(Side intendedSide, Runnable task);
-
-    public EntityPlayer getClientPlayer();
-
-    public File getGameDirectory();
-
-    public InputStream resolveResource(ResourceLocation loc) throws IOException;
+    public Collection<IScanThing> parseScan(String key, ResourceLocation type, JsonElement input);
 
 }

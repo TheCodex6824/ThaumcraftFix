@@ -20,24 +20,42 @@
 
 package thecodex6824.thaumcraftfix.core.transformer;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.function.Supplier;
 
+import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.FrameNode;
+import org.objectweb.asm.tree.IincInsnNode;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
+import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
+import com.google.gson.JsonObject;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.MinecraftForge;
 import thaumcraft.api.capabilities.IPlayerKnowledge.EnumKnowledgeType;
 import thaumcraft.api.research.ResearchCategory;
+import thaumcraft.api.research.ResearchEntry;
 import thecodex6824.coremodlib.LocalVariableDefinition;
 import thecodex6824.coremodlib.MethodDefinition;
 import thecodex6824.coremodlib.PatchStateMachine;
 import thecodex6824.thaumcraftfix.ThaumcraftFix;
+import thecodex6824.thaumcraftfix.api.ThaumcraftFixApi;
+import thecodex6824.thaumcraftfix.api.event.research.ResearchEntryLoadEvent;
+import thecodex6824.thaumcraftfix.api.event.research.ResearchLoadEvent;
+import thecodex6824.thaumcraftfix.api.internal.ThaumcraftFixApiBridge;
 import thecodex6824.thaumcraftfix.common.network.PacketGainKnowledge;
 import thecodex6824.thaumcraftfix.common.network.PacketGainResearch;
 
@@ -66,6 +84,45 @@ public class ResearchTransformers {
 	    }
 
 	    return split;
+	}
+
+	public static void researchLoadStart() {
+	    MinecraftForge.EVENT_BUS.post(new ResearchLoadEvent.Pre());
+	}
+
+	public static void researchLoadEnd() {
+	    MinecraftForge.EVENT_BUS.post(new ResearchLoadEvent.Post());
+	}
+
+	public static boolean entryLoadStart(JsonObject json) {
+	    ResearchEntryLoadEvent.Pre event = new ResearchEntryLoadEvent.Pre(json);
+	    MinecraftForge.EVENT_BUS.post(event);
+	    return !event.isCanceled();
+	}
+
+	public static void entryLoadEnd(JsonObject json, ResearchEntry entry) {
+	    MinecraftForge.EVENT_BUS.post(new ResearchEntryLoadEvent.Post(json, entry));
+	}
+
+	public static InputStream getFilesystemStream(InputStream stream, ResourceLocation loc) {
+	    String prefix = ThaumcraftFixApiBridge.InternalImplementation.PATH_RESOURCE_PREFIX;
+	    if (stream == null && loc.getNamespace().equals(ThaumcraftFixApi.MODID) && loc.getPath().startsWith(prefix)) {
+		Path gameDir = ThaumcraftFix.proxy.getGameDirectory().toPath().normalize();
+		Path requested = Paths.get(loc.getPath().substring(prefix.length()));
+		if (!requested.isAbsolute() && requested.getRoot() == null) {
+		    try {
+			stream = new FileInputStream(gameDir.resolve(requested.normalize()).toFile());
+		    }
+		    catch (IOException ex) {
+			ThaumcraftFix.instance.getLogger().error("Failed opening research file: ", ex);
+		    }
+		}
+		else {
+		    ThaumcraftFix.instance.getLogger().error("Illegal research entry path, paths must be relative to the game directory: " + requested);
+		}
+	    }
+
+	    return stream;
 	}
 
     }
@@ -134,6 +191,93 @@ public class ResearchTransformers {
 				false
 				)
 			)
+		.build(), true, 1
+		);
+    };
+
+    public static final Supplier<ITransformer> RESEARCH_PATCHER = () -> {
+	LabelNode skipLabel = new LabelNode(new Label());
+	return new GenericStateMachineTransformer(
+		PatchStateMachine.builder(
+			new MethodDefinition(
+				"thaumcraft/common/lib/research/ResearchManager",
+				false,
+				"parseAllResearch",
+				Type.VOID_TYPE
+				)
+			)
+		.insertInstructionsBefore(
+			new MethodInsnNode(Opcodes.INVOKESTATIC,
+				HOOKS,
+				"researchLoadStart",
+				Type.getMethodDescriptor(Type.VOID_TYPE),
+				false
+				))
+		.findNextMethodCall(new MethodDefinition(
+			"java/lang/Class",
+			false,
+			"getResourceAsStream",
+			Types.INPUT_STREAM,
+			Types.STRING
+			))
+		.insertInstructionsAfter(
+			new VarInsnNode(Opcodes.ALOAD, 2),
+			new MethodInsnNode(Opcodes.INVOKESTATIC,
+				HOOKS,
+				"getFilesystemStream",
+				Type.getMethodDescriptor(Types.INPUT_STREAM, Types.INPUT_STREAM, Types.RESOURCE_LOCATION),
+				false
+				)
+			)
+		.findNextMethodCall(new MethodDefinition(
+			"thaumcraft/common/lib/research/ResearchManager",
+			false,
+			"parseResearchJson",
+			Types.RESEARCH_ENTRY,
+			Types.JSON_OBJECT
+			))
+		.findNextMethodCall(new MethodDefinition(
+			"thaumcraft/common/lib/research/ResearchManager",
+			false,
+			"addResearchToCategory",
+			Type.VOID_TYPE,
+			Types.RESEARCH_ENTRY
+			))
+		.combineLastTwoMatches()
+		.insertInstructionsSurrounding()
+		.before(
+			new MethodInsnNode(Opcodes.INVOKESTATIC,
+				HOOKS,
+				"entryLoadStart",
+				Type.getMethodDescriptor(Type.BOOLEAN_TYPE, Types.JSON_OBJECT),
+				false
+				),
+			new JumpInsnNode(Opcodes.IFEQ, skipLabel),
+			new IincInsnNode(8, 1),
+			new VarInsnNode(Opcodes.ALOAD, 11)
+			)
+		.after(
+			new VarInsnNode(Opcodes.ALOAD, 11),
+			new VarInsnNode(Opcodes.ALOAD, 12),
+			new MethodInsnNode(Opcodes.INVOKESTATIC,
+				HOOKS,
+				"entryLoadEnd",
+				Type.getMethodDescriptor(Type.VOID_TYPE, Types.JSON_OBJECT, Types.RESEARCH_ENTRY),
+				false
+				),
+			skipLabel,
+			new FrameNode(Opcodes.F_APPEND, 1, new Object[] { Types.JSON_ELEMENT.getInternalName() }, 0, null),
+			new IincInsnNode(8, -1)
+			)
+		.endAction()
+		.findNextOpcode(Opcodes.RETURN)
+		.insertInstructionsBefore(
+			new MethodInsnNode(Opcodes.INVOKESTATIC,
+				HOOKS,
+				"researchLoadEnd",
+				Type.getMethodDescriptor(Type.VOID_TYPE),
+				false
+				))
 		.build(), true, 1
 		);
     };

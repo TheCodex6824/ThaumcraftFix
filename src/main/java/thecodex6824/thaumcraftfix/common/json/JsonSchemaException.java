@@ -18,26 +18,26 @@
  *  along with Thaumcraft Fix.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package thecodex6824.thaumcraftfix;
+package thecodex6824.thaumcraftfix.common.json;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+/**
+ * Exception class for instances where the provided JSON does match the expected format.
+ * @author TheCodex6824
+ */
+public class JsonSchemaException extends RuntimeException {
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.relauncher.Side;
+    private static final long serialVersionUID = -202697203598380455L;
 
-public interface IProxy {
+    public JsonSchemaException(String cause) {
+	super(cause);
+    }
 
-    public void construction();
+    public JsonSchemaException(Throwable cause) {
+	super(cause);
+    }
 
-    public void scheduleTask(Side intendedSide, Runnable task);
-
-    public EntityPlayer getClientPlayer();
-
-    public File getGameDirectory();
-
-    public InputStream resolveResource(ResourceLocation loc) throws IOException;
+    public JsonSchemaException(String message, Throwable cause) {
+	super(message, cause);
+    }
 
 }

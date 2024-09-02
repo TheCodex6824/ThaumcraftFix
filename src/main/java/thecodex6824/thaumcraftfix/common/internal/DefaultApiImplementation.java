@@ -20,35 +20,82 @@
 
 package thecodex6824.thaumcraftfix.common.internal;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.gson.JsonElement;
 
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.DimensionType;
 import net.minecraft.world.biome.Biome;
+import thaumcraft.api.ThaumcraftApi;
+import thaumcraft.api.research.IScanThing;
 import thaumcraft.api.research.ResearchCategories;
 import thaumcraft.api.research.ResearchCategory;
 import thecodex6824.thaumcraftfix.ThaumcraftFix;
+import thecodex6824.thaumcraftfix.api.ThaumcraftFixApi;
 import thecodex6824.thaumcraftfix.api.internal.ThaumcraftFixApiBridge.InternalImplementation;
+import thecodex6824.thaumcraftfix.api.scan.IScanParser;
 import thecodex6824.thaumcraftfix.common.ThaumcraftFixConfig;
 
 public class DefaultApiImplementation implements InternalImplementation {
 
-    // not sure if client + server thread are going to be hitting this at the same time
-    // or if that will happen after reloadConfig is called at runtime
-    private volatile ImmutableSet<ResearchCategory> allowedForTheorycraft;
-    private volatile boolean controlAura;
-    private volatile boolean controlCrystals;
-    private volatile boolean controlTrees;
-    private volatile ImmutableSet<Biome> auraBiomes;
-    private volatile ImmutableSet<DimensionType> auraDims;
-    private volatile ImmutableSet<Biome> crystalBiomes;
-    private volatile ImmutableSet<DimensionType> crystalDims;
-    private volatile ImmutableSet<Biome> treeBiomes;
-    private volatile ImmutableSet<DimensionType> treeDims;
+    protected static class ScanParserEntry {
+
+	public ScanParserEntry(IScanParser p, int w) {
+	    parser = p;
+	    weight = w;
+	}
+
+	public final IScanParser parser;
+	public final int weight;
+
+    }
+
+    private ImmutableSet<ResearchCategory> allowedForTheorycraft;
+    private boolean controlAura;
+    private boolean controlCrystals;
+    private boolean controlTrees;
+    private ImmutableSet<Biome> auraBiomes;
+    private ImmutableSet<DimensionType> auraDims;
+    private ImmutableSet<Biome> crystalBiomes;
+    private ImmutableSet<DimensionType> crystalDims;
+    private ImmutableSet<Biome> treeBiomes;
+    private ImmutableSet<DimensionType> treeDims;
+    private ArrayList<ScanParserEntry> scanParsers;
+    private boolean scanParsersSorted;
+    private HashSet<Path> entrySources;
+    private HashMap<String, ResearchPatchSource> patchSources;
+
+    public DefaultApiImplementation() {
+	allowedForTheorycraft = ImmutableSet.of();
+	controlAura = false;
+	controlCrystals = false;
+	controlTrees = false;
+	auraBiomes = ImmutableSet.of();
+	auraDims = ImmutableSet.of();
+	crystalBiomes = ImmutableSet.of();
+	crystalDims = ImmutableSet.of();
+	treeBiomes = ImmutableSet.of();
+	treeDims = ImmutableSet.of();
+	scanParsers = new ArrayList<>();
+	scanParsersSorted = false;
+	entrySources = new HashSet<>();
+	patchSources = new HashMap<>();
+    }
 
     private ImmutableSet<Biome> makeFilteredBiomeSet(Set<Biome> allBiomes, String[] filter, boolean allow) {
 	ArrayList<Pattern> filterPatterns = new ArrayList<>();
@@ -165,6 +212,139 @@ public class DefaultApiImplementation implements InternalImplementation {
     @Override
     public Set<DimensionType> vegetationAllowedDimensions() {
 	return treeDims;
+    }
+
+    @Override
+    public void registerScanParser(IScanParser parser, int weight) {
+	scanParsers.add(new ScanParserEntry(parser, weight));
+	scanParsersSorted = false;
+    }
+
+    @Override
+    public Collection<IScanThing> parseScans(String key, ResourceLocation type, JsonElement data) {
+	if (!scanParsersSorted) {
+	    scanParsers.sort((e1, e2) -> Integer.compare(e1.weight, e2.weight));
+	    scanParsersSorted = true;
+	}
+
+	RuntimeException throwLater = new RuntimeException("No parsers were able to load scan of type " + type);
+	for (ScanParserEntry e : scanParsers) {
+	    IScanParser parser = e.parser;
+	    if (parser.matches(type)) {
+		try {
+		    return parser.parseScan(key, type, data);
+		}
+		catch (Exception ex) {
+		    throwLater.addSuppressed(ex);
+		}
+	    }
+	}
+
+	throw throwLater;
+    }
+
+    @Override
+    public void registerResearchEntrySource(Path path) {
+	if (path.isAbsolute() || path.getRoot() != null) {
+	    throw new IllegalArgumentException("Filesystem research entry sources must be relative to the game directory");
+	}
+	entrySources.add(ThaumcraftFix.proxy.getGameDirectory().toPath().resolve(path.normalize()));
+    }
+
+    @Override
+    public void registerResearchEntrySource(ResourceLocation loc) {
+	ThaumcraftApi.registerResearchLocation(loc);
+    }
+
+    private ResourceLocation createFilesystemLocation(String path) {
+	return new ResourceLocation(ThaumcraftFixApi.MODID,
+		InternalImplementation.PATH_RESOURCE_PREFIX + path);
+    }
+
+    @Override
+    public Collection<ResourceLocation> getFilesystemResearchEntrySources() {
+	ArrayList<ResourceLocation> locs = new ArrayList<>();
+	for (Path p : entrySources) {
+	    File file = p.toFile();
+	    if (file.exists()) {
+		if (file.isFile()) {
+		    locs.add(createFilesystemLocation(p.toString()));
+		}
+		else {
+		    for (File f : file.listFiles(f -> f.isFile() && f.getName().endsWith(".json"))) {
+			locs.add(createFilesystemLocation(f.getPath()));
+		    }
+		}
+	    }
+	}
+
+	return locs;
+    }
+
+    private static class ResourceLocationSource implements ResearchPatchSource {
+	private final ResourceLocation loc;
+
+	public ResourceLocationSource(ResourceLocation location) {
+	    loc = location;
+	}
+
+	@Override
+	public String getDescriptor() {
+	    return loc.toString();
+	}
+
+	@Override
+	public Map<String, ? extends InputStream> open() throws IOException {
+	    return ImmutableMap.of(loc.toString(), ThaumcraftFix.proxy.resolveResource(loc));
+	}
+    }
+
+    private static class FilesystemSource implements ResearchPatchSource {
+	private final Path path;
+
+	public FilesystemSource(Path p) {
+	    path = p;
+	}
+
+	@Override
+	public String getDescriptor() {
+	    return path.getFileName().toString();
+	}
+
+	@Override
+	public Map<String, ? extends InputStream> open() throws IOException {
+	    File file = path.toFile();
+	    if (file.exists()) {
+		if (file.isFile()) {
+		    return ImmutableMap.of(path.getFileName().toString(), new FileInputStream(file));
+		}
+		else {
+		    ImmutableMap.Builder<String, FileInputStream> builder = ImmutableMap.builder();
+		    for (File f : file.listFiles(f -> f.isFile() && f.getName().endsWith(".json"))) {
+			builder.put(f.getName(), new FileInputStream(f));
+		    }
+
+		    return builder.build();
+		}
+	    }
+
+	    return ImmutableMap.of();
+	}
+    }
+
+    @Override
+    public void registerResearchPatchSource(ResourceLocation loc) {
+	patchSources.putIfAbsent(loc.toString(), new ResourceLocationSource(loc));
+    }
+
+    @Override
+    public void registerResearchPathSource(Path path) {
+	patchSources.putIfAbsent(path.toString(), new FilesystemSource(path));
+    }
+
+    @Override
+    public Collection<ResearchPatchSource> getResearchPatchSources() {
+	return patchSources.values();
     }
 
 }

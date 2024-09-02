@@ -26,9 +26,9 @@ import net.minecraft.world.DimensionType;
 import net.minecraft.world.biome.Biome;
 import thecodex6824.thaumcraftfix.api.internal.ThaumcraftFixApiBridge;
 
-public final class FeatureControl {
+public final class FeatureControlApi {
 
-    private FeatureControl() {}
+    private FeatureControlApi() {}
 
     /**
      * Returns if aura gen is being controlled by this API.

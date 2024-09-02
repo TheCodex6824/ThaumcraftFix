@@ -32,20 +32,20 @@ import net.minecraft.world.chunk.Chunk;
 import thecodex6824.coremodlib.FieldDefinition;
 import thecodex6824.coremodlib.MethodDefinition;
 import thecodex6824.coremodlib.PatchStateMachine;
-import thecodex6824.thaumcraftfix.api.FeatureControl;
+import thecodex6824.thaumcraftfix.api.FeatureControlApi;
 
 public class FeatureTransformers {
 
     public static final class Hooks {
 
 	public static int shouldGenerateAura(int original, Chunk chunk) {
-	    if (original >= 0 || !FeatureControl.isControllingAuraGen()) {
+	    if (original >= 0 || !FeatureControlApi.isControllingAuraGen()) {
 		return original;
 	    }
-	    else if (!FeatureControl.auraAllowedDimensions().contains(chunk.getWorld().provider.getDimensionType())) {
+	    else if (!FeatureControlApi.auraAllowedDimensions().contains(chunk.getWorld().provider.getDimensionType())) {
 		return 1;
 	    }
-	    else if (!FeatureControl.auraAllowedBiomes().contains(chunk.getWorld().getBiome(
+	    else if (!FeatureControlApi.auraAllowedBiomes().contains(chunk.getWorld().getBiome(
 		    new BlockPos(chunk.x * 16 + 8, 0, chunk.z * 16 + 8)))) {
 		return 1;
 	    }
@@ -54,13 +54,13 @@ public class FeatureTransformers {
 	}
 
 	public static boolean shouldGenerateCrystals(boolean original, World world, int chunkX, int chunkZ) {
-	    if (!original || !FeatureControl.isControllingCrystalGen()) {
+	    if (!original || !FeatureControlApi.isControllingCrystalGen()) {
 		return original;
 	    }
-	    else if (!FeatureControl.crystalAllowedDimensions().contains(world.provider.getDimensionType())) {
+	    else if (!FeatureControlApi.crystalAllowedDimensions().contains(world.provider.getDimensionType())) {
 		return false;
 	    }
-	    else if (!FeatureControl.crystalAllowedBiomes().contains(world.getBiome(
+	    else if (!FeatureControlApi.crystalAllowedBiomes().contains(world.getBiome(
 		    new BlockPos(chunkX * 16 + 8, 0, chunkZ * 16 + 8)))) {
 		return false;
 	    }
@@ -69,13 +69,13 @@ public class FeatureTransformers {
 	}
 
 	public static int shouldGenerateVegetation(int original, World world, int chunkX, int chunkZ) {
-	    if (original >= 0 || !FeatureControl.isControllingVegetationGen()) {
+	    if (original >= 0 || !FeatureControlApi.isControllingVegetationGen()) {
 		return original;
 	    }
-	    else if (!FeatureControl.vegetationAllowedDimensions().contains(world.provider.getDimensionType())) {
+	    else if (!FeatureControlApi.vegetationAllowedDimensions().contains(world.provider.getDimensionType())) {
 		return 1;
 	    }
-	    else if (!FeatureControl.vegetationAllowedBiomes().contains(world.getBiome(
+	    else if (!FeatureControlApi.vegetationAllowedBiomes().contains(world.getBiome(
 		    new BlockPos(chunkX * 16 + 8, 0, chunkZ * 16 + 8)))) {
 		return 1;
 	    }

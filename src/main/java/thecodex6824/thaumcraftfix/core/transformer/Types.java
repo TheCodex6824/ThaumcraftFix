@@ -20,6 +20,7 @@
 
 package thecodex6824.thaumcraftfix.core.transformer;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -45,10 +46,15 @@ public final class Types {
     public static final Type ITERATOR = Type.getType(Iterator.class);
     public static final Type COLLECTION = Type.getType(Collection.class);
     public static final Type HASH_MAP = Type.getType(HashMap.class);
+    public static final Type INPUT_STREAM = Type.getType(InputStream.class);
+
+    public static final Type JSON_ELEMENT = Type.getType("Lcom/google/gson/JsonElement;");
+    public static final Type JSON_OBJECT = Type.getType("Lcom/google/gson/JsonObject;");
 
     public static final Type AXIS_ALIGNED_BB = Type.getType("Lnet/minecraft/util/math/AxisAlignedBB;");
     public static final Type VEC_3D = Type.getType("Lnet/minecraft/util/math/Vec3d;");
     public static final Type NON_NULL_LIST = Type.getType("Lnet/minecraft/util/NonNullList;");
+    public static final Type RESOURCE_LOCATION = Type.getType("Lnet/minecraft/util/ResourceLocation;");
 
     public static final Type ENTITY = Type.getType("Lnet/minecraft/entity/Entity;");
     public static final Type ENTITY_ITEM = Type.getType("Lnet/minecraft/entity/item/EntityItem;");
@@ -105,6 +111,7 @@ public final class Types {
 
     public static final Type SOUND_EVENT = Type.getType("Lnet/minecraft/util/SoundEvent;");
 
+    public static final Type RESEARCH_ENTRY = Type.getType("Lthaumcraft/api/research/ResearchEntry;");
     public static final Type RESEARCH_TABLE_DATA = Type.getType("Lthaumcraft/api/research/theorycraft/ResearchTableData;");
 
     public static final Type ENTITY_ARCANE_BORE = Type.getType("Lthaumcraft/common/entities/construct/EntityArcaneBore;");

@@ -18,26 +18,49 @@
  *  along with Thaumcraft Fix.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package thecodex6824.thaumcraftfix;
+package thecodex6824.thaumcraftfix.common.json;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import javax.annotation.Nullable;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.relauncher.Side;
+import com.google.gson.JsonElement;
 
-public interface IProxy {
+public class JsonPatch {
 
-    public void construction();
+    public static enum PatchOp {
 
-    public void scheduleTask(Side intendedSide, Runnable task);
+	ADD("add"),
+	REMOVE("remove"),
+	REPLACE("replace"),
+	COPY("copy"),
+	MOVE("move"),
+	TEST("test");
 
-    public EntityPlayer getClientPlayer();
+	private String internalName;
 
-    public File getGameDirectory();
+	private PatchOp(String name) {
+	    internalName = name;
+	}
 
-    public InputStream resolveResource(ResourceLocation loc) throws IOException;
+	@Nullable
+	public static PatchOp fromString(String s) {
+	    for (PatchOp o : values()) {
+		if (o.internalName.equals(s))
+		    return o;
+	    }
+
+	    return null;
+	}
+
+    }
+
+    public final PatchOp op;
+    public final String path;
+    public final JsonElement meta;
+
+    public JsonPatch(PatchOp o, String p, JsonElement m) {
+	op = o;
+	path = p;
+	meta = m;
+    }
 
 }

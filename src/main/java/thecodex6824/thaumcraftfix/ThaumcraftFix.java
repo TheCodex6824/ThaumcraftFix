@@ -20,6 +20,8 @@
 
 package thecodex6824.thaumcraftfix;
 
+import java.nio.file.Paths;
+
 import javax.annotation.Nullable;
 
 import org.apache.logging.log4j.LogManager;
@@ -69,6 +71,7 @@ import thaumcraft.api.research.ResearchEntry;
 import thaumcraft.api.research.ResearchStage;
 import thaumcraft.api.research.ResearchStage.Knowledge;
 import thaumcraft.common.entities.monster.EntitySpellBat;
+import thecodex6824.thaumcraftfix.api.ResearchApi;
 import thecodex6824.thaumcraftfix.api.ThaumcraftFixApi;
 import thecodex6824.thaumcraftfix.api.aura.IOriginalAuraInfo;
 import thecodex6824.thaumcraftfix.api.aura.OriginalAuraInfo;
@@ -76,6 +79,11 @@ import thecodex6824.thaumcraftfix.api.internal.ThaumcraftFixApiBridge;
 import thecodex6824.thaumcraftfix.api.research.ResearchCategoryTheorycraftFilter;
 import thecodex6824.thaumcraftfix.common.internal.DefaultApiImplementation;
 import thecodex6824.thaumcraftfix.common.network.ThaumcraftFixNetworkHandler;
+import thecodex6824.thaumcraftfix.common.research.ResearchConfigParser;
+import thecodex6824.thaumcraftfix.common.research.parser.ScanParserBlock;
+import thecodex6824.thaumcraftfix.common.research.parser.ScanParserEntity;
+import thecodex6824.thaumcraftfix.common.research.parser.ScanParserItem;
+import thecodex6824.thaumcraftfix.common.research.parser.ScanParserItemExtended;
 import thecodex6824.thaumcraftfix.common.world.AuraFinalizerWorldGenerator;
 
 @Mod(modid = ThaumcraftFixApi.MODID, name = "Thaumcraft Fix", version = ThaumcraftFix.VERSION, useMetadata = true,
@@ -122,6 +130,12 @@ public class ThaumcraftFix {
 		return ((OriginalAuraInfo) instance).serializeNBT();
 	    }
 	}, OriginalAuraInfo::new);
+	ResearchApi.registerScanParser(new ScanParserBlock(), 1000);
+	ResearchApi.registerScanParser(new ScanParserItem(), 1000);
+	ResearchApi.registerScanParser(new ScanParserItemExtended(), 1000);
+	ResearchApi.registerScanParser(new ScanParserEntity(), 1000);
+	ResearchApi.registerResearchEntrySource(Paths.get("config", ThaumcraftFixApi.MODID, "entries"));
+	ResearchApi.registerResearchPatchSource(Paths.get("config", ThaumcraftFixApi.MODID, "patches"));
     }
 
     @SubscribeEvent(priority = EventPriority.LOW)
@@ -140,6 +154,12 @@ public class ThaumcraftFix {
     public void init(FMLInitializationEvent event) {
 	network = new ThaumcraftFixNetworkHandler();
 	GameRegistry.registerWorldGenerator(new AuraFinalizerWorldGenerator(), Integer.MAX_VALUE);
+	boolean errors = ResearchConfigParser.loadCategories();
+	errors |= ResearchConfigParser.loadScans();
+	errors |= ResearchConfigParser.loadAdvancements();
+	if (errors) {
+	    logger.error("One or more research errors have occurred. Please check the log file for more information.");
+	}
     }
 
     private static void setToolMaterialRepairItem(ToolMaterial material, ItemStack repair) {

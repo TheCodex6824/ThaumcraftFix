@@ -20,11 +20,15 @@
 
 package thecodex6824.thaumcraftfix;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.IResourcePack;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.FMLContainerHolder;
 import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.relauncher.Side;
@@ -85,6 +89,16 @@ public class ClientProxy implements IProxy {
     @Override
     public EntityPlayer getClientPlayer() {
 	return Minecraft.getMinecraft().player;
+    }
+
+    @Override
+    public File getGameDirectory() {
+	return Minecraft.getMinecraft().gameDir;
+    }
+
+    @Override
+    public InputStream resolveResource(ResourceLocation loc) throws IOException {
+	return Minecraft.getMinecraft().getResourceManager().getResource(loc).getInputStream();
     }
 
 }

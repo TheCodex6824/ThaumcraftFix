@@ -18,26 +18,14 @@
  *  along with Thaumcraft Fix.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package thecodex6824.thaumcraftfix;
+package thecodex6824.thaumcraftfix.api.event.research;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import net.minecraftforge.fml.common.eventhandler.Event;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.relauncher.Side;
+public class ResearchLoadEvent extends Event {
 
-public interface IProxy {
+    public static class Pre extends ResearchLoadEvent {}
 
-    public void construction();
-
-    public void scheduleTask(Side intendedSide, Runnable task);
-
-    public EntityPlayer getClientPlayer();
-
-    public File getGameDirectory();
-
-    public InputStream resolveResource(ResourceLocation loc) throws IOException;
+    public static class Post extends ResearchLoadEvent {}
 
 }
