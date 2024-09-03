@@ -1,0 +1,14 @@
+[
+  {
+    "key": "INFERNALFURNACE",
+    "ops": [
+      {
+        "op": "replace",
+        "path": "icons",
+        "value": [
+          "thaumcraftfix:textures/research/r_infernal_furnace.png"
+        ]
+      }
+    ]
+  }
+]

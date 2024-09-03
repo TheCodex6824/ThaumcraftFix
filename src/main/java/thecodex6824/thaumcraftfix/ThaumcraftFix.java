@@ -38,6 +38,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.Capability.IStorage;
 import net.minecraftforge.common.capabilities.CapabilityManager;
@@ -136,6 +137,8 @@ public class ThaumcraftFix {
 	ResearchApi.registerScanParser(new ScanParserEntity(), 1000);
 	ResearchApi.registerResearchEntrySource(Paths.get("config", ThaumcraftFixApi.MODID, "entries"));
 	ResearchApi.registerResearchPatchSource(Paths.get("config", ThaumcraftFixApi.MODID, "patches"));
+	ResearchApi.registerResearchPatchSource(new ResourceLocation(ThaumcraftFixApi.MODID, "research/patches/basics.json"));
+	ResearchApi.registerResearchPatchSource(new ResourceLocation(ThaumcraftFixApi.MODID, "research/patches/artifice.json"));
     }
 
     @SubscribeEvent(priority = EventPriority.LOW)

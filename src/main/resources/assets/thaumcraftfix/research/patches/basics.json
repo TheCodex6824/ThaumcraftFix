@@ -1,0 +1,15 @@
+[
+  {
+    "key": "UNLOCKALCHEMY",
+    "ops": [
+      {
+        "op": "replace",
+        "path": "stages/2/recipes",
+        "value": [
+          "thaumcraft:nitor",
+          "thaumcraft:nitorgroup"
+        ]
+      }
+    ]
+  }
+]
