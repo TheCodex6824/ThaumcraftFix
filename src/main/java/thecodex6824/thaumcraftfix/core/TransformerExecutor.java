@@ -143,6 +143,7 @@ public class TransformerExecutor implements IClassTransformer {
 	transformers.add(ResearchTransformers.PARSE_PAGE_FIRST_PASS.get());
 	transformers.add(ResearchTransformers.RESEARCH_GAIN_EVENT_CLIENT.get());
 	transformers.add(ResearchTransformers.RESEARCH_PATCHER.get());
+	transformers.add(ResearchTransformers.SCAN_SKY_SCRIBE_CHECK.get());
 	transformers.add(SoundTransformers.SOUND_FIX_FOCAL_MANIPULATOR_CONTAINER.get());
 	transformers.add(TheorycraftTransformers.CARD_ANALYZE_CATEGORIES.get());
 	transformers.add(TheorycraftTransformers.CARD_CURIO_CATEGORIES.get());

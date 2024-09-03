@@ -39,13 +39,17 @@ import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
+import com.google.common.collect.Iterables;
 import com.google.gson.JsonObject;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import thaumcraft.api.capabilities.IPlayerKnowledge.EnumKnowledgeType;
+import thaumcraft.api.items.IScribeTools;
+import thaumcraft.api.items.ItemsTC;
 import thaumcraft.api.research.ResearchCategory;
 import thaumcraft.api.research.ResearchEntry;
 import thecodex6824.coremodlib.LocalVariableDefinition;
@@ -123,6 +127,20 @@ public class ResearchTransformers {
 	    }
 
 	    return stream;
+	}
+
+	public static boolean isPlayerCarryingScribingTools(ItemStack isCarrying, boolean ore, boolean original, EntityPlayer player) {
+	    if (original || isCarrying.getItem() != ItemsTC.scribingTools) {
+		return original;
+	    }
+
+	    for (ItemStack stack : Iterables.concat(player.inventory.offHandInventory, player.inventory.mainInventory)) {
+		if (!stack.isEmpty() && stack.getItem() instanceof IScribeTools) {
+		    return true;
+		}
+	    }
+
+	    return false;
 	}
 
     }
@@ -358,6 +376,40 @@ public class ResearchTransformers {
 		.after(fixup.asMethodInsnNode(Opcodes.INVOKESTATIC))
 		.endAction()
 		.build(), true, 1
+		);
+    };
+
+    public static final Supplier<ITransformer> SCAN_SKY_SCRIBE_CHECK = () -> {
+	return new GenericStateMachineTransformer(
+		PatchStateMachine.builder(
+			new MethodDefinition(
+				"thaumcraft/common/lib/research/ScanSky",
+				false,
+				"onSuccess",
+				Type.VOID_TYPE,
+				Types.ENTITY_PLAYER, Types.OBJECT
+				)
+			)
+		.findNextMethodCall(new MethodDefinition(
+			"thaumcraft/common/lib/utils/InventoryUtils",
+			false,
+			"isPlayerCarryingAmount",
+			Type.BOOLEAN_TYPE,
+			Types.ENTITY_PLAYER, Types.ITEM_STACK, Type.BOOLEAN_TYPE
+			))
+		.insertInstructionsSurrounding()
+		.before(new InsnNode(Opcodes.DUP2_X1))
+		.after(
+			new VarInsnNode(Opcodes.ALOAD, 1),
+			new MethodInsnNode(Opcodes.INVOKESTATIC,
+				HOOKS,
+				"isPlayerCarryingScribingTools",
+				Type.getMethodDescriptor(Type.BOOLEAN_TYPE, Types.ITEM_STACK, Type.BOOLEAN_TYPE, Type.BOOLEAN_TYPE, Types.ENTITY_PLAYER),
+				false
+				)
+			)
+		.endAction()
+		.build() // needs to repeat multiple times
 		);
     };
 
