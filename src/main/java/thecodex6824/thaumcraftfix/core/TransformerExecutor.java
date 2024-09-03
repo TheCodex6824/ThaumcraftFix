@@ -23,7 +23,6 @@ package thecodex6824.thaumcraftfix.core;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
@@ -32,6 +31,7 @@ import net.minecraft.launchwrapper.IClassTransformer;
 import thecodex6824.thaumcraftfix.core.transformer.BlockTransformers;
 import thecodex6824.thaumcraftfix.core.transformer.CastingTransformers;
 import thecodex6824.thaumcraftfix.core.transformer.EntityTransformers;
+import thecodex6824.thaumcraftfix.core.transformer.FeatureTransformers;
 import thecodex6824.thaumcraftfix.core.transformer.ITransformer;
 import thecodex6824.thaumcraftfix.core.transformer.ItemTransformers;
 import thecodex6824.thaumcraftfix.core.transformer.MiscTransformers;
@@ -43,25 +43,11 @@ import thecodex6824.thaumcraftfix.core.transformer.WorldGenTransformers;
 
 public class TransformerExecutor implements IClassTransformer {
 
-    private static final String AUG_GOOD_VERSION = "2.1.14";
-
     private List<ITransformer> transformers;
-
-    private boolean isOldAugmentationPresent() {
-	try {
-	    Class<?> augApi = Class.forName("thecodex6824.thaumicaugmentation.api.ThaumicAugmentationAPI");
-	    String apiVersion = (String) augApi.getField("API_VERSION").get(null);
-	    return new ComparableVersion(apiVersion).compareTo(new ComparableVersion(AUG_GOOD_VERSION)) < 0;
-	}
-	catch (Exception ex) {
-	    // assume we don't have it
-	    return false;
-	}
-    }
 
     private void initTransformers() {
 	transformers = new ArrayList<>();
-	if (!isOldAugmentationPresent()) {
+	if (!ThaumcraftFixCore.isOldThaumicAugmentationDetected()) {
 	    transformers.add(EntityTransformers.CUSTOM_ARMOR_NOT_CALLING_SUPER);
 	    transformers.add(EntityTransformers.CUSTOM_ARMOR_ROTATION_POINTS);
 	    transformers.add(EntityTransformers.ELDRITCH_GUARDIAN_FOG);
@@ -82,11 +68,14 @@ public class TransformerExecutor implements IClassTransformer {
 	    ThaumcraftFixCore.getLogger().warn("An old version of Thaumic Augmentation was detected."
 		    + " Some of the fixes normally provided by Thaumcraft Fix will be handled by Thaumic Augmentation instead."
 		    + " Consider updating Thaumic Augmentation to version {} or newer, as Thaumcraft Fix will probably have better compatibility and less of a chance of issues occuring.",
-		    AUG_GOOD_VERSION);
+		    ThaumcraftFixCore.AUG_GOOD_VERSION);
 	}
 
-	transformers.add(BlockTransformers.ARCANE_WORKBENCH_NO_CONCURRENT_USE.get());
-	transformers.add(BlockTransformers.ARCANE_WORKBENCH_NO_CONCURRENT_USE_CHARGER.get());
+	// Thaumic Wands deletes the code we want to hook into, and uses custom arcane workbench stuff
+	if (!ThaumcraftFixCore.isThaumicWandsDetected()) {
+	    transformers.add(BlockTransformers.ARCANE_WORKBENCH_NO_CONCURRENT_USE.get());
+	    transformers.add(BlockTransformers.ARCANE_WORKBENCH_NO_CONCURRENT_USE_CHARGER.get());
+	}
 	transformers.add(BlockTransformers.BRAIN_JAR_EAT_DELAY.get());
 	transformers.add(BlockTransformers.FOCAL_MANIPULATOR_FOCUS_SLOT.get());
 	transformers.add(BlockTransformers.FOCAL_MANIPULATOR_COMPONENTS);
@@ -95,6 +84,8 @@ public class TransformerExecutor implements IClassTransformer {
 	transformers.add(BlockTransformers.FOCAL_MANIPULATOR_SERVER_CHECKS.get());
 	transformers.add(BlockTransformers.FOCAL_MANIPULATOR_VIS_FP_ISSUES.get());
 	transformers.add(BlockTransformers.FOCAL_MANIPULATOR_XP_COST_GUI);
+	transformers.add(BlockTransformers.INFERNAL_FURNACE_DESTROY_EFFECTS.get());
+	transformers.add(BlockTransformers.INFERNAL_FURNACE_ITEM_CHECKS.get());
 	transformers.add(BlockTransformers.PILLAR_DROP_FIX.get());
 	transformers.add(BlockTransformers.PLANT_CINDERPEARL_OFFSET.get());
 	transformers.add(BlockTransformers.PLANT_SHIMMERLEAF_OFFSET.get());
@@ -106,23 +97,41 @@ public class TransformerExecutor implements IClassTransformer {
 	transformers.add(CastingTransformers.TOUCH_MOD_AVOID_PLAYER_CAST_TARGET);
 	transformers.add(CastingTransformers.TOUCH_MOD_AVOID_PLAYER_CAST_TRAJECTORY);
 	transformers.add(EntityTransformers.ADVANCED_CROSSBOW_PROCESS_INTERACT_DEAD.get());
+	transformers.add(EntityTransformers.BORE_FIX_RUMBLE_AND_LAMPLIGHT.get());
+	transformers.add(EntityTransformers.BORE_GUI_PROPERTIES.get());
+	transformers.add(EntityTransformers.BORE_NO_EQUIP_SOUND.get());
+	transformers.add(EntityTransformers.BORE_PARTICLE_TEXTURE.get());
 	transformers.add(EntityTransformers.BORE_PROCESS_INTERACT_DEAD.get());
+	transformers.add(EntityTransformers.BORE_SPIRAL_TWEAKS.get());
 	transformers.add(EntityTransformers.CROSSBOW_PROCESS_INTERACT_DEAD.get());
 	transformers.add(EntityTransformers.ENTITY_ASPECTS.get());
 	transformers.add(EntityTransformers.GOLEM_PROCESS_INTERACT_DEAD.get());
+	transformers.add(EntityTransformers.PECH_ADD_STACK.get());
 	transformers.add(EntityTransformers.OWNED_CONSTRUCT_PROCESS_INTERACT_DEAD.get());
 	transformers.add(EntityTransformers.OWNED_CONSTRUCT_ZERO_DROP_CHANCES.get());
+
+	// the ordering of these is important
+	transformers.add(EntityTransformers.CROSSBOW_FIRE_ARROW_CLASS.get());
+	transformers.add(EntityTransformers.CROSSBOW_FIRE_ARROW_LOGIC.get());
+
+	transformers.add(FeatureTransformers.GENERATE_AURA.get());
+	transformers.add(FeatureTransformers.GENERATE_CRYSTALS.get());
+	transformers.add(FeatureTransformers.GENERATE_VEGETATION.get());
 	transformers.add(ItemTransformers.COMPARE_TAGS_RELAXED_NULL_CHECK.get());
 	transformers.add(ItemTransformers.FOCUS_COLOR_NBT.get());
 	transformers.add(ItemTransformers.HAND_MIRROR_STACK_CONTAINER.get());
 	transformers.add(ItemTransformers.HAND_MIRROR_STACK_GUI.get());
 	transformers.add(ItemTransformers.INFUSION_ENCHANTMENT_DROPS_PRIORITY.get());
+	transformers.add(ItemTransformers.PHIAL_CONSUMPTION_CREATIVE.get());
 	transformers.add(ItemTransformers.PRIMORDIAL_PEARL_ANVIL_DUPE_DURABILITY_BAR.get());
 	transformers.add(ItemTransformers.PRIMORDIAL_PEARL_ANVIL_DUPE_EVENT.get());
 	transformers.add(ItemTransformers.PRIMORDIAL_PEARL_ANVIL_DUPE_PROPS.get());
+	transformers.add(ItemTransformers.SANITY_SOAP_CREATIVE.get());
 	transformers.add(MiscTransformers.ARCANE_WORKBENCH_RECIPE_COMPAT.get());
 	transformers.add(MiscTransformers.ASPECT_REGISTRY_LOOKUP.get());
-	transformers.add(MiscTransformers.AURA_CHUNK_THREAD_SAFETY);
+	transformers.add(MiscTransformers.ASPECT_RECIPE_MATCHES.get());
+	transformers.add(MiscTransformers.AURA_CHUNK_THREAD_SAFETY.get());
+	transformers.add(MiscTransformers.OBJ_MODEL_NO_SCALA.get());
 	transformers.add(NetworkTransformers.FOCAL_MANIPULATOR_DATA.get());
 	transformers.add(NetworkTransformers.LOGISTICS_REQUEST.get());
 	transformers.add(NetworkTransformers.NOTE_HANDLER.get());
@@ -133,6 +142,8 @@ public class TransformerExecutor implements IClassTransformer {
 	transformers.add(ResearchTransformers.KNOWLEDGE_GAIN_EVENT_CLIENT.get());
 	transformers.add(ResearchTransformers.PARSE_PAGE_FIRST_PASS.get());
 	transformers.add(ResearchTransformers.RESEARCH_GAIN_EVENT_CLIENT.get());
+	transformers.add(ResearchTransformers.RESEARCH_PATCHER.get());
+	transformers.add(ResearchTransformers.SCAN_SKY_SCRIBE_CHECK.get());
 	transformers.add(SoundTransformers.SOUND_FIX_FOCAL_MANIPULATOR_CONTAINER.get());
 	transformers.add(TheorycraftTransformers.CARD_ANALYZE_CATEGORIES.get());
 	transformers.add(TheorycraftTransformers.CARD_CURIO_CATEGORIES.get());
@@ -158,6 +169,10 @@ public class TransformerExecutor implements IClassTransformer {
 
     @Override
     public byte[] transform(String name, String transformedName, byte[] basicClass) {
+	if (!ThaumcraftFixCore.isInitComplete()) {
+	    return basicClass;
+	}
+
 	if (transformers == null) {
 	    initTransformers();
 	}

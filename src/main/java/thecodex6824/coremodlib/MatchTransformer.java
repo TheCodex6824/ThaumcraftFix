@@ -20,8 +20,13 @@
 
 package thecodex6824.coremodlib;
 
+import java.util.List;
+
+import org.objectweb.asm.tree.MethodNode;
+
 public interface MatchTransformer {
 
-    public void transformMatch(MutableMatchDetails match);
+    public void transformMatch(MethodNode method, MutableMatchDetails match,
+	    List<? extends MutableMatchDetails> previousMatches);
 
 }

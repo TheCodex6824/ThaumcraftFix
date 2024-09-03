@@ -53,11 +53,11 @@ public class PatchStateMachine {
 	    this.actions = ImmutableList.copyOf(actions);
 	}
 
-	public MatchResult matches(MethodNode method, AbstractInsnNode node) {
+	public MatchResult matches(MethodNode method, AbstractInsnNode node, List<? extends MutableMatchDetails> previousMatches) {
 	    MatchResult result = matcher.matches(method, node);
 	    if (result.matched()) {
 		for (MatchTransformer transformer : transformers) {
-		    transformer.transformMatch(result);
+		    transformer.transformMatch(method, result, previousMatches);
 		}
 	    }
 
@@ -77,7 +77,7 @@ public class PatchStateMachine {
 	    StringBuilder builder = new StringBuilder();
 	    builder.append(String.format("    Condition: %s%n", matcher.toString()));
 	    if (result.originalStart() != result.matchStart() || result.originalEnd() != result.matchEnd()) {
-		builder.append(String.format("    Match was modified:%n    Before:%s%n%n    After:%s%n",
+		builder.append(String.format("    Match was modified:%n    Before:%s%n    After:%s%n",
 			ASMUtil.dumpBytecode(result.originalStart(), result.originalEnd()), ASMUtil.dumpBytecode(result.matchStart(), result.matchEnd())));
 	    }
 
@@ -210,7 +210,7 @@ public class PatchStateMachine {
 	    AbstractInsnNode node = methodNode.instructions.get(i);
 	    if (!ignoreMatches.contains(node)) {
 		lastNode = nodes.get(currentNode);
-		MatchResult result = lastNode.matches(methodNode, node);
+		MatchResult result = lastNode.matches(methodNode, node, liveMatches);
 		if (result.matched()) {
 		    liveMatches.add(result);
 		    snapshotMatches.add(result.makeSnapshot());

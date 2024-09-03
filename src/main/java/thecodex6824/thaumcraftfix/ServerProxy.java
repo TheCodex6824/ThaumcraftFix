@@ -20,7 +20,12 @@
 
 package thecodex6824.thaumcraftfix;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.server.FMLServerHandler;
 
@@ -41,6 +46,16 @@ public class ServerProxy implements IProxy {
     @Override
     public EntityPlayer getClientPlayer() {
 	throw new UnsupportedOperationException("Can't get client player on dedicated server");
+    }
+
+    @Override
+    public File getGameDirectory() {
+	return FMLServerHandler.instance().getServer().getDataDirectory();
+    }
+
+    @Override
+    public InputStream resolveResource(ResourceLocation loc) throws IOException {
+	return ServerProxy.class.getResourceAsStream("/assets/" + loc.getNamespace() + "/" + loc.getPath());
     }
 
 }

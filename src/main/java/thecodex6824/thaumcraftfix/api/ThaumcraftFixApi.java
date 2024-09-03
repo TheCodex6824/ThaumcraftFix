@@ -20,6 +20,9 @@
 
 package thecodex6824.thaumcraftfix.api;
 
+/**
+ * Contains basic constants identifying the mod.
+ */
 public final class ThaumcraftFixApi {
 
     private ThaumcraftFixApi() {}

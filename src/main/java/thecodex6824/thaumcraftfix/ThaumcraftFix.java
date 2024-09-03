@@ -20,6 +20,10 @@
 
 package thecodex6824.thaumcraftfix;
 
+import java.nio.file.Paths;
+
+import javax.annotation.Nullable;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -31,6 +35,12 @@ import net.minecraft.item.Item;
 import net.minecraft.item.Item.ToolMaterial;
 import net.minecraft.item.ItemArmor.ArmorMaterial;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumFacing;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.Capability.IStorage;
+import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
@@ -48,7 +58,11 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
+import net.minecraftforge.fml.common.registry.GameRegistry;
+import thaumcraft.api.ThaumcraftApi;
 import thaumcraft.api.ThaumcraftMaterials;
+import thaumcraft.api.aspects.Aspect;
+import thaumcraft.api.aspects.AspectList;
 import thaumcraft.api.capabilities.IPlayerKnowledge.EnumKnowledgeType;
 import thaumcraft.api.items.ItemsTC;
 import thaumcraft.api.research.ResearchCategories;
@@ -56,15 +70,21 @@ import thaumcraft.api.research.ResearchCategory;
 import thaumcraft.api.research.ResearchEntry;
 import thaumcraft.api.research.ResearchStage;
 import thaumcraft.api.research.ResearchStage.Knowledge;
-import thaumcraft.api.ThaumcraftApi;
-import thaumcraft.api.aspects.Aspect;
-import thaumcraft.api.aspects.AspectList;
 import thaumcraft.common.entities.monster.EntitySpellBat;
+import thecodex6824.thaumcraftfix.api.ResearchApi;
 import thecodex6824.thaumcraftfix.api.ThaumcraftFixApi;
+import thecodex6824.thaumcraftfix.api.aura.IOriginalAuraInfo;
+import thecodex6824.thaumcraftfix.api.aura.OriginalAuraInfo;
 import thecodex6824.thaumcraftfix.api.internal.ThaumcraftFixApiBridge;
 import thecodex6824.thaumcraftfix.api.research.ResearchCategoryTheorycraftFilter;
 import thecodex6824.thaumcraftfix.common.internal.DefaultApiImplementation;
 import thecodex6824.thaumcraftfix.common.network.ThaumcraftFixNetworkHandler;
+import thecodex6824.thaumcraftfix.common.research.ResearchConfigParser;
+import thecodex6824.thaumcraftfix.common.research.parser.ScanParserBlock;
+import thecodex6824.thaumcraftfix.common.research.parser.ScanParserEntity;
+import thecodex6824.thaumcraftfix.common.research.parser.ScanParserItem;
+import thecodex6824.thaumcraftfix.common.research.parser.ScanParserItemExtended;
+import thecodex6824.thaumcraftfix.common.world.AuraFinalizerWorldGenerator;
 
 @Mod(modid = ThaumcraftFixApi.MODID, name = "Thaumcraft Fix", version = ThaumcraftFix.VERSION, useMetadata = true,
 certificateFingerprint = "@FINGERPRINT@")
@@ -92,6 +112,30 @@ public class ThaumcraftFix {
     public void preInit(FMLPreInitializationEvent event) {
 	logger = event.getModLog();
 	ThaumcraftFixApiBridge.setImplementation(new DefaultApiImplementation());
+	CapabilityManager.INSTANCE.register(IOriginalAuraInfo.class, new IStorage<IOriginalAuraInfo>() {
+	    @Override
+	    public void readNBT(Capability<IOriginalAuraInfo> capability, IOriginalAuraInfo instance, EnumFacing side, NBTBase nbt) {
+		if (!(instance instanceof OriginalAuraInfo) || !(nbt instanceof NBTTagCompound))
+		    throw new UnsupportedOperationException("Can't deserialize non-API implementation");
+
+		((OriginalAuraInfo) instance).deserializeNBT((NBTTagCompound) nbt);
+	    }
+
+	    @Override
+	    @Nullable
+	    public NBTBase writeNBT(Capability<IOriginalAuraInfo> capability, IOriginalAuraInfo instance, EnumFacing side) {
+		if (!(instance instanceof OriginalAuraInfo))
+		    throw new UnsupportedOperationException("Can't serialize non-API implementation");
+
+		return ((OriginalAuraInfo) instance).serializeNBT();
+	    }
+	}, OriginalAuraInfo::new);
+	ResearchApi.registerScanParser(new ScanParserBlock(), 1000);
+	ResearchApi.registerScanParser(new ScanParserItem(), 1000);
+	ResearchApi.registerScanParser(new ScanParserItemExtended(), 1000);
+	ResearchApi.registerScanParser(new ScanParserEntity(), 1000);
+	ResearchApi.registerResearchEntrySource(Paths.get("config", ThaumcraftFixApi.MODID, "entries"));
+	ResearchApi.registerResearchPatchSource(Paths.get("config", ThaumcraftFixApi.MODID, "patches"));
     }
 
     @SubscribeEvent(priority = EventPriority.LOW)
@@ -109,6 +153,13 @@ public class ThaumcraftFix {
     @EventHandler
     public void init(FMLInitializationEvent event) {
 	network = new ThaumcraftFixNetworkHandler();
+	GameRegistry.registerWorldGenerator(new AuraFinalizerWorldGenerator(), Integer.MAX_VALUE);
+	boolean errors = ResearchConfigParser.loadCategories();
+	errors |= ResearchConfigParser.loadScans();
+	errors |= ResearchConfigParser.loadAdvancements();
+	if (errors) {
+	    logger.error("One or more research errors have occurred. Please check the log file for more information.");
+	}
     }
 
     private static void setToolMaterialRepairItem(ToolMaterial material, ItemStack repair) {
@@ -128,16 +179,18 @@ public class ThaumcraftFix {
 	    // someone already set repair items
 	}
     }
-    
-    
+
+
     //Wrapper function for registering aspects to an entity.
     @SuppressWarnings("deprecation")
     private static void registerEntityAspects(String entityName, AspectList aspectList) {
-        ThaumcraftApi.registerEntityTag(entityName, aspectList);
+	ThaumcraftApi.registerEntityTag(entityName, aspectList);
     }
 
     @EventHandler
     public void postInit(FMLPostInitializationEvent event) {
+	ThaumcraftFixApiBridge.implementation().reloadConfig();
+
 	// reset repair materials for TC materials
 	// if the class was loaded before now, the items used will have been null and won't register
 	// the individual items have extra code to allow repair, but these are required for generic support
@@ -158,24 +211,24 @@ public class ThaumcraftFix {
 	// these don't have repair materials and are shared across multiple items
 	// it doesn't really make sense to have a single repair material for it
 	// ThaumcraftMaterials.ARMORMAT_SPECIAL
-	
-	
+
+
 	//Register additional entity aspects, start off with turrets...
 	registerEntityAspects("ArcaneBore", new AspectList().add(Aspect.MECHANISM, 10).add(Aspect.TOOL, 10).add(Aspect.MAGIC, 10).add(Aspect.ENTROPY, 10));
 	registerEntityAspects("TurretBasic", new AspectList().add(Aspect.MECHANISM, 10).add(Aspect.AVERSION, 10).add(Aspect.MAGIC, 10));
 	registerEntityAspects("TurretAdvanced", new AspectList().add(Aspect.MECHANISM, 10).add(Aspect.AVERSION, 10).add(Aspect.MAGIC, 10).add(Aspect.MIND, 10));
-	
+
 	//Taint stuff...
 	registerEntityAspects("TaintCrawler", new AspectList().add(Aspect.FLUX, 5).add(Aspect.BEAST, 5));
-	
+
 	//Cult stuff...
 	registerEntityAspects("CultistPortalLesser", new AspectList().add(Aspect.AURA, 20).add(Aspect.ELDRITCH, 20).add(Aspect.AVERSION, 20));
 	registerEntityAspects("CultistPortalGreater", new AspectList().add(Aspect.AURA, 40).add(Aspect.ELDRITCH, 40).add(Aspect.AVERSION, 40));
-	
+
 	//Machine projectiles...
 	registerEntityAspects("Grapple", new AspectList().add(Aspect.MECHANISM, 5).add(Aspect.MAGIC, 5).add(Aspect.TRAP, 5));
 	registerEntityAspects("GolemDart", new AspectList().add(Aspect.AVERSION, 5).add(Aspect.MOTION, 5));
-	
+
 	//Misc projectiles...
 	registerEntityAspects("Alumentum", new AspectList().add(Aspect.ENERGY, 10).add(Aspect.FIRE, 10).add(Aspect.ENTROPY, 5).add(Aspect.MOTION, 5));
 	registerEntityAspects("CausalityCollapser", new AspectList().add(Aspect.ENERGY, 40).add(Aspect.FIRE, 40).add(Aspect.ENTROPY, 20).add(Aspect.MOTION, 5).add(Aspect.ELDRITCH, 10));
@@ -183,16 +236,16 @@ public class ThaumcraftFix {
 	registerEntityAspects("FallingTaint", new AspectList().add(Aspect.MOTION, 5).add(Aspect.FLUX, 5));
 	registerEntityAspects("EldritchOrb", new AspectList().add(Aspect.ELDRITCH, 5).add(Aspect.MOTION, 5).add(Aspect.AVERSION, 5));
 	registerEntityAspects("GolemOrb", new AspectList().add(Aspect.ENERGY, 5).add(Aspect.MOTION, 5).add(Aspect.AVERSION, 5));
-	
+
 	//And finally casted entities.
 	registerEntityAspects("FocusCloud", new AspectList().add(Aspect.AURA, 10).add(Aspect.MAGIC, 10).add(Aspect.ALCHEMY, 10));
 	registerEntityAspects("Focusmine", new AspectList().add(Aspect.AURA, 10).add(Aspect.MAGIC, 10).add(Aspect.TRAP, 10));
 	registerEntityAspects("FocusProjectile", new AspectList().add(Aspect.AURA, 10).add(Aspect.MAGIC, 10).add(Aspect.MOTION, 10));
-	
+
 	//Can be cheesed easily, so comment spellbat aspects out for now.
 	//registerEntityAspects("Spellbat", new AspectList().add(Aspect.AURA, 10).add(Aspect.MAGIC, 10).add(Aspect.BEAST, 10));
-	
-	
+
+
 	// delete broken spellbat spawn egg
 	EntityEntry spellbat = EntityRegistry.getEntry(EntitySpellBat.class);
 	if (spellbat != null) {
@@ -213,7 +266,7 @@ public class ThaumcraftFix {
 			    if (stage.getKnow() != null) {
 				for (Knowledge know : stage.getKnow()) {
 				    if (know.type == EnumKnowledgeType.THEORY) {
-					allowed.add(know.category);
+					allowed.add(category);
 				    }
 				}
 			    }

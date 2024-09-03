@@ -1,1 +1,13 @@
 thaumcraftfix.alreadyinuse=Someone is already using this.
+
+thaumcraftfix.text.config.world=World
+thaumcraftfix.text.config.aura=Aura
+thaumcraftfix.text.config.crystals=Crystals
+thaumcraftfix.text.config.vegetation=Vegetation
+thaumcraftfix.text.config.biomeList=Biomes
+thaumcraftfix.text.config.biomeListIsAllowList=Biome List is Allow List
+thaumcraftfix.text.config.dimList=Dimensions
+thaumcraftfix.text.config.dimListIsAllowList=Dimension List is Allow List
+thaumcraftfix.text.config.controlAura=Enabled
+thaumcraftfix.text.config.controlCrystals=Enabled
+thaumcraftfix.text.config.controlVegetation=Enabled

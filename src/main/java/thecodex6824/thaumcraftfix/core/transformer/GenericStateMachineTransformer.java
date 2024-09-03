@@ -95,7 +95,7 @@ public class GenericStateMachineTransformer implements ITransformer {
 	MethodNode theMethod = TransformUtil.findMethod(classNode, machine.targetMethod());
 	if (theMethod == null) {
 	    Logger logger = ThaumcraftFixCore.getLogger();
-	    logger.error("Transformer target method %s not found in class %s, dumping entire class for debugging",
+	    logger.error("Transformer target method {} not found in class {}, dumping entire class for debugging",
 		    machine.targetMethod().toString(), classNode.name);
 	    StringWriter writer = new StringWriter();
 	    TraceClassVisitor visitor = new TraceClassVisitor(new PrintWriter(writer));

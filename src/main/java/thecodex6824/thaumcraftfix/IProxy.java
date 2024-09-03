@@ -20,7 +20,12 @@
 
 package thecodex6824.thaumcraftfix;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 
 public interface IProxy {
@@ -30,5 +35,9 @@ public interface IProxy {
     public void scheduleTask(Side intendedSide, Runnable task);
 
     public EntityPlayer getClientPlayer();
+
+    public File getGameDirectory();
+
+    public InputStream resolveResource(ResourceLocation loc) throws IOException;
 
 }

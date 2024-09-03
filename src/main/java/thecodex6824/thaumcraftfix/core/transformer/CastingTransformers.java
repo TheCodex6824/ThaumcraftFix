@@ -46,7 +46,7 @@ import thecodex6824.coremodlib.FieldDefinition;
 import thecodex6824.coremodlib.MethodDefinition;
 import thecodex6824.coremodlib.PatchStateMachine;
 import thecodex6824.thaumcraftfix.api.casting.IContainsFocusPackageNode;
-import thecodex6824.thaumcraftfix.core.transformer.custom.ExchangeModInterfaceTransformer;
+import thecodex6824.thaumcraftfix.core.transformer.custom.ChangeVariableTypeTransformer;
 import thecodex6824.thaumcraftfix.core.transformer.custom.ThrowingTransformerWrapper;
 
 public class CastingTransformers {
@@ -89,7 +89,19 @@ public class CastingTransformers {
     private static final String HOOKS = Type.getInternalName(Hooks.class);
 
     public static final ITransformer EXCHANGE_MOD_INTERFACEIFY = new ThrowingTransformerWrapper(
-	    new ExchangeModInterfaceTransformer());
+	    new ChangeVariableTypeTransformer(
+		    new MethodDefinition(
+			    "thaumcraft/common/items/casters/foci/FocusEffectExchange",
+			    false,
+			    "execute",
+			    Type.BOOLEAN_TYPE,
+			    Type.getType("Lnet/minecraft/util/math/RayTraceResult;"), Type.getType("Lthaumcraft/api/casters/Trajectory;"),
+			    Type.FLOAT_TYPE, Type.INT_TYPE
+			    ),
+		    Types.ITEM_CASTER,
+		    Types.I_CASTER,
+		    true
+		    ));
 
     public static final ITransformer FOCUS_PACKAGE_INIT = new GenericStateMachineTransformer(
 	    PatchStateMachine.builder(
