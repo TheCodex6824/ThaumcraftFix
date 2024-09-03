@@ -137,8 +137,14 @@ public class ThaumcraftFix {
 	ResearchApi.registerScanParser(new ScanParserEntity(), 1000);
 	ResearchApi.registerResearchEntrySource(Paths.get("config", ThaumcraftFixApi.MODID, "entries"));
 	ResearchApi.registerResearchPatchSource(Paths.get("config", ThaumcraftFixApi.MODID, "patches"));
-	ResearchApi.registerResearchPatchSource(new ResourceLocation(ThaumcraftFixApi.MODID, "research/patches/basics.json"));
+	ResearchApi.registerResearchPatchSource(new ResourceLocation(ThaumcraftFixApi.MODID, "research/patches/alchemy.json"));
 	ResearchApi.registerResearchPatchSource(new ResourceLocation(ThaumcraftFixApi.MODID, "research/patches/artifice.json"));
+	ResearchApi.registerResearchPatchSource(new ResourceLocation(ThaumcraftFixApi.MODID, "research/patches/auromancy.json"));
+	ResearchApi.registerResearchPatchSource(new ResourceLocation(ThaumcraftFixApi.MODID, "research/patches/basics.json"));
+	ResearchApi.registerResearchPatchSource(new ResourceLocation(ThaumcraftFixApi.MODID, "research/patches/eldritch.json"));
+	ResearchApi.registerResearchPatchSource(new ResourceLocation(ThaumcraftFixApi.MODID, "research/patches/golemancy.json"));
+	ResearchApi.registerResearchPatchSource(new ResourceLocation(ThaumcraftFixApi.MODID, "research/patches/infusion.json"));
+	ResearchApi.registerResearchPatchSource(new ResourceLocation(ThaumcraftFixApi.MODID, "research/patches/scans.json"));
     }
 
     @SubscribeEvent(priority = EventPriority.LOW)
