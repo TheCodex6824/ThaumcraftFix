@@ -1,1 +1,16 @@
-[]
+[
+  {
+    "key": "VOIDROBEARMOR",
+    "ops": [
+      {
+        "op": "replace",
+        "path": "icons",
+        "value": [
+          "thaumcraft:void_robe_helm",
+          "thaumcraft:void_robe_chest",
+          "thaumcraft:void_robe_legs"
+        ]
+      }
+    ]
+  }
+]

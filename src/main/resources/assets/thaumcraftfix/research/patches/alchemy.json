@@ -1,1 +1,28 @@
-[]
+[
+  {
+    "key": "METALLURGY",
+    "ops": [
+      {
+        "op": "replace",
+        "path": "icons",
+        "value": [
+          "thaumcraft:ingot;1;2",
+          "thaumcraft:ingot;1;0"
+        ]
+      }
+    ]
+  },
+  {
+    "key": "SANESOAP",
+    "ops": [
+      {
+        "op": "replace",
+        "path": "stages/1/recipes",
+        "value": [
+          "thaumcraft:SaneSoap",
+          "thaumcraft:fleshtoblock"
+        ]
+      }
+    ]
+  }
+]

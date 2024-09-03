@@ -1,1 +1,33 @@
-[]
+[
+  {
+    "key": "ARMORFORTRESS",
+    "ops": [
+      {
+        "op": "replace",
+        "path": "icons",
+        "value": [
+          "thaumcraft:fortress_helm",
+          "thaumcraft:fortress_chest",
+          "thaumcraft:fortress_legs"
+        ]
+      }
+    ]
+  },
+  {
+    "key": "BASEINFUSION",
+    "ops": [
+      {
+        "op": "replace",
+        "path": "stages/0/recipes",
+        "value": [
+          "thaumcraft:EnchantedFabric",
+          "thaumcraft:RobeChest",
+          "thaumcraft:RobeLegs",
+          "thaumcraft:RobeBoots",
+          "thaumcraft:Banners",
+          "thaumcraft:baubles_stuff"
+        ]
+      }
+    ]
+  }
+]
