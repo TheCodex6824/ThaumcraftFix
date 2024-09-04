@@ -65,8 +65,8 @@ public class ThaumcraftFixApiBridge {
 	public Collection<IScanThing> parseScans(String key, ResourceLocation type, JsonElement data);
 	public void registerResearchEntrySource(ResourceLocation loc);
 	public void registerResearchEntrySource(Path path);
-	public void registerResearchPatchSource(ResourceLocation loc);
-	public void registerResearchPathSource(Path path);
+	public void registerResearchPatchSource(ResourceLocation loc, int weight);
+	public void registerResearchPathSource(Path path, int weight);
 
 	public Collection<ResourceLocation> getFilesystemResearchEntrySources();
 

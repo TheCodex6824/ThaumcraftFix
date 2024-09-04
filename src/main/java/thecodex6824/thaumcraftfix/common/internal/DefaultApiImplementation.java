@@ -27,7 +27,6 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -36,6 +35,8 @@ import java.util.regex.PatternSyntaxException;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.MultimapBuilder;
 import com.google.gson.JsonElement;
 
 import net.minecraft.util.ResourceLocation;
@@ -53,18 +54,6 @@ import thecodex6824.thaumcraftfix.common.ThaumcraftFixConfig;
 
 public class DefaultApiImplementation implements InternalImplementation {
 
-    protected static class ScanParserEntry {
-
-	public ScanParserEntry(IScanParser p, int w) {
-	    parser = p;
-	    weight = w;
-	}
-
-	public final IScanParser parser;
-	public final int weight;
-
-    }
-
     private ImmutableSet<ResearchCategory> allowedForTheorycraft;
     private boolean controlAura;
     private boolean controlCrystals;
@@ -75,10 +64,9 @@ public class DefaultApiImplementation implements InternalImplementation {
     private ImmutableSet<DimensionType> crystalDims;
     private ImmutableSet<Biome> treeBiomes;
     private ImmutableSet<DimensionType> treeDims;
-    private ArrayList<ScanParserEntry> scanParsers;
-    private boolean scanParsersSorted;
+    private Multimap<Integer, IScanParser> scanParsers;
     private HashSet<Path> entrySources;
-    private HashMap<String, ResearchPatchSource> patchSources;
+    private Multimap<Integer, ResearchPatchSource> patchSources;
 
     public DefaultApiImplementation() {
 	allowedForTheorycraft = ImmutableSet.of();
@@ -91,10 +79,9 @@ public class DefaultApiImplementation implements InternalImplementation {
 	crystalDims = ImmutableSet.of();
 	treeBiomes = ImmutableSet.of();
 	treeDims = ImmutableSet.of();
-	scanParsers = new ArrayList<>();
-	scanParsersSorted = false;
+	scanParsers = MultimapBuilder.treeKeys().hashSetValues().build();
 	entrySources = new HashSet<>();
-	patchSources = new HashMap<>();
+	patchSources = MultimapBuilder.treeKeys().hashSetValues().build();
     }
 
     private ImmutableSet<Biome> makeFilteredBiomeSet(Set<Biome> allBiomes, String[] filter, boolean allow) {
@@ -216,20 +203,13 @@ public class DefaultApiImplementation implements InternalImplementation {
 
     @Override
     public void registerScanParser(IScanParser parser, int weight) {
-	scanParsers.add(new ScanParserEntry(parser, weight));
-	scanParsersSorted = false;
+	scanParsers.put(weight, parser);
     }
 
     @Override
     public Collection<IScanThing> parseScans(String key, ResourceLocation type, JsonElement data) {
-	if (!scanParsersSorted) {
-	    scanParsers.sort((e1, e2) -> Integer.compare(e1.weight, e2.weight));
-	    scanParsersSorted = true;
-	}
-
 	RuntimeException throwLater = new RuntimeException("No parsers were able to load scan of type " + type);
-	for (ScanParserEntry e : scanParsers) {
-	    IScanParser parser = e.parser;
+	for (IScanParser parser : scanParsers.values()) {
 	    if (parser.matches(type)) {
 		try {
 		    return parser.parseScan(key, type, data);
@@ -297,6 +277,16 @@ public class DefaultApiImplementation implements InternalImplementation {
 	public Map<String, ? extends InputStream> open() throws IOException {
 	    return ImmutableMap.of(loc.toString(), ThaumcraftFix.proxy.resolveResource(loc));
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+	    return getClass() == obj.getClass() && loc.equals(((ResourceLocationSource) obj).loc);
+	}
+
+	@Override
+	public int hashCode() {
+	    return loc.hashCode();
+	}
     }
 
     private static class FilesystemSource implements ResearchPatchSource {
@@ -308,7 +298,7 @@ public class DefaultApiImplementation implements InternalImplementation {
 
 	@Override
 	public String getDescriptor() {
-	    return path.getFileName().toString();
+	    return path.toString();
 	}
 
 	@Override
@@ -330,16 +320,26 @@ public class DefaultApiImplementation implements InternalImplementation {
 
 	    return ImmutableMap.of();
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+	    return getClass() == obj.getClass() && path.equals(((FilesystemSource) obj).path);
+	}
+
+	@Override
+	public int hashCode() {
+	    return path.hashCode();
+	}
     }
 
     @Override
-    public void registerResearchPatchSource(ResourceLocation loc) {
-	patchSources.putIfAbsent(loc.toString(), new ResourceLocationSource(loc));
+    public void registerResearchPatchSource(ResourceLocation loc, int weight) {
+	patchSources.put(weight, new ResourceLocationSource(loc));
     }
 
     @Override
-    public void registerResearchPathSource(Path path) {
-	patchSources.putIfAbsent(path.toString(), new FilesystemSource(path));
+    public void registerResearchPathSource(Path path, int weight) {
+	patchSources.put(weight, new FilesystemSource(path));
     }
 
     @Override

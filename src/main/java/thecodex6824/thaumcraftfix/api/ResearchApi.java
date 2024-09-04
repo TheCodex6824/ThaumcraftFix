@@ -48,12 +48,12 @@ public class ResearchApi {
 	ThaumcraftFixApiBridge.implementation().registerResearchEntrySource(path);
     }
 
-    public static void registerResearchPatchSource(ResourceLocation loc) {
-	ThaumcraftFixApiBridge.implementation().registerResearchPatchSource(loc);
+    public static void registerResearchPatchSource(ResourceLocation loc, int weight) {
+	ThaumcraftFixApiBridge.implementation().registerResearchPatchSource(loc, weight);
     }
 
-    public static void registerResearchPatchSource(Path path) {
-	ThaumcraftFixApiBridge.implementation().registerResearchPathSource(path);
+    public static void registerResearchPatchSource(Path path, int weight) {
+	ThaumcraftFixApiBridge.implementation().registerResearchPathSource(path, weight);
     }
 
 }
