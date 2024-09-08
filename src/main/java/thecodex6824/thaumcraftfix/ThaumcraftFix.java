@@ -274,8 +274,8 @@ public class ThaumcraftFix {
 			for (ResearchStage stage : entry.getStages()) {
 			    if (stage.getKnow() != null) {
 				for (Knowledge know : stage.getKnow()) {
-				    if (know.type == EnumKnowledgeType.THEORY) {
-					allowed.add(category);
+				    if (know.type == EnumKnowledgeType.THEORY && know.category != null) {
+					allowed.add(know.category);
 				    }
 				}
 			    }
