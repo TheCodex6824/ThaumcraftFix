@@ -214,7 +214,7 @@ public class ResearchTransformers {
     };
 
     public static final Supplier<ITransformer> RESEARCH_PATCHER = () -> {
-	LabelNode skipLabel = new LabelNode(new Label());
+	LabelNode continueLabel = new LabelNode(new Label());
 	return new GenericStateMachineTransformer(
 		PatchStateMachine.builder(
 			new MethodDefinition(
@@ -247,13 +247,42 @@ public class ResearchTransformers {
 				false
 				)
 			)
+		.findConsecutive()
+		.findNextInstructionType(FrameNode.class)
+		.findNextLocalAccess(9)
 		.findNextMethodCall(new MethodDefinition(
-			"thaumcraft/common/lib/research/ResearchManager",
+			Types.ITERATOR.getInternalName(),
+			true,
+			"hasNext",
+			Type.BOOLEAN_TYPE
+			))
+		.endConsecutive()
+		.findNextMethodCall(new MethodDefinition(
+			Types.JSON_ELEMENT.getInternalName(),
 			false,
-			"parseResearchJson",
-			Types.RESEARCH_ENTRY,
+			"getAsJsonObject",
 			Types.JSON_OBJECT
 			))
+		.combineLastTwoMatches()
+		.insertInstructionsSurrounding()
+		.before(
+			continueLabel
+			)
+		.after(
+			new IincInsnNode(8, -1),
+			new InsnNode(Opcodes.DUP),
+			new VarInsnNode(Opcodes.ASTORE, 11),
+			new MethodInsnNode(Opcodes.INVOKESTATIC,
+				HOOKS,
+				"entryLoadStart",
+				Type.getMethodDescriptor(Type.BOOLEAN_TYPE, Types.JSON_OBJECT),
+				false
+				),
+			new JumpInsnNode(Opcodes.IFEQ, continueLabel),
+			new IincInsnNode(8, 1),
+			new VarInsnNode(Opcodes.ALOAD, 11)
+			)
+		.endAction()
 		.findNextMethodCall(new MethodDefinition(
 			"thaumcraft/common/lib/research/ResearchManager",
 			false,
@@ -261,20 +290,7 @@ public class ResearchTransformers {
 			Type.VOID_TYPE,
 			Types.RESEARCH_ENTRY
 			))
-		.combineLastTwoMatches()
-		.insertInstructionsSurrounding()
-		.before(
-			new MethodInsnNode(Opcodes.INVOKESTATIC,
-				HOOKS,
-				"entryLoadStart",
-				Type.getMethodDescriptor(Type.BOOLEAN_TYPE, Types.JSON_OBJECT),
-				false
-				),
-			new JumpInsnNode(Opcodes.IFEQ, skipLabel),
-			new IincInsnNode(8, 1),
-			new VarInsnNode(Opcodes.ALOAD, 11)
-			)
-		.after(
+		.insertInstructionsAfter(
 			new VarInsnNode(Opcodes.ALOAD, 11),
 			new VarInsnNode(Opcodes.ALOAD, 12),
 			new MethodInsnNode(Opcodes.INVOKESTATIC,
@@ -282,12 +298,8 @@ public class ResearchTransformers {
 				"entryLoadEnd",
 				Type.getMethodDescriptor(Type.VOID_TYPE, Types.JSON_OBJECT, Types.RESEARCH_ENTRY),
 				false
-				),
-			skipLabel,
-			new FrameNode(Opcodes.F_APPEND, 1, new Object[] { Types.JSON_ELEMENT.getInternalName() }, 0, null),
-			new IincInsnNode(8, -1)
+				)
 			)
-		.endAction()
 		.findNextOpcode(Opcodes.RETURN)
 		.insertInstructionsBefore(
 			new MethodInsnNode(Opcodes.INVOKESTATIC,

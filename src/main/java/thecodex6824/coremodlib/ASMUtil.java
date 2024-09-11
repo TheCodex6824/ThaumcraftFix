@@ -122,7 +122,28 @@ public final class ASMUtil {
 		reachedEnd = true;
 	    }
 	    else if (cursor == null) {
-		throw new IllegalStateException("Could not resolve match range or dependencies");
+		// The labels we need must be before the start
+		AbstractInsnNode before = start;
+		while (before.getPrevious() != null && !neededLabels.isEmpty()) {
+		    before = before.getPrevious();
+		    nodes.add(0, before);
+		    if (before instanceof JumpInsnNode) {
+			LabelNode label = ((JumpInsnNode) before).label;
+			if (!resolvedLabels.contains(label)) {
+			    neededLabels.add(label);
+			}
+		    }
+		    else if (before instanceof LabelNode) {
+			neededLabels.remove(before);
+			resolvedLabels.add((LabelNode) before);
+		    }
+		}
+
+		if (!neededLabels.isEmpty()) {
+		    throw new IllegalStateException("Could not resolve match range or dependencies");
+		}
+
+		break;
 	    }
 
 	    nodes.add(cursor);
