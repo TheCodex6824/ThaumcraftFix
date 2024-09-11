@@ -21,6 +21,7 @@
 package thecodex6824.thaumcraftfix;
 
 import java.nio.file.Paths;
+import java.util.ArrayList;
 
 import javax.annotation.Nullable;
 
@@ -268,7 +269,12 @@ public class ThaumcraftFix {
 	ThaumcraftFixApiBridge.InternalImplementation impl = ThaumcraftFixApiBridge.implementation();
 	if (impl instanceof DefaultApiImplementation) {
 	    ImmutableSet.Builder<ResearchCategory> allowed = ImmutableSet.builder();
+	    ArrayList<ResearchCategory> empty = new ArrayList<>();
 	    for (ResearchCategory category : ResearchCategories.researchCategories.values()) {
+		if (category.research.isEmpty()) {
+		    empty.add(category);
+		}
+
 		for (ResearchEntry entry : category.research.values()) {
 		    if (entry.getStages() != null) {
 			for (ResearchStage stage : entry.getStages()) {
@@ -288,6 +294,14 @@ public class ThaumcraftFix {
 	    logger.debug("The following research categories will be allowed for theorycrafting:");
 	    for (ResearchCategory c : ResearchCategoryTheorycraftFilter.getAllowedTheorycraftCategories()) {
 		logger.debug("{}", c.key);
+	    }
+
+	    if (!empty.isEmpty()) {
+		logger.debug("The following research categories will be removed from the game (including their Thaumonomicon tab):");
+		for (ResearchCategory c : empty) {
+		    logger.debug("{}", c.key);
+		    ResearchCategories.researchCategories.remove(c.key);
+		}
 	    }
 	}
     }
