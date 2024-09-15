@@ -41,4 +41,17 @@ public class ResearchCategoryTheorycraftFilter {
 	return ThaumcraftFixApiBridge.implementation().getAllowedTheorycraftCategories();
     }
 
+    /**
+     * Returns the {@link java.util.Set Set} of category keys that <strong>will</strong> be permitted to appear in
+     * theorycrafting cards. The returned <code>Set</code> is not required to be modifiable.
+     * If you need the {@link thaumcraft.api.research.ResearchCategory ResearchCategory} instances directly,
+     * use {@link getAllowedTheorycraftCategories} instead. This method is intended for returning a
+     * (potentially cached) set for category key comparison.
+     * @return The <code>Set</code> of allowed research categories
+     * @see getAllowedTheorycraftCategories
+     */
+    public static Set<String> getAllowedTheorycraftCategoryKeys() {
+	return ThaumcraftFixApiBridge.implementation().getAllowedTheorycraftCategoryKeys();
+    }
+
 }

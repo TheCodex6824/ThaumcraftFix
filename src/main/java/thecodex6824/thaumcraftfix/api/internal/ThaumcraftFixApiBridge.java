@@ -45,6 +45,7 @@ public class ThaumcraftFixApiBridge {
 	public void reloadConfig();
 
 	Set<ResearchCategory> getAllowedTheorycraftCategories();
+	Set<String> getAllowedTheorycraftCategoryKeys();
 
 	public Set<Biome> auraAllowedBiomes();
 	public Set<DimensionType> auraAllowedDimensions();

@@ -44,7 +44,6 @@ import net.minecraft.world.DimensionType;
 import net.minecraft.world.biome.Biome;
 import thaumcraft.api.ThaumcraftApi;
 import thaumcraft.api.research.IScanThing;
-import thaumcraft.api.research.ResearchCategories;
 import thaumcraft.api.research.ResearchCategory;
 import thecodex6824.thaumcraftfix.ThaumcraftFix;
 import thecodex6824.thaumcraftfix.api.ThaumcraftFixApi;
@@ -55,6 +54,7 @@ import thecodex6824.thaumcraftfix.common.ThaumcraftFixConfig;
 public class DefaultApiImplementation implements InternalImplementation {
 
     private ImmutableSet<ResearchCategory> allowedForTheorycraft;
+    private ImmutableSet<String> allowedForTheorycraftKeys;
     private boolean controlAura;
     private boolean controlCrystals;
     private boolean controlTrees;
@@ -70,6 +70,7 @@ public class DefaultApiImplementation implements InternalImplementation {
 
     public DefaultApiImplementation() {
 	allowedForTheorycraft = ImmutableSet.of();
+	allowedForTheorycraftKeys = ImmutableSet.of();
 	controlAura = false;
 	controlCrystals = false;
 	controlTrees = false;
@@ -116,8 +117,6 @@ public class DefaultApiImplementation implements InternalImplementation {
 
     @Override
     public void reloadConfig() {
-	allowedForTheorycraft = ImmutableSet.copyOf(ResearchCategories.researchCategories.values());
-
 	controlAura = ThaumcraftFixConfig.world.aura.controlAura;
 	controlCrystals = ThaumcraftFixConfig.world.crystals.controlCrystals;
 	controlTrees = ThaumcraftFixConfig.world.vegetation.controlVegetation;
@@ -137,8 +136,14 @@ public class DefaultApiImplementation implements InternalImplementation {
 	return allowedForTheorycraft;
     }
 
+    @Override
+    public Set<String> getAllowedTheorycraftCategoryKeys() {
+	return allowedForTheorycraftKeys;
+    }
+
     public void setAllowedTheorycraftCategories(ImmutableSet<ResearchCategory> allowed) {
 	allowedForTheorycraft = allowed;
+	allowedForTheorycraftKeys = allowedForTheorycraft.stream().map(c -> c.key).collect(ImmutableSet.toImmutableSet());
     }
 
     @Override

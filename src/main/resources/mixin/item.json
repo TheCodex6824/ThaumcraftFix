@@ -1,0 +1,9 @@
+{
+  "package": "thecodex6824.thaumcraftfix.core.mixin.item",
+  "refmap": "thaumcraftfix.refmap.json",
+  "minVersion": "${mixinbooterminversion}",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "ItemGenericEssentiaContainerMixin"
+  ]
+}

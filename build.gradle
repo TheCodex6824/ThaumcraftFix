@@ -7,15 +7,13 @@ plugins {
 
 repositories {
     maven {
-        name "Su5ed LegacyDev Fork"
-        url "https://maven.su5ed.dev/releases"
+        name 'Su5ed LegacyDev Fork'
+        url 'https://maven.su5ed.dev/releases'
     }
-}
-
-// eclipse thinks test needs resources if this is not here
-sourceSets {
-    test {
-        resources.setSrcDirs([])
+    
+    maven {
+        name 'Cleanroom Maven'
+        url 'https://maven.cleanroommc.com'
     }
 }
 
@@ -104,19 +102,34 @@ minecraft {
     }
 }
 
+configurations {
+    testCompile.extendsFrom compile
+}
+
 dependencies {
     minecraft "net.minecraftforge:forge:${mcversion}-${forgeversion}"
     
     implementation fg.deobf('curse.maven:thaumcraft-223628:2629023')
     implementation fg.deobf('curse.maven:baubles-227083:2518667')
     
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.10.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.11.+'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.11.+'
     
     runtimeOnly 'curse.maven:jei-238222:2995897'
     runtimeOnly 'curse.maven:thaumic-jei-285492:2705304'
     runtimeOnly 'curse.maven:the-one-probe-245211:2667280'
     runtimeOnly 'curse.maven:ctm-267602:2915363'
+    
+    annotationProcessor 'org.ow2.asm:asm-debug-all:5.2'
+    annotationProcessor 'com.google.guava:guava:32.1.2-jre'
+    annotationProcessor 'com.google.code.gson:gson:2.8.9'
+    
+    implementation("zone.rong:mixinbooter:${mixinbooterversion}") {
+        transitive = false
+    }
+    annotationProcessor("zone.rong:mixinbooter:${mixinbooterversion}") {
+        transitive = false
+    }
     
     constraints {
         implementation('net.minecraftforge:legacydev:0.3.0.0-legacyExt') {
@@ -177,6 +190,8 @@ processResources {
     inputs.property 'version', version
     inputs.property 'apiversion', apiversion
     inputs.property 'mcversion', mcversion
+    inputs.property 'forgeminversion', forgeminversion
+    inputs.property 'mixinbooterminversion', mixinbooterminversion
     
     // replace stuff in mcmod.info, nothing else
     from(sourceSets.main.resources.srcDirs) {
@@ -185,10 +200,18 @@ processResources {
         // replace version and mcversion
         expand 'version': version, 'mcversion': mcversion, 'forgeversion': forgeversion, 'forgeminversion': forgeminversion
     }
+    
+    // do the same for all mixin config jsons
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mixin/*.json'
         
-    // copy everything else except the mcmod.info
+        expand 'mixinbooterminversion': mixinbooterminversion
+    }
+        
+    // copy everything else except everything handled above
     from(sourceSets.main.resources.srcDirs) {
         exclude 'mcmod.info'
+        exclude 'mixin/*.json'
     }
 }
 
