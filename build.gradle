@@ -243,6 +243,7 @@ jar {
 }
 
 tasks.build.dependsOn(tasks.signJar)
+tasks.test.dependsOn(tasks.createSrgToMcp)
 
 project.tasks.whenTaskAdded {
     if (it.name.equals('reobfJar')) {
