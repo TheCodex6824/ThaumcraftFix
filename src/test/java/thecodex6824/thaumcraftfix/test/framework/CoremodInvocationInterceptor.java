@@ -21,6 +21,8 @@
 package thecodex6824.thaumcraftfix.test.framework;
 
 import java.io.File;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.net.URLClassLoader;
 
@@ -74,11 +76,87 @@ public class CoremodInvocationInterceptor implements InvocationInterceptor {
 	}
     }
 
+    @SuppressWarnings("unchecked")
+    private <T, E extends Executable> T runWithClassLoader(Invocation<T> invocation,
+	    ReflectiveInvocationContext<E> invocationContext, ExtensionContext extensionContext) throws Throwable {
+
+	invocation.skip();
+	ClassLoader old = Thread.currentThread().getContextClassLoader();
+	Thread.currentThread().setContextClassLoader(((UnitTestMixinService) MixinService.getService()).getClassLoader());
+
+	try {
+	    Class<?> invokingClass = invocationContext.getExecutable().getDeclaringClass();
+	    String method = invocationContext.getExecutable().getName();
+	    Class<?>[] parameters = invocationContext.getExecutable().getParameterTypes();
+	    Class<?> classWithNewLoader = Thread.currentThread().getContextClassLoader().loadClass(invokingClass.getName());
+	    Object thing = ReflectionUtils.newInstance(classWithNewLoader);
+	    Method target = ReflectionUtils.findMethod(classWithNewLoader, method, parameters).get();
+	    return (T) ReflectionUtils.invokeMethod(target, thing, invocationContext.getArguments().toArray());
+	}
+	finally {
+	    Thread.currentThread().setContextClassLoader(old);
+	}
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> T constructWithClassLoader(Invocation<T> invocation,
+	    ReflectiveInvocationContext<Constructor<T>> invocationContext, ExtensionContext extensionContext) throws Throwable {
+
+	invocation.skip();
+	ClassLoader old = Thread.currentThread().getContextClassLoader();
+	Thread.currentThread().setContextClassLoader(((UnitTestMixinService) MixinService.getService()).getClassLoader());
+	try {
+	    Class<?> invokingClass = invocationContext.getExecutable().getDeclaringClass();
+	    Class<?>[] parameters = invocationContext.getExecutable().getParameterTypes();
+	    Class<?> classWithNewLoader = Thread.currentThread().getContextClassLoader().loadClass(invokingClass.getName());
+	    return (T) classWithNewLoader.getDeclaredConstructor(parameters).newInstance(invocationContext.getArguments().toArray());
+	}
+	finally {
+	    Thread.currentThread().setContextClassLoader(old);
+	}
+    }
+
+    @Override
+    public void interceptAfterAllMethod(Invocation<Void> invocation,
+	    ReflectiveInvocationContext<Method> invocationContext, ExtensionContext extensionContext) throws Throwable {
+
+	runWithClassLoader(invocation, invocationContext, extensionContext);
+    }
+
+    @Override
+    public void interceptAfterEachMethod(Invocation<Void> invocation,
+	    ReflectiveInvocationContext<Method> invocationContext, ExtensionContext extensionContext) throws Throwable {
+
+	runWithClassLoader(invocation, invocationContext, extensionContext);
+    }
+
     @Override
     public void interceptBeforeAllMethod(Invocation<Void> invocation,
 	    ReflectiveInvocationContext<Method> invocationContext, ExtensionContext extensionContext) throws Throwable {
 
 	runWithClassLoader(invocation, invocationContext, extensionContext);
+    }
+
+    @Override
+    public void interceptBeforeEachMethod(Invocation<Void> invocation,
+	    ReflectiveInvocationContext<Method> invocationContext, ExtensionContext extensionContext) throws Throwable {
+
+	runWithClassLoader(invocation, invocationContext, extensionContext);
+    }
+
+    @Override
+    public <T> T interceptTestClassConstructor(Invocation<T> invocation,
+	    ReflectiveInvocationContext<Constructor<T>> invocationContext, ExtensionContext extensionContext)
+		    throws Throwable {
+
+	return constructWithClassLoader(invocation, invocationContext, extensionContext);
+    }
+
+    @Override
+    public <T> T interceptTestFactoryMethod(Invocation<T> invocation,
+	    ReflectiveInvocationContext<Method> invocationContext, ExtensionContext extensionContext) throws Throwable {
+
+	return runWithClassLoader(invocation, invocationContext, extensionContext);
     }
 
     @Override
@@ -88,23 +166,11 @@ public class CoremodInvocationInterceptor implements InvocationInterceptor {
 	runWithClassLoader(invocation, invocationContext, extensionContext);
     }
 
-    private void runWithClassLoader(Invocation<Void> invocation,
+    @Override
+    public void interceptTestTemplateMethod(Invocation<Void> invocation,
 	    ReflectiveInvocationContext<Method> invocationContext, ExtensionContext extensionContext) throws Throwable {
 
-	invocation.skip();
-	ClassLoader old = Thread.currentThread().getContextClassLoader();
-	Thread.currentThread().setContextClassLoader(((UnitTestMixinService) MixinService.getService()).getClassLoader());
-	try {
-	    Class<?> invokingClass = invocationContext.getExecutable().getDeclaringClass();
-	    String method = invocationContext.getExecutable().getName();
-	    Class<?> classWithNewLoader = Thread.currentThread().getContextClassLoader().loadClass(invokingClass.getName());
-	    Object thing = ReflectionUtils.newInstance(classWithNewLoader);
-	    Method target = ReflectionUtils.findMethod(classWithNewLoader, method).get();
-	    ReflectionUtils.invokeMethod(target, thing);
-	}
-	finally {
-	    Thread.currentThread().setContextClassLoader(old);
-	}
+	runWithClassLoader(invocation, invocationContext, extensionContext);
     }
 
 }

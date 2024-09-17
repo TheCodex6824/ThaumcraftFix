@@ -49,8 +49,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.registry.RegistrySimple;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.oredict.OreDictionary;
@@ -61,7 +59,6 @@ import thecodex6824.coremodlib.MethodDefinition;
 import thecodex6824.coremodlib.PatchStateMachine;
 import thecodex6824.thaumcraftfix.core.transformer.custom.ChangeEventPriorityTransformer;
 import thecodex6824.thaumcraftfix.core.transformer.custom.PrimordialPearlAnvilEventTransformer;
-import thecodex6824.thaumcraftfix.core.transformer.custom.PrimordialPearlDurabilityBarTransformer;
 import thecodex6824.thaumcraftfix.core.transformer.custom.ThrowingTransformerWrapper;
 
 public class ItemTransformers {
@@ -124,13 +121,6 @@ public class ItemTransformers {
 	    // if nonzero, we want to exit early - return value will be this shifted right by 1
 	    // this lets us effectively return 2 booleans from 1 function, since internally booleans are just ints
 	    return result;
-	}
-
-	public static void fixPrimordialPearlItem(Item pearl) {
-	    pearl.setMaxDamage(0);
-	    ((RegistrySimple<?, ?>) pearl.properties).registryObjects.remove(new ResourceLocation("damage"));
-	    ((RegistrySimple<?, ?>) pearl.properties).registryObjects.remove(new ResourceLocation("damaged"));
-	    pearl.setHasSubtypes(true);
 	}
 
 	public static ItemStack getHandMirrorStack(ItemStack original, InventoryPlayer playerInv) {
@@ -403,35 +393,8 @@ public class ItemTransformers {
 		);
     };
 
-    public static final Supplier<ITransformer> PRIMORDIAL_PEARL_ANVIL_DUPE_DURABILITY_BAR = () -> new ThrowingTransformerWrapper(
-	    new PrimordialPearlDurabilityBarTransformer());
-
     public static final Supplier<ITransformer> PRIMORDIAL_PEARL_ANVIL_DUPE_EVENT = () -> new ThrowingTransformerWrapper(
 	    new PrimordialPearlAnvilEventTransformer());
-
-    public static final Supplier<ITransformer> PRIMORDIAL_PEARL_ANVIL_DUPE_PROPS = () -> {
-	return new GenericStateMachineTransformer(
-		PatchStateMachine.builder(
-			new MethodDefinition(
-				"thaumcraft/common/items/curios/ItemPrimordialPearl",
-				false,
-				"<init>",
-				Type.VOID_TYPE
-				)
-			)
-		.findNextOpcode(Opcodes.RETURN)
-		.insertInstructionsBefore(
-			new VarInsnNode(Opcodes.ALOAD, 0),
-			new MethodInsnNode(Opcodes.INVOKESTATIC,
-				HOOKS_COMMON,
-				"fixPrimordialPearlItem",
-				Type.getMethodDescriptor(Type.VOID_TYPE, Types.ITEM),
-				false
-				)
-			)
-		.build()
-		);
-    };
 
     // makes runic shielding infusion work on items with baubles capability
     // TC only checks for the interface on the item...

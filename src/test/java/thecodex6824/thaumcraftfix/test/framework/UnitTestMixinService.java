@@ -55,7 +55,6 @@ public class UnitTestMixinService extends MixinServiceAbstract {
 
     public void registerTransformer(IClassTransformer transformer) {
 	UnitTestClassLoader loader = classProvider.getClassLoader();
-	loader.registerExclusion(transformer.getClass().getPackage().getName() + ".");
 	loader.registerTransformer(transformer);
     }
 

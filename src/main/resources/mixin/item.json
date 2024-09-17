@@ -4,6 +4,7 @@
   "minVersion": "${mixinbooterminversion}",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "ItemGenericEssentiaContainerMixin"
+    "ItemGenericEssentiaContainerMixin",
+    "ItemPrimordialPearlMixin"
   ]
 }

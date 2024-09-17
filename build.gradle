@@ -3,6 +3,8 @@ plugins {
     id 'eclipse'
     id 'idea'
     id 'net.minecraftforge.gradle' version '6.0.+'
+    id 'com.diffplug.eclipse.apt' version '4.0.+'
+    id 'org.spongepowered.mixin' version '0.7.+'
 }
 
 repositories {
@@ -100,6 +102,13 @@ minecraft {
             }
         }
     }
+}
+
+mixin {
+    add sourceSets.main, 'thaumcraftfix.refmap.json'
+    
+    debug.strict = true
+    checks = true
 }
 
 configurations {
