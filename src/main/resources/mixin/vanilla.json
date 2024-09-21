@@ -1,0 +1,9 @@
+{
+  "package": "thecodex6824.thaumcraftfix.core.mixin.vanilla",
+  "refmap": "${refmap}",
+  "minVersion": "${mixinbooterminversion}",
+  "compatibilityLevel": "JAVA_8",
+  "client": [
+    "ModelBipedMixin"
+  ]
+}

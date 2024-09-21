@@ -48,8 +48,6 @@ public class TransformerExecutor implements IClassTransformer {
     private void initTransformers() {
 	transformers = new ArrayList<>();
 	if (!ThaumcraftFixCore.isOldThaumicAugmentationDetected()) {
-	    transformers.add(EntityTransformers.CUSTOM_ARMOR_NOT_CALLING_SUPER);
-	    transformers.add(EntityTransformers.CUSTOM_ARMOR_ROTATION_POINTS);
 	    transformers.add(EntityTransformers.ELDRITCH_GUARDIAN_FOG);
 	    transformers.add(EntityTransformers.ELYTRA_ROBE_FLAPPING);
 	    transformers.add(EntityTransformers.FLUX_RIFT_DESTROY_BLOCK_EVENT);
@@ -123,7 +121,6 @@ public class TransformerExecutor implements IClassTransformer {
 	transformers.add(ItemTransformers.HAND_MIRROR_STACK_GUI.get());
 	transformers.add(ItemTransformers.INFUSION_ENCHANTMENT_DROPS_PRIORITY.get());
 	transformers.add(ItemTransformers.PHIAL_CONSUMPTION_CREATIVE.get());
-	transformers.add(ItemTransformers.PRIMORDIAL_PEARL_ANVIL_DUPE_EVENT.get());
 	transformers.add(ItemTransformers.SANITY_SOAP_CREATIVE.get());
 	transformers.add(MiscTransformers.ARCANE_WORKBENCH_RECIPE_COMPAT.get());
 	transformers.add(MiscTransformers.ASPECT_REGISTRY_LOOKUP.get());

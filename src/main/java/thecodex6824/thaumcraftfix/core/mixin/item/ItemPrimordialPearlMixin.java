@@ -35,6 +35,7 @@ import thaumcraft.common.items.curios.ItemPrimordialPearl;
 public class ItemPrimordialPearlMixin extends Item {
 
     // overwrite reason: method doesn't exist in the original class
+    // note: these 2 methods are forge methods so aren't obfuscated
     @Override
     public boolean showDurabilityBar(ItemStack stack) {
 	return stack.getItemDamage() > 0;
@@ -47,7 +48,7 @@ public class ItemPrimordialPearlMixin extends Item {
 	return stack.getItemDamage() / 8.0;
     }
 
-    @Inject(method = "<init>()V", at = @At("RETURN"))
+    @Inject(method = "<init>()V", at = @At("RETURN"), remap = false)
     private void construct(CallbackInfo info) {
 	setMaxDamage(0);
 	((RegistrySimple<?, ?>) properties).registryObjects.remove(new ResourceLocation("damage"));

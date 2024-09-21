@@ -42,7 +42,6 @@ import com.mojang.authlib.GameProfile;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
@@ -69,7 +68,6 @@ import net.minecraftforge.fml.common.eventhandler.Event.Result;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import thaumcraft.api.blocks.BlocksTC;
-import thaumcraft.client.renderers.models.gear.ModelCustomArmor;
 import thaumcraft.common.config.ModConfig;
 import thaumcraft.common.entities.EntityFluxRift;
 import thaumcraft.common.entities.construct.EntityArcaneBore;
@@ -85,7 +83,6 @@ import thecodex6824.thaumcraftfix.common.util.NoEquipSoundFakePlayer;
 import thecodex6824.thaumcraftfix.core.transformer.custom.ChangeVariableTypeTransformer;
 import thecodex6824.thaumcraftfix.core.transformer.custom.EntityAspectPrefixRemoverTransformer;
 import thecodex6824.thaumcraftfix.core.transformer.custom.ThrowingTransformerWrapper;
-import thecodex6824.thaumcraftfix.core.transformer.custom.TransformerBipedRotationCustomArmor;
 
 public class EntityTransformers {
 
@@ -266,29 +263,6 @@ public class EntityTransformers {
     @SideOnly(Side.CLIENT)
     public static final class HooksClient {
 
-	public static void correctRotationPoints(ModelBiped model) {
-	    if (model instanceof ModelCustomArmor) {
-		if (model.isSneak) {
-		    model.bipedRightLeg.rotationPointY = 13.0F;
-		    model.bipedLeftLeg.rotationPointY = 13.0F;
-		    model.bipedHead.rotationPointY = 4.5F;
-
-		    model.bipedBody.rotationPointY = 4.5F;
-		    model.bipedRightArm.rotationPointY = 5.0F;
-		    model.bipedLeftArm.rotationPointY = 5.0F;
-		}
-		else {
-		    model.bipedBody.rotationPointY = 0.0F;
-		    model.bipedRightArm.rotationPointY = 2.0F;
-		    model.bipedLeftArm.rotationPointY = 2.0F;
-		}
-
-		model.bipedHeadwear.rotationPointX = model.bipedHead.rotationPointX;
-		model.bipedHeadwear.rotationPointY = model.bipedHead.rotationPointY;
-		model.bipedHeadwear.rotationPointZ = model.bipedHead.rotationPointZ;
-	    }
-	}
-
 	public static float getRobeRotationDivisor(Entity entity) {
 	    float f = 1.0F;
 	    if (entity instanceof EntityLivingBase && ((EntityLivingBase) entity).getTicksElytraFlying() > 4) {
@@ -331,40 +305,6 @@ public class EntityTransformers {
 
     @SideOnly(Side.CLIENT)
     private static final String HOOKS_CLIENT = Type.getInternalName(HooksClient.class);
-
-    // pretty much rewrites a model rotation method to not be incompatible with everything
-    // this does not use ThrowingTransformerWrapper because it was intentionally designed to be exceptionally brittle
-    // if it can't apply, it should not crash the game, and it will dump debug info itself
-    public static final ITransformer CUSTOM_ARMOR_NOT_CALLING_SUPER = new TransformerBipedRotationCustomArmor();
-
-    // compensates for the above transformer by adding a hook to set custom rotation points
-    public static final ITransformer CUSTOM_ARMOR_ROTATION_POINTS = new GenericStateMachineTransformer(
-	    PatchStateMachine.builder(
-		    TransformUtil.remapMethod(new MethodDefinition(
-			    "net/minecraft/client/model/ModelBiped",
-			    false,
-			    "func_78087_a",
-			    Type.VOID_TYPE,
-			    Type.FLOAT_TYPE, Type.FLOAT_TYPE, Type.FLOAT_TYPE, Type.FLOAT_TYPE, Type.FLOAT_TYPE,
-			    Type.FLOAT_TYPE, Types.ENTITY
-			    )
-			    ))
-	    .findNextLocalAccess(3)
-	    .insertInstructions((node, matches) -> {
-		InsnList toAdd = new InsnList();
-		toAdd.add(new VarInsnNode(Opcodes.ALOAD, 0));
-		toAdd.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-			HOOKS_CLIENT,
-			"correctRotationPoints",
-			Type.getMethodDescriptor(Type.VOID_TYPE, Type.getType("Lnet/minecraft/client/model/ModelBiped;")),
-			false
-			));
-		AbstractInsnNode match = matches.get(matches.size() - 1).matchStart();
-		node.instructions.insertBefore(match.getPrevious().getPrevious().getPrevious(), toAdd);
-		return ImmutableList.copyOf(toAdd.iterator());
-	    })
-	    .build(), true, 1 // important: just do this once
-	    );
 
     // fixes annoying robe legging flapping (as if the player is walking) while elytra flying
     public static final ITransformer ELYTRA_ROBE_FLAPPING = new GenericStateMachineTransformer(

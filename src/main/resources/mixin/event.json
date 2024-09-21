@@ -1,9 +1,10 @@
 {
   "package": "thecodex6824.thaumcraftfix.core.mixin.event",
-  "refmap": "thaumcraftfix.refmap.json",
+  "refmap": "${refmap}",
   "minVersion": "${mixinbooterminversion}",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
+    "CraftingEventsMixin",
     "PlayerEventsMixin"
   ]
 }

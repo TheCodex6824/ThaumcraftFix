@@ -1,0 +1,10 @@
+{
+  "package": "thecodex6824.thaumcraftfix.core.mixin.render",
+  "refmap": "${refmap}",
+  "minVersion": "${mixinbooterminversion}",
+  "compatibilityLevel": "JAVA_8",
+  "client": [
+    "ModelCustomArmorMixin",
+    "ModelRobeMixin"
+  ]
+}

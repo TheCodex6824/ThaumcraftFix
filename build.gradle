@@ -105,10 +105,11 @@ minecraft {
 }
 
 mixin {
-    add sourceSets.main, 'thaumcraftfix.refmap.json'
+    add sourceSets.main, "${refmap}"
     
-    debug.strict = true
     checks = true
+    debug.countInjections = true
+    debug.strict = true
 }
 
 configurations {
@@ -201,6 +202,7 @@ processResources {
     inputs.property 'mcversion', mcversion
     inputs.property 'forgeminversion', forgeminversion
     inputs.property 'mixinbooterminversion', mixinbooterminversion
+    inputs.property 'refmap', refmap
     
     // replace stuff in mcmod.info, nothing else
     from(sourceSets.main.resources.srcDirs) {
@@ -214,7 +216,7 @@ processResources {
     from(sourceSets.main.resources.srcDirs) {
         include 'mixin/*.json'
         
-        expand 'mixinbooterminversion': mixinbooterminversion
+        expand 'mixinbooterminversion': mixinbooterminversion, 'refmap': refmap
     }
         
     // copy everything else except everything handled above

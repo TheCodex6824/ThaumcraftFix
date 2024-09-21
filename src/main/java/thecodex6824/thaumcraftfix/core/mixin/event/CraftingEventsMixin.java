@@ -18,23 +18,22 @@
  *  along with Thaumcraft Fix.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package thecodex6824.thaumcraftfix.core.transformer.custom;
+package thecodex6824.thaumcraftfix.core.mixin.event;
 
-import org.objectweb.asm.tree.ClassNode;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Overwrite;
 
-import thecodex6824.thaumcraftfix.core.transformer.ITransformer;
+import net.minecraftforge.event.AnvilUpdateEvent;
+import thaumcraft.common.lib.events.CraftingEvents;
 
-public class PrimordialPearlAnvilEventTransformer implements ITransformer {
+@Mixin(CraftingEvents.class)
+public class CraftingEventsMixin {
 
-    @Override
-    public boolean isTransformationNeeded(String transformedName) {
-	return "thaumcraft.common.lib.events.CraftingEvents".equals(transformedName);
-    }
-
-    @Override
-    public boolean transform(ClassNode classNode, String name, String transformedName) {
-	return classNode.methods.removeIf(m -> m.name.equals("onAnvil") &&
-		m.desc.equals("(Lnet/minecraftforge/event/AnvilUpdateEvent;)V"));
-    }
+    /**
+     * @author TheCodex6824
+     * @reason This event is broken and just causes duplication bugs if cancelled (as TC does)
+     */
+    @Overwrite(remap = false)
+    public static void onAnvil(AnvilUpdateEvent event) {}
 
 }

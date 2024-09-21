@@ -58,7 +58,6 @@ import thecodex6824.coremodlib.FieldDefinition;
 import thecodex6824.coremodlib.MethodDefinition;
 import thecodex6824.coremodlib.PatchStateMachine;
 import thecodex6824.thaumcraftfix.core.transformer.custom.ChangeEventPriorityTransformer;
-import thecodex6824.thaumcraftfix.core.transformer.custom.PrimordialPearlAnvilEventTransformer;
 import thecodex6824.thaumcraftfix.core.transformer.custom.ThrowingTransformerWrapper;
 
 public class ItemTransformers {
@@ -392,9 +391,6 @@ public class ItemTransformers {
 		.build()
 		);
     };
-
-    public static final Supplier<ITransformer> PRIMORDIAL_PEARL_ANVIL_DUPE_EVENT = () -> new ThrowingTransformerWrapper(
-	    new PrimordialPearlAnvilEventTransformer());
 
     // makes runic shielding infusion work on items with baubles capability
     // TC only checks for the interface on the item...
