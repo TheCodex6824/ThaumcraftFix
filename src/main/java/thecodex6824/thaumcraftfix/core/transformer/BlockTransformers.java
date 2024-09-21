@@ -216,7 +216,7 @@ public class BlockTransformers {
 			    rootFound = true;
 			}
 			else if (leaf.node instanceof FocusMedium &&
-				!bannedNodes.isEmpty() && (leaf.node.isExclusive() || mediumFound)) {
+				!bannedNodes.isEmpty() && leaf.node.isExclusive() && mediumFound) {
 
 			    result = false;
 			    logger.warn("Player {} ({}) tried to make a focus with illegal mediums",
@@ -493,7 +493,7 @@ public class BlockTransformers {
 		    new InsnNode(Opcodes.DUP),
 		    new FieldDefinition(
 			    Types.TILE_FOCAL_MANIPULATOR.getInternalName(),
-			    "controlCrystals",
+			    "crystals",
 			    Type.getType("Lthaumcraft/api/aspects/AspectList;")
 			    ).asFieldInsnNode(Opcodes.GETFIELD),
 		    new VarInsnNode(Opcodes.ALOAD, 2),
