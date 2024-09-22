@@ -49,7 +49,6 @@ public class TransformerExecutor implements IClassTransformer {
 	transformers = new ArrayList<>();
 	if (!ThaumcraftFixCore.isOldThaumicAugmentationDetected()) {
 	    transformers.add(EntityTransformers.ELDRITCH_GUARDIAN_FOG);
-	    transformers.add(EntityTransformers.ELYTRA_ROBE_FLAPPING);
 	    transformers.add(EntityTransformers.FLUX_RIFT_DESTROY_BLOCK_EVENT);
 	    transformers.add(EntityTransformers.VOID_ROBE_ARMOR_DISPLAY);
 	    transformers.add(ItemTransformers.CYCLE_ITEM_NON_DAMAGEABLE);
@@ -84,7 +83,6 @@ public class TransformerExecutor implements IClassTransformer {
 	transformers.add(BlockTransformers.FOCAL_MANIPULATOR_XP_COST_GUI);
 	transformers.add(BlockTransformers.INFERNAL_FURNACE_DESTROY_EFFECTS.get());
 	transformers.add(BlockTransformers.INFERNAL_FURNACE_ITEM_CHECKS.get());
-	transformers.add(BlockTransformers.PILLAR_DROP_FIX.get());
 	transformers.add(BlockTransformers.PLANT_CINDERPEARL_OFFSET.get());
 	transformers.add(BlockTransformers.PLANT_SHIMMERLEAF_OFFSET.get());
 	transformers.add(BlockTransformers.TABLE_TOP_SOLID.get());

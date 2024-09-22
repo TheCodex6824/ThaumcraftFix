@@ -129,7 +129,8 @@ public class ThaumcraftFixCore implements IFMLLoadingPlugin, ILateMixinLoader {
 
     @Override
     public List<String> getMixinConfigs() {
-	return ImmutableList.of("mixin/event.json", "mixin/item.json", "mixin/render.json", "mixin/vanilla.json");
+	return ImmutableList.of("mixin/block.json", "mixin/event.json", "mixin/item.json",
+		"mixin/render.json", "mixin/vanilla.json");
     }
 
 }

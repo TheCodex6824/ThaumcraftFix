@@ -263,17 +263,6 @@ public class EntityTransformers {
     @SideOnly(Side.CLIENT)
     public static final class HooksClient {
 
-	public static float getRobeRotationDivisor(Entity entity) {
-	    float f = 1.0F;
-	    if (entity instanceof EntityLivingBase && ((EntityLivingBase) entity).getTicksElytraFlying() > 4) {
-		f = (float) (entity.motionX * entity.motionX + entity.motionY * entity.motionY + entity.motionZ * entity.motionZ);
-		f /= 0.2F;
-		f = Math.max(f * f * f, 1.0F);
-	    }
-
-	    return f;
-	}
-
 	public static TextureAtlasSprite getBlockParticleTexture(TextureAtlasSprite old, IBlockState state) {
 	    return Minecraft.getMinecraft().getBlockRendererDispatcher()
 		    .getModelForState(state).getParticleTexture();
@@ -305,38 +294,6 @@ public class EntityTransformers {
 
     @SideOnly(Side.CLIENT)
     private static final String HOOKS_CLIENT = Type.getInternalName(HooksClient.class);
-
-    // fixes annoying robe legging flapping (as if the player is walking) while elytra flying
-    public static final ITransformer ELYTRA_ROBE_FLAPPING = new GenericStateMachineTransformer(
-	    PatchStateMachine.builder(
-		    TransformUtil.remapMethod(new MethodDefinition(
-			    "thaumcraft/client/renderers/models/gear/ModelRobe",
-			    false,
-			    "func_78088_a",
-			    Type.VOID_TYPE,
-			    Types.ENTITY, Type.FLOAT_TYPE, Type.FLOAT_TYPE, Type.FLOAT_TYPE, Type.FLOAT_TYPE,
-			    Type.FLOAT_TYPE, Type.FLOAT_TYPE
-			    )
-			    ))
-	    .findNextMethodCall(new MethodDefinition(
-		    "java/lang/Math",
-		    false,
-		    "min",
-		    Type.FLOAT_TYPE,
-		    Type.FLOAT_TYPE, Type.FLOAT_TYPE
-		    ))
-	    .insertInstructionsAfter(
-		    new VarInsnNode(Opcodes.ALOAD, 1),
-		    new MethodInsnNode(Opcodes.INVOKESTATIC,
-			    HOOKS_CLIENT,
-			    "getRobeRotationDivisor",
-			    Type.getMethodDescriptor(Type.FLOAT_TYPE, Types.ENTITY),
-			    false
-			    ),
-		    new InsnNode(Opcodes.FDIV)
-		    )
-	    .build(), true, 1
-	    );
 
     // required because TC always creates fog near eldritch guardians if not in the outer lands
     // but since the outer lands don't exist they always do it

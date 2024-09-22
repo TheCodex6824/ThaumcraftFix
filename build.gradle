@@ -110,6 +110,10 @@ mixin {
     checks = true
     debug.countInjections = true
     debug.strict = true
+    debug.verbose = true
+    env.remapRefMap = true
+    overwriteErrorLevel = 'error'
+    quiet
 }
 
 configurations {

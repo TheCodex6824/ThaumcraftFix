@@ -33,7 +33,7 @@ public class ModelCustomArmorMixin extends ModelBiped {
     /**
      * @author TheCodex6824
      * @reason TC's implementation of this method is a copy-paste that has bugs,
-     * and also prevents any other mixins / ASM into ModelBiped from working
+     * and also prevents any other mixins / ASM into ModelBiped from working on TC armor
      */
     @Override
     @Overwrite
