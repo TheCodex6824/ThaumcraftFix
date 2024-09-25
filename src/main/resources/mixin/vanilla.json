@@ -3,6 +3,9 @@
   "refmap": "${refmap}",
   "minVersion": "${mixinbooterminversion}",
   "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "SetDamageLootFunctionMixin"
+  ],
   "client": [
     "ModelBipedMixin"
   ]
