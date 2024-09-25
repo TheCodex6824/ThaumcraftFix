@@ -64,7 +64,7 @@ public class CoremodInvocationInterceptor implements InvocationInterceptor {
 
 	ThaumcraftFixCore coremod = new ThaumcraftFixCore();
 	coremod.injectData(ImmutableMap.of());
-	Mixins.addConfigurations(coremod.getMixinConfigs().toArray(new String[0]));
+	Mixins.addConfigurations(coremod.getMixinConfigs());
 	for (String c : coremod.getASMTransformerClass()) {
 	    try {
 		((UnitTestMixinService) MixinService.getService()).registerTransformer(
