@@ -18,38 +18,32 @@
  *  along with Thaumcraft Fix.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package thecodex6824.thaumcraftfix.core.mixin.event;
-
-import java.util.ArrayList;
-import java.util.Set;
+package thecodex6824.thaumcraftfix.mixin.render;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 
-import thaumcraft.common.lib.events.PlayerEvents;
-import thecodex6824.thaumcraftfix.api.research.ResearchCategoryTheorycraftFilter;
+import net.minecraft.client.model.ModelBiped;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
+import thaumcraft.client.renderers.models.gear.ModelRobe;
 
-@Mixin(PlayerEvents.class)
-public class PlayerEventsMixin {
+@Mixin(ModelRobe.class)
+public class ModelRobeMixin extends ModelBiped {
 
-    @ModifyExpressionValue(
-	    method = "pickupXP",
-	    at = @At(value = "INVOKE", target = "Ljava/util/Set;toArray([Ljava/lang/Object;)[Ljava/lang/Object;"),
-	    remap = false
-	    )
-    private static Object[] filterCategories(Object[] originalCats) {
-	String[] original = (String[]) originalCats;
-	ArrayList<String> retained = new ArrayList<>();
-	Set<String> keep = ResearchCategoryTheorycraftFilter.getAllowedTheorycraftCategoryKeys();
-	for (String cat : original) {
-	    if (keep.contains(cat)) {
-		retained.add(cat);
-	    }
+    @ModifyExpressionValue(method = "Lthaumcraft/client/renderers/models/gear/ModelRobe;render(Lnet/minecraft/entity/Entity;FFFFFF)V",
+	    at = @At(value = "INVOKE", target = "Ljava/lang/Math;min(FF)F", ordinal = 0, remap = false))
+    private float fixRobeFlapping(float original, Entity entity) {
+	float f = 1.0F;
+	if (entity instanceof EntityLivingBase && ((EntityLivingBase) entity).getTicksElytraFlying() > 4) {
+	    f = (float) (entity.motionX * entity.motionX + entity.motionY * entity.motionY + entity.motionZ * entity.motionZ);
+	    f /= 0.2F;
+	    f = Math.max(f * f * f, 1.0F);
 	}
 
-	return retained.toArray(new String[retained.size()]);
+	return original / f;
     }
 
 }

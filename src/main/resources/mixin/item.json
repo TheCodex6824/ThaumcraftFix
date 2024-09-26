@@ -1,5 +1,5 @@
 {
-  "package": "thecodex6824.thaumcraftfix.core.mixin.item",
+  "package": "thecodex6824.thaumcraftfix.mixin.item",
   "refmap": "${refmap}",
   "minVersion": "${mixinbooterminversion}",
   "compatibilityLevel": "JAVA_8",

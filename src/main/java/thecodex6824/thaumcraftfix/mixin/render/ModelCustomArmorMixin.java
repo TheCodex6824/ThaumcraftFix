@@ -18,22 +18,30 @@
  *  along with Thaumcraft Fix.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package thecodex6824.thaumcraftfix.core.mixin.event;
+package thecodex6824.thaumcraftfix.mixin.render;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 
-import net.minecraftforge.event.AnvilUpdateEvent;
-import thaumcraft.common.lib.events.CraftingEvents;
+import net.minecraft.client.model.ModelBiped;
+import net.minecraft.entity.Entity;
+import thaumcraft.client.renderers.models.gear.ModelCustomArmor;
 
-@Mixin(CraftingEvents.class)
-public class CraftingEventsMixin {
+@Mixin(ModelCustomArmor.class)
+public class ModelCustomArmorMixin extends ModelBiped {
 
     /**
      * @author TheCodex6824
-     * @reason This event is broken and just causes duplication bugs if cancelled (as TC does)
+     * @reason TC's implementation of this method is a copy-paste that has bugs,
+     * and also prevents any other mixins / ASM into ModelBiped from working on TC armor
      */
-    @Overwrite(remap = false)
-    public static void onAnvil(AnvilUpdateEvent event) {}
+    @Override
+    @Overwrite
+    public void setRotationAngles(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw,
+	    float headPitch, float scaleFactor, Entity entityIn) {
+
+	super.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw,
+		headPitch, scaleFactor, entityIn);
+    }
 
 }

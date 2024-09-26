@@ -18,7 +18,7 @@
  *  along with Thaumcraft Fix.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package thecodex6824.thaumcraftfix.core.mixin.block;
+package thecodex6824.thaumcraftfix.mixin.block;
 
 import java.util.Random;
 

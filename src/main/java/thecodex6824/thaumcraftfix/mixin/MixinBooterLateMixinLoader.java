@@ -18,10 +18,11 @@
  *  along with Thaumcraft Fix.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package thecodex6824.thaumcraftfix.core;
+package thecodex6824.thaumcraftfix.mixin;
 
 import java.util.List;
 
+import thecodex6824.thaumcraftfix.core.ThaumcraftFixCore;
 import zone.rong.mixinbooter.ILateMixinLoader;
 
 // this class should be automatically found and loaded by MixinBooter
