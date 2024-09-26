@@ -26,6 +26,7 @@ import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.maven.artifact.versioning.ComparableVersion;
+import org.spongepowered.asm.mixin.Mixins;
 
 import com.google.common.collect.ImmutableList;
 
@@ -34,13 +35,12 @@ import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin.MCVersion;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin.Name;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin.SortingIndex;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin.TransformerExclusions;
-import zone.rong.mixinbooter.ILateMixinLoader;
 
 @Name("Thaumcraft Fix Core Plugin")
 @MCVersion("1.12.2")
 @SortingIndex(1100)
 @TransformerExclusions("thecodex6824.thaumcraftfix.core")
-public class ThaumcraftFixCore implements IFMLLoadingPlugin, ILateMixinLoader {
+public class ThaumcraftFixCore implements IFMLLoadingPlugin {
 
     protected static final String AUG_GOOD_VERSION = "2.1.14";
 
@@ -123,14 +123,19 @@ public class ThaumcraftFixCore implements IFMLLoadingPlugin, ILateMixinLoader {
 	}
 	catch (Exception ex) {}
 
+	Mixins.addConfigurations(getEarlyMixinConfigs().toArray(new String[0]));
+
 	ready = true;
 	log.info("Thaumcraft Fix coremod initialized");
     }
 
-    @Override
-    public List<String> getMixinConfigs() {
+    public static List<String> getEarlyMixinConfigs() {
+	return ImmutableList.of("mixin/vanilla.json");
+    }
+
+    public static List<String> getLateMixinConfigs() {
 	return ImmutableList.of("mixin/block.json", "mixin/event.json", "mixin/item.json",
-		"mixin/render.json", "mixin/vanilla.json");
+		"mixin/render.json");
     }
 
 }
