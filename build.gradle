@@ -138,6 +138,9 @@ dependencies {
     annotationProcessor 'com.google.guava:guava:32.1.2-jre'
     annotationProcessor 'com.google.code.gson:gson:2.8.9'
     
+    // fixes annotation compiler warnings in guava
+    compileOnly 'com.google.errorprone:error_prone_annotations:2.10.0'
+    
     implementation("zone.rong:mixinbooter:${mixinbooterversion}") {
         transitive = false
     }
@@ -255,6 +258,12 @@ jar {
         attributes 'FMLCorePlugin': 'thecodex6824.thaumcraftfix.core.ThaumcraftFixCore'
         attributes 'FMLCorePluginContainsFMLMod': 'true'
     }
+}
+
+tasks.withType(JavaCompile) {
+    options.compilerArgs += "-Werror"
+    // processing must be disabled due to "No processor claimed any of these annotations" warnings
+    options.compilerArgs += "-Xlint:all,-processing"
 }
 
 tasks.build.dependsOn(tasks.signJar)

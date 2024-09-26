@@ -70,6 +70,7 @@ public class UnitTestClassProvider implements IClassProvider, IClassBytecodeProv
     }
 
     @Override
+    @Deprecated
     public URL[] getClassPath() {
 	return loader.getURLs();
     }
