@@ -20,26 +20,27 @@
 
 package thecodex6824.thaumcraftfix.core;
 
+import java.util.List;
 import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.maven.artifact.versioning.ComparableVersion;
-import org.spongepowered.asm.mixin.Mixins;
 
-import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableList;
 
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin.MCVersion;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin.Name;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin.SortingIndex;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin.TransformerExclusions;
+import zone.rong.mixinbooter.ILateMixinLoader;
 
 @Name("Thaumcraft Fix Core Plugin")
 @MCVersion("1.12.2")
 @SortingIndex(1100)
 @TransformerExclusions("thecodex6824.thaumcraftfix.core")
-public class ThaumcraftFixCore implements IFMLLoadingPlugin {
+public class ThaumcraftFixCore implements IFMLLoadingPlugin, ILateMixinLoader {
 
     protected static final String AUG_GOOD_VERSION = "2.1.14";
 
@@ -122,21 +123,14 @@ public class ThaumcraftFixCore implements IFMLLoadingPlugin {
 	}
 	catch (Exception ex) {}
 
-	Mixins.addConfigurations(getMixinConfigs());
-
 	ready = true;
 	log.info("Thaumcraft Fix coremod initialized");
     }
 
-    /**
-     * This is public for unit test purposes only. Please do not use it as an API.
-     */
-    @VisibleForTesting
-    public String[] getMixinConfigs() {
-	return new String[] {
-		"mixin/block.json", "mixin/event.json", "mixin/item.json",
-		"mixin/render.json", "mixin/vanilla.json"
-	};
+    @Override
+    public List<String> getMixinConfigs() {
+	return ImmutableList.of("mixin/block.json", "mixin/event.json", "mixin/item.json",
+		"mixin/render.json", "mixin/vanilla.json");
     }
 
 }
