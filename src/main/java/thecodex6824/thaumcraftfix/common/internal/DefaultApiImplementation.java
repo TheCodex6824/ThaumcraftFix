@@ -121,7 +121,7 @@ public class DefaultApiImplementation implements InternalImplementation {
 	controlCrystals = ThaumcraftFixConfig.world.crystals.controlCrystals;
 	controlTrees = ThaumcraftFixConfig.world.vegetation.controlVegetation;
 
-	Set<Biome> allBiomes = ImmutableSet.copyOf(Biome.REGISTRY);
+	Set<Biome> allBiomes = ImmutableSet.copyOf(Biome.REGISTRY.iterator());
 	Set<DimensionType> allDims = ImmutableSet.copyOf(DimensionType.values());
 	auraBiomes = makeFilteredBiomeSet(allBiomes, ThaumcraftFixConfig.world.aura.biomeList, ThaumcraftFixConfig.world.aura.biomeAllowList);
 	auraDims = makeFilteredDimensionSet(allDims, ThaumcraftFixConfig.world.aura.dimList, ThaumcraftFixConfig.world.aura.dimAllowList);
