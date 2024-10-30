@@ -18,20 +18,25 @@
  *  along with Thaumcraft Fix.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package thecodex6824.thaumcraftfix.test;
+package thecodex6824.thaumcraftfix.test.fixture;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.spongepowered.asm.service.IMixinServiceBootstrap;
 
-import org.junit.jupiter.api.Test;
+public class UnitTestMixinServiceBootstrap implements IMixinServiceBootstrap {
 
-import thecodex6824.thaumcraftfix.test.framework.UnitTestClassLoader;
+    @Override
+    public void bootstrap() {
+	// the service / test framework is taking care of it
+    }
 
-public class TestFrameworkOperational {
+    @Override
+    public String getName() {
+	return "Unit Test";
+    }
 
-    @Test
-    public void testClassLoaderCorrect() {
-	assertEquals(UnitTestClassLoader.class.getName(),
-		getClass().getClassLoader().getClass().getName());
+    @Override
+    public String getServiceClassName() {
+	return UnitTestMixinService.class.getName();
     }
 
 }

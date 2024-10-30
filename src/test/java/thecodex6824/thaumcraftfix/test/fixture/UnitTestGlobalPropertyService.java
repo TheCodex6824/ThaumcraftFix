@@ -18,7 +18,7 @@
  *  along with Thaumcraft Fix.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package thecodex6824.thaumcraftfix.test.framework;
+package thecodex6824.thaumcraftfix.test.fixture;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

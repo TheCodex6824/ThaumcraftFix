@@ -18,7 +18,7 @@
  *  along with Thaumcraft Fix.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package thecodex6824.thaumcraftfix.test.framework;
+package thecodex6824.thaumcraftfix.test.fixture;
 
 import java.io.InputStream;
 import java.util.Collection;
@@ -37,8 +37,6 @@ import org.spongepowered.asm.service.MixinServiceAbstract;
 
 import com.google.common.collect.ImmutableList;
 
-import net.minecraft.launchwrapper.IClassTransformer;
-
 public class UnitTestMixinService extends MixinServiceAbstract {
 
     private final UnitTestClassProvider classProvider;
@@ -47,15 +45,6 @@ public class UnitTestMixinService extends MixinServiceAbstract {
     public UnitTestMixinService() {
 	classProvider = new UnitTestClassProvider();
 	logger = new LoggerAdapterConsole(getName());
-    }
-
-    public UnitTestClassLoader getClassLoader() {
-	return classProvider.getClassLoader();
-    }
-
-    public void registerTransformer(IClassTransformer transformer) {
-	UnitTestClassLoader loader = classProvider.getClassLoader();
-	loader.registerTransformer(transformer);
     }
 
     @Override

@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -14,11 +15,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.FieldSource;
-import org.junit.jupiter.params.provider.MethodSource;
 
 import com.google.common.collect.ImmutableList;
 
-import net.minecraft.init.Bootstrap;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.event.AnvilUpdateEvent;
 import thaumcraft.api.items.ItemsTC;
@@ -29,20 +28,17 @@ public class TestPrimordialPearl {
 
     @BeforeAll
     static void setup() {
-	Bootstrap.register();
 	ItemsTC.primordialPearl = new ItemPrimordialPearl();
     }
 
-    static Stream<? extends Arguments> testPearlDurabilityProperties() {
-	// we are in the normal classloader so this has to be repeated
-	Bootstrap.register();
-	int maxMeta = new ItemStack(new ItemPrimordialPearl()).getMaxDamage();
-	return IntStream.rangeClosed(0, maxMeta)
-		.mapToObj(i -> Arguments.of(i, (double) i / maxMeta));
-    }
+    private static final int PEARL_MAX_META = 8;
+
+    static Supplier<Stream<? extends Arguments>> testPearlDurabilityProperties = () ->
+    IntStream.rangeClosed(0, PEARL_MAX_META)
+    .mapToObj(i -> Arguments.of(i, (double) i / PEARL_MAX_META));
 
     @ParameterizedTest
-    @MethodSource
+    @FieldSource
     void testPearlDurabilityProperties(int metadata, double damageRatio) {
 	ItemStack stack = new ItemStack(ItemsTC.primordialPearl, 1, metadata);
 	assertEquals(metadata != 0, stack.getItem().showDurabilityBar(stack));
@@ -58,18 +54,16 @@ public class TestPrimordialPearl {
 
     // can't use ItemStack due to classloader issues
     static final List<Arguments> testAnvilHandlerIsDisabled = ImmutableList.of(
-	    Arguments.of(false, false),
-	    Arguments.of(true, false),
-	    Arguments.of(false, true),
-	    Arguments.of(true, true)
+	    Arguments.of(ItemStack.EMPTY, ItemStack.EMPTY),
+	    Arguments.of(new ItemStack(ItemsTC.primordialPearl), ItemStack.EMPTY),
+	    Arguments.of(ItemStack.EMPTY, new ItemStack(ItemsTC.primordialPearl)),
+	    Arguments.of(new ItemStack(ItemsTC.primordialPearl), new ItemStack(ItemsTC.primordialPearl))
 	    );
 
     @ParameterizedTest
     @FieldSource
-    void testAnvilHandlerIsDisabled(boolean left, boolean right) {
-	ItemStack pearl = new ItemStack(ItemsTC.primordialPearl);
-	AnvilUpdateEvent event = new AnvilUpdateEvent(left ? pearl.copy() : ItemStack.EMPTY,
-		right ? pearl.copy() : ItemStack.EMPTY, "test", 1) {
+    void testAnvilHandlerIsDisabled(ItemStack left, ItemStack right) {
+	AnvilUpdateEvent event = new AnvilUpdateEvent(left, right, "test", 1) {
 	    @Override
 	    public void setCanceled(boolean cancel) {
 		fail("Anvil event handler not disabled");

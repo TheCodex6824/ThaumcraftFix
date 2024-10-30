@@ -43,7 +43,6 @@ import baubles.api.cap.BaublesCapabilities;
 import baubles.api.cap.BaublesContainer;
 import baubles.api.cap.IBaublesItemHandler;
 import net.minecraft.entity.item.EntityXPOrb;
-import net.minecraft.init.Bootstrap;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.util.EnumFacing;
@@ -51,16 +50,14 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.Capability.IStorage;
 import net.minecraftforge.event.entity.player.PlayerPickupXpEvent;
 import thaumcraft.api.items.ItemsTC;
-import thaumcraft.api.research.ResearchCategories;
 import thaumcraft.api.research.ResearchCategory;
-import thaumcraft.common.config.ConfigResearch;
 import thaumcraft.common.items.baubles.ItemCuriosityBand;
 import thaumcraft.common.lib.events.PlayerEvents;
 import thecodex6824.thaumcraftfix.api.internal.ThaumcraftFixApiBridge;
 import thecodex6824.thaumcraftfix.api.research.ResearchCategoryTheorycraftFilter;
 import thecodex6824.thaumcraftfix.common.internal.DefaultApiImplementation;
-import thecodex6824.thaumcraftfix.test.framework.UnitTestPlayer;
-import thecodex6824.thaumcraftfix.test.framework.UnitTestWorld;
+import thecodex6824.thaumcraftfix.test.lib.UnitTestPlayer;
+import thecodex6824.thaumcraftfix.test.lib.UnitTestWorld;
 
 public class TestPlayerEvents {
 
@@ -86,12 +83,6 @@ public class TestPlayerEvents {
 
     @BeforeAll
     static void setup() throws Exception {
-	Bootstrap.register();
-	ConfigResearch.init();
-	DefaultApiImplementation impl = new DefaultApiImplementation();
-	ThaumcraftFixApiBridge.setImplementation(impl);
-	impl.setAllowedTheorycraftCategories(ImmutableSet.copyOf(ResearchCategories.researchCategories.values()));
-
 	Field cap = BaublesCapabilities.class.getField("CAPABILITY_BAUBLES");
 	Field modifiers = Field.class.getDeclaredField("modifiers");
 	modifiers.setAccessible(true);
@@ -122,22 +113,26 @@ public class TestPlayerEvents {
     void testHeadbandFilter() {
 	Set<ResearchCategory> old = ResearchCategoryTheorycraftFilter.getAllowedTheorycraftCategories();
 	DefaultApiImplementation impl = (DefaultApiImplementation) ThaumcraftFixApiBridge.implementation();
-	impl.setAllowedTheorycraftCategories(ImmutableSet.of());
-	// if there are no filtered categories to choose from, it will throw an IllegalArgumentException
-	// we can use this to determine if the filter is working by filtering out everything
-	assertThrows(IllegalArgumentException.class, () -> {
-	    UnitTestWorld world = new UnitTestWorld();
-	    UnitTestPlayer player = new UnitTestPlayer(world, new GameProfile(UUID.randomUUID(), "test"));
-	    player.addCapability(BaublesCapabilities.CAPABILITY_BAUBLES, new BaublesContainer() {
-		@Override
-		public ItemStack getStackInSlot(int slot) {
-		    return new ItemStack(ItemsTC.bandCuriosity);
-		}
+	try {
+	    impl.setAllowedTheorycraftCategories(ImmutableSet.of());
+	    // if there are no filtered categories to choose from, it will throw an IllegalArgumentException
+	    // we can use this to determine if the filter is working by filtering out everything
+	    assertThrows(IllegalArgumentException.class, () -> {
+		UnitTestWorld world = new UnitTestWorld();
+		UnitTestPlayer player = new UnitTestPlayer(world, new GameProfile(UUID.randomUUID(), "test"));
+		player.addCapability(BaublesCapabilities.CAPABILITY_BAUBLES, new BaublesContainer() {
+		    @Override
+		    public ItemStack getStackInSlot(int slot) {
+			return new ItemStack(ItemsTC.bandCuriosity);
+		    }
+		});
+		EntityXPOrb orb = new EntityXPOrb(world, 0, 0, 0, 1000);
+		PlayerEvents.pickupXP(new PlayerPickupXpEvent(player, orb));
 	    });
-	    EntityXPOrb orb = new EntityXPOrb(world, 0, 0, 0, 1000);
-	    PlayerEvents.pickupXP(new PlayerPickupXpEvent(player, orb));
-	});
-	impl.setAllowedTheorycraftCategories(ImmutableSet.copyOf(old));
+	}
+	finally {
+	    impl.setAllowedTheorycraftCategories(ImmutableSet.copyOf(old));
+	}
     }
 
 }

@@ -8,6 +8,8 @@ plugins {
 }
 
 repositories {
+    mavenCentral()
+    
     maven {
         name 'Su5ed LegacyDev Fork'
         url 'https://maven.su5ed.dev/releases'
@@ -17,21 +19,20 @@ repositories {
         name 'Cleanroom Maven'
         url 'https://maven.cleanroommc.com'
     }
+    
+    maven {
+        name "CurseMaven"
+        url 'https://www.cursemaven.com/'
+        content {
+            includeGroup "curse.maven"
+        }
+    }
 }
 
 import net.minecraftforge.gradle.mcp.MCPRepo
 import net.minecraftforge.gradle.common.tasks.SignJar
 import net.minecraftforge.gradle.common.util.MavenArtifactDownloader
 import org.apache.tools.ant.filters.ReplaceTokens
-
-repositories {
-    maven {
-        url = 'https://www.cursemaven.com/'
-        content {
-            includeGroup "curse.maven"
-        }
-    }
-}
 
 version = "${mcversion}-${version}"
 group = 'thecodex6824.thaumcraftfix'
@@ -118,6 +119,8 @@ mixin {
 
 configurations {
     testCompile.extendsFrom compile
+    testAgent
+    testImplementation.extendsFrom testAgent
 }
 
 dependencies {
@@ -127,7 +130,8 @@ dependencies {
     implementation fg.deobf('curse.maven:baubles-227083:2518667')
     
     testImplementation 'org.junit.jupiter:junit-jupiter:5.11.+'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.11.+'
+    testImplementation 'org.junit.platform:junit-platform-launcher:1.11.+'
+    testAgent 'net.bytebuddy:byte-buddy-agent:1.15.+'
     
     runtimeOnly 'curse.maven:jei-238222:2995897'
     runtimeOnly 'curse.maven:thaumic-jei-285492:2705304'
@@ -260,7 +264,7 @@ jar {
     }
 }
 
-tasks.withType(JavaCompile) {
+tasks.compileJava {
     options.compilerArgs += "-Werror"
     // processing must be disabled due to "No processor claimed any of these annotations" warnings
     options.compilerArgs += "-Xlint:all,-processing"
@@ -300,5 +304,9 @@ artifacts {
 
 test {
     useJUnitPlatform()
-    maxHeapSize = '1G'
+    afterEvaluate {
+        configurations.testAgent.each {
+            jvmArgs += "-javaagent:${it}"
+        }
+    }
 }

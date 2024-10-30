@@ -24,10 +24,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import net.minecraft.init.Bootstrap;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -52,13 +50,6 @@ public class TestGenericEssentiaContainer {
 
 	tag.setTag("Aspects", list);
 	return tag;
-    }
-
-    @BeforeAll
-    static void setup() {
-	// required for item operations to work
-	// TODO: move most setups into common setup for all suites
-	Bootstrap.register();
     }
 
     @Test

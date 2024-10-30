@@ -18,13 +18,14 @@
  *  along with Thaumcraft Fix.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package thecodex6824.thaumcraftfix.test.framework;
+package thecodex6824.thaumcraftfix.test.fixture;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
 
+import org.apache.commons.io.IOUtils;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.ClassNode;
@@ -35,44 +36,25 @@ import org.spongepowered.asm.service.IClassProvider;
 
 public class UnitTestClassProvider implements IClassProvider, IClassBytecodeProvider {
 
-    private final UnitTestClassLoader loader;
-
-    public UnitTestClassProvider() {
-	loader = new UnitTestClassLoader(((URLClassLoader) getClass().getClassLoader()).getURLs(),
-		getClass().getClassLoader());
-	registerExclusion("java.");
-	registerExclusion("javax.");
-	registerExclusion("sun.");
-	registerExclusion("com.sun.");
-	registerExclusion("org.apache.logging.");
-	registerExclusion("org.junit.");
-	registerExclusion("org.spongepowered.");
-	registerExclusion("com.llamalad7.mixinextras.");
-    }
-
-    public UnitTestClassLoader getClassLoader() {
-	return loader;
-    }
-
     @Override
     public Class<?> findAgentClass(String name, boolean initialize) throws ClassNotFoundException {
-	return Class.forName(name, initialize, loader.getParent());
+	return Class.forName(name, initialize, getClass().getClassLoader());
     }
 
     @Override
     public Class<?> findClass(String name) throws ClassNotFoundException {
-	return loader.loadClass(name);
+	return Class.forName(name);
     }
 
     @Override
     public Class<?> findClass(String name, boolean initialize) throws ClassNotFoundException {
-	return Class.forName(name, initialize, loader);
+	return Class.forName(name, initialize, getClass().getClassLoader());
     }
 
     @Override
     @Deprecated
     public URL[] getClassPath() {
-	return loader.getURLs();
+	return ((URLClassLoader) getClass().getClassLoader()).getURLs();
     }
 
     @Override
@@ -80,10 +62,17 @@ public class UnitTestClassProvider implements IClassProvider, IClassBytecodeProv
 	return getClassNode(name, true);
     }
 
+    private byte[] getClassBytes(String name) throws IOException {
+	try (InputStream input = getResourceAsStream(name)) {
+	    if (input == null) throw new IOException();
+	    return IOUtils.toByteArray(input);
+	}
+    }
+
     @Override
     public ClassNode getClassNode(String name, boolean runTransformers) throws ClassNotFoundException, IOException {
 	ClassNode node = new ClassNode(Opcodes.ASM5);
-	new ClassReader(loader.getClassBytes(name.replace('.', '/') + ".class")).accept(node, ClassReader.EXPAND_FRAMES);
+	new ClassReader(getClassBytes(name.replace('.', '/') + ".class")).accept(node, ClassReader.EXPAND_FRAMES);
 	if (runTransformers) {
 	    Proxy.transformer.transformClass(MixinEnvironment.getCurrentEnvironment(), name, node);
 	}
@@ -91,11 +80,7 @@ public class UnitTestClassProvider implements IClassProvider, IClassBytecodeProv
     }
 
     public InputStream getResourceAsStream(String name) {
-	return loader.getResourceAsStream(name);
-    }
-
-    public void registerExclusion(String name) {
-	loader.registerExclusion(name);
+	return getClass().getClassLoader().getResourceAsStream(name);
     }
 
 }

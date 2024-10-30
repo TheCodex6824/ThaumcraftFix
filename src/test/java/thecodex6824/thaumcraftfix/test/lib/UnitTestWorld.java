@@ -18,25 +18,32 @@
  *  along with Thaumcraft Fix.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package thecodex6824.thaumcraftfix.test.framework;
+package thecodex6824.thaumcraftfix.test.lib;
 
-import org.spongepowered.asm.service.IMixinServiceBootstrap;
+import net.minecraft.world.GameType;
+import net.minecraft.world.World;
+import net.minecraft.world.WorldProviderSurface;
+import net.minecraft.world.WorldSettings;
+import net.minecraft.world.WorldType;
+import net.minecraft.world.chunk.IChunkProvider;
+import net.minecraft.world.storage.WorldInfo;
 
-public class UnitTestMixinServiceBootstrap implements IMixinServiceBootstrap {
+public class UnitTestWorld extends World {
 
-    @Override
-    public void bootstrap() {
-	// the service / test framework is taking care of it
+    public UnitTestWorld() {
+	super(null, new WorldInfo(new WorldSettings(0, GameType.CREATIVE, false, false, WorldType.CUSTOMIZED),
+		"test"), new WorldProviderSurface(), null, false);
+	provider.setWorld(this);
     }
 
     @Override
-    public String getName() {
-	return "Unit Test";
+    protected IChunkProvider createChunkProvider() {
+	return null;
     }
 
     @Override
-    public String getServiceClassName() {
-	return UnitTestMixinService.class.getName();
+    protected boolean isChunkLoaded(int x, int z, boolean allowEmpty) {
+	return true;
     }
 
 }
