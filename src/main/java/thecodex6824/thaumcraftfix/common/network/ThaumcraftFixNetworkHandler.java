@@ -31,6 +31,7 @@ public class ThaumcraftFixNetworkHandler extends SimpleNetworkWrapper {
 	int id = 0;
 	registerMessage(PacketGainKnowledge.Handler.class, PacketGainKnowledge.class, id++, Side.CLIENT);
 	registerMessage(PacketGainResearch.Handler.class, PacketGainResearch.class, id++, Side.CLIENT);
+	registerMessage(PacketConfigSync.Handler.class, PacketConfigSync.class, id++, Side.CLIENT);
     }
 
 }

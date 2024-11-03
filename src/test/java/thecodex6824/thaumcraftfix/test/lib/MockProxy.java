@@ -18,7 +18,7 @@
  *  along with Thaumcraft Fix.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package thecodex6824.thaumcraftfix;
+package thecodex6824.thaumcraftfix.test.lib;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,35 +27,31 @@ import java.io.InputStream;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.server.FMLServerHandler;
+import thecodex6824.thaumcraftfix.IProxy;
 
-public class ServerProxy implements IProxy {
+public class MockProxy implements IProxy {
 
     @Override
     public void construction() {}
 
     @Override
-    public void scheduleTask(Side intendedSide, Runnable task) {
-	if (intendedSide == Side.CLIENT) {
-	    throw new IllegalArgumentException("Cannot run task intended for client side on a dedicated server");
-	}
-
-	FMLServerHandler.instance().getServer().addScheduledTask(task);
-    }
-
-    @Override
     public EntityPlayer getClientPlayer() {
-	throw new UnsupportedOperationException("Can't get client player on dedicated server");
+	throw new UnsupportedOperationException();
     }
 
     @Override
     public File getGameDirectory() {
-	return FMLServerHandler.instance().getServer().getDataDirectory();
+	return new File(".");
     }
 
     @Override
     public InputStream resolveResource(ResourceLocation loc) throws IOException {
-	return ServerProxy.class.getResourceAsStream("/assets/" + loc.getNamespace() + "/" + loc.getPath());
+	throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void scheduleTask(Side intendedSide, Runnable task) {
+	task.run();
     }
 
     @Override

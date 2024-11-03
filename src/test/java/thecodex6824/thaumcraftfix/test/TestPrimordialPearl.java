@@ -31,6 +31,8 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.ResourceAccessMode;
+import org.junit.jupiter.api.parallel.ResourceLock;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.FieldSource;
@@ -41,6 +43,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.event.AnvilUpdateEvent;
 import thaumcraft.api.items.ItemsTC;
 import thaumcraft.common.lib.events.CraftingEvents;
+import thecodex6824.thaumcraftfix.ThaumcraftFix;
+import thecodex6824.thaumcraftfix.common.config.ThaumcraftFixConfig;
 
 public class TestPrimordialPearl {
 
@@ -82,6 +86,19 @@ public class TestPrimordialPearl {
 	    }
 	};
 	CraftingEvents.onAnvil(event);
+    }
+
+    @Test
+    @ResourceLock(value = TestConstants.RESOURCE_CONFIG, mode = ResourceAccessMode.READ_WRITE)
+    void testConfigOptionAtRuntime() {
+	ThaumcraftFixConfig config = ThaumcraftFix.instance.getConfig();
+	config.item.primordialPearlDamageFix.setSessionValue(false);
+	ItemStack pearl = new ItemStack(ItemsTC.primordialPearl);
+	assertTrue(pearl.isItemStackDamageable());
+	assertFalse(pearl.getHasSubtypes());
+	config.item.primordialPearlDamageFix.unsetSessionValue();
+	assertFalse(pearl.isItemStackDamageable());
+	assertTrue(pearl.getHasSubtypes());
     }
 
 }

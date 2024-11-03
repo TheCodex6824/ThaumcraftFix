@@ -28,6 +28,7 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.storage.loot.functions.SetDamage;
 import thaumcraft.api.items.ItemsTC;
+import thecodex6824.thaumcraftfix.ThaumcraftFix;
 
 @Mixin(SetDamage.class)
 public class SetDamageLootFunctionMixin {
@@ -39,7 +40,8 @@ public class SetDamageLootFunctionMixin {
 	    + ")Lnet/minecraft/item/ItemStack;",
 	    at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;isItemStackDamageable()Z"))
     private boolean isStackDamageable(boolean original, ItemStack stack) {
-	return original || stack.getItem() == ItemsTC.primordialPearl;
+	return original || (stack.getItem() == ItemsTC.primordialPearl &&
+		ThaumcraftFix.instance.getConfig().item.primordialPearlDamageFix.value());
     }
 
     @ModifyExpressionValue(method = "Lnet/minecraft/world/storage/loot/functions/SetDamage;apply("
@@ -49,7 +51,8 @@ public class SetDamageLootFunctionMixin {
 	    + ")Lnet/minecraft/item/ItemStack;",
 	    at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;getMaxDamage()I"))
     private int getMaxDamage(int original, ItemStack stack) {
-	if (stack.getItem() == ItemsTC.primordialPearl) {
+	if (stack.getItem() == ItemsTC.primordialPearl &&
+		ThaumcraftFix.instance.getConfig().item.primordialPearlDamageFix.value()) {
 	    original = 8;
 	}
 

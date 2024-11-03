@@ -22,6 +22,7 @@ package thecodex6824.thaumcraftfix.common.event;
 
 import java.lang.reflect.Field;
 
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.util.DamageSource;
@@ -35,6 +36,7 @@ import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import thaumcraft.api.ThaumcraftApi;
 import thaumcraft.api.ThaumcraftApi.BluePrint;
 import thaumcraft.api.blocks.BlocksTC;
@@ -43,13 +45,23 @@ import thaumcraft.api.crafting.Part;
 import thaumcraft.common.blocks.basic.BlockPillar;
 import thaumcraft.common.lib.crafting.DustTriggerMultiblock;
 import thaumcraft.common.lib.events.PlayerEvents;
+import thecodex6824.thaumcraftfix.ThaumcraftFix;
 import thecodex6824.thaumcraftfix.api.ThaumcraftFixApi;
 import thecodex6824.thaumcraftfix.api.aura.CapabilityOriginalAuraInfo;
 import thecodex6824.thaumcraftfix.api.aura.OriginalAuraInfo;
+import thecodex6824.thaumcraftfix.common.network.PacketConfigSync;
 import thecodex6824.thaumcraftfix.common.util.SimpleCapabilityProvider;
 
 @EventBusSubscriber(modid = ThaumcraftFixApi.MODID)
 public class CommonEventHandler {
+
+    @SubscribeEvent
+    public static void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event) {
+	if (event.player instanceof EntityPlayerMP) {
+	    PacketConfigSync packet = new PacketConfigSync(ThaumcraftFix.instance.getConfig().serializeNetwork());
+	    ThaumcraftFix.instance.getNetworkHandler().sendTo(packet, (EntityPlayerMP) event.player);
+	}
+    }
 
     @SubscribeEvent
     public static void onFallFirst(LivingAttackEvent event) {

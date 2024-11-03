@@ -79,6 +79,7 @@ import thecodex6824.thaumcraftfix.api.aura.IOriginalAuraInfo;
 import thecodex6824.thaumcraftfix.api.aura.OriginalAuraInfo;
 import thecodex6824.thaumcraftfix.api.internal.ThaumcraftFixApiBridge;
 import thecodex6824.thaumcraftfix.api.research.ResearchCategoryTheorycraftFilter;
+import thecodex6824.thaumcraftfix.common.config.ThaumcraftFixConfig;
 import thecodex6824.thaumcraftfix.common.internal.DefaultApiImplementation;
 import thecodex6824.thaumcraftfix.common.network.ThaumcraftFixNetworkHandler;
 import thecodex6824.thaumcraftfix.common.research.ResearchConfigParser;
@@ -104,6 +105,7 @@ public class ThaumcraftFix {
 
     private Logger logger;
     private ThaumcraftFixNetworkHandler network;
+    private ThaumcraftFixConfig config;
 
     @EventHandler
     public void construction(FMLConstructionEvent event) {
@@ -113,6 +115,8 @@ public class ThaumcraftFix {
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
 	logger = event.getModLog();
+	config = new ThaumcraftFixConfig();
+	config.bind();
 	ThaumcraftFixApiBridge.setImplementation(new DefaultApiImplementation());
 	CapabilityManager.INSTANCE.register(IOriginalAuraInfo.class, new IStorage<IOriginalAuraInfo>() {
 	    @Override
@@ -322,6 +326,10 @@ public class ThaumcraftFix {
 
     public SimpleNetworkWrapper getNetworkHandler() {
 	return network;
+    }
+
+    public ThaumcraftFixConfig getConfig() {
+	return config;
     }
 
 }

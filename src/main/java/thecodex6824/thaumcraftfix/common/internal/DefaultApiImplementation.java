@@ -49,7 +49,7 @@ import thecodex6824.thaumcraftfix.ThaumcraftFix;
 import thecodex6824.thaumcraftfix.api.ThaumcraftFixApi;
 import thecodex6824.thaumcraftfix.api.internal.ThaumcraftFixApiBridge.InternalImplementation;
 import thecodex6824.thaumcraftfix.api.scan.IScanParser;
-import thecodex6824.thaumcraftfix.common.ThaumcraftFixConfig;
+import thecodex6824.thaumcraftfix.common.config.ThaumcraftFixConfig;
 
 public class DefaultApiImplementation implements InternalImplementation {
 
@@ -117,18 +117,19 @@ public class DefaultApiImplementation implements InternalImplementation {
 
     @Override
     public void reloadConfig() {
-	controlAura = ThaumcraftFixConfig.world.aura.controlAura;
-	controlCrystals = ThaumcraftFixConfig.world.crystals.controlCrystals;
-	controlTrees = ThaumcraftFixConfig.world.vegetation.controlVegetation;
+	ThaumcraftFixConfig config = ThaumcraftFix.instance.getConfig();
+	controlAura = config.world.aura.controlAura.value();
+	controlCrystals = config.world.crystals.controlCrystals.value();
+	controlTrees = config.world.vegetation.controlVegetation.value();
 
 	Set<Biome> allBiomes = ImmutableSet.copyOf(Biome.REGISTRY.iterator());
 	Set<DimensionType> allDims = ImmutableSet.copyOf(DimensionType.values());
-	auraBiomes = makeFilteredBiomeSet(allBiomes, ThaumcraftFixConfig.world.aura.biomeList, ThaumcraftFixConfig.world.aura.biomeAllowList);
-	auraDims = makeFilteredDimensionSet(allDims, ThaumcraftFixConfig.world.aura.dimList, ThaumcraftFixConfig.world.aura.dimAllowList);
-	crystalBiomes = makeFilteredBiomeSet(allBiomes, ThaumcraftFixConfig.world.crystals.biomeList, ThaumcraftFixConfig.world.crystals.biomeAllowList);
-	crystalDims = makeFilteredDimensionSet(allDims, ThaumcraftFixConfig.world.crystals.dimList, ThaumcraftFixConfig.world.crystals.dimAllowList);
-	treeBiomes = makeFilteredBiomeSet(allBiomes, ThaumcraftFixConfig.world.vegetation.biomeList, ThaumcraftFixConfig.world.vegetation.biomeAllowList);
-	treeDims = makeFilteredDimensionSet(allDims, ThaumcraftFixConfig.world.vegetation.dimList, ThaumcraftFixConfig.world.vegetation.dimAllowList);
+	auraBiomes = makeFilteredBiomeSet(allBiomes, config.world.aura.biomeList.value(), config.world.aura.biomeAllowList.value());
+	auraDims = makeFilteredDimensionSet(allDims, config.world.aura.dimList.value(), config.world.aura.dimAllowList.value());
+	crystalBiomes = makeFilteredBiomeSet(allBiomes, config.world.crystals.biomeList.value(), config.world.crystals.biomeAllowList.value());
+	crystalDims = makeFilteredDimensionSet(allDims, config.world.crystals.dimList.value(), config.world.crystals.dimAllowList.value());
+	treeBiomes = makeFilteredBiomeSet(allBiomes, config.world.vegetation.biomeList.value(), config.world.vegetation.biomeAllowList.value());
+	treeDims = makeFilteredDimensionSet(allDims, config.world.vegetation.dimList.value(), config.world.vegetation.dimAllowList.value());
     }
 
     @Override

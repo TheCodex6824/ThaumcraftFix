@@ -75,7 +75,7 @@ public class ClientProxy implements IProxy {
     public void scheduleTask(Side intendedSide, Runnable task) {
 	Minecraft mc = Minecraft.getMinecraft();
 	if (intendedSide == Side.SERVER) {
-	    if (mc.getIntegratedServer() == null) {
+	    if (!mc.isIntegratedServerRunning() || mc.getIntegratedServer() == null) {
 		throw new IllegalArgumentException("Cannot run task on server when running a dedicated client");
 	    }
 
@@ -99,6 +99,11 @@ public class ClientProxy implements IProxy {
     @Override
     public InputStream resolveResource(ResourceLocation loc) throws IOException {
 	return Minecraft.getMinecraft().getResourceManager().getResource(loc).getInputStream();
+    }
+
+    @Override
+    public boolean isServerRunning() {
+	return Minecraft.getMinecraft().isIntegratedServerRunning();
     }
 
 }

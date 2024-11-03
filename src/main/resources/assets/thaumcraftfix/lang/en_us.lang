@@ -11,3 +11,5 @@ thaumcraftfix.text.config.dimListIsAllowList=Dimension List is Allow List
 thaumcraftfix.text.config.controlAura=Enabled
 thaumcraftfix.text.config.controlCrystals=Enabled
 thaumcraftfix.text.config.controlVegetation=Enabled
+thaumcraftfix.text.config.item=Item
+thaumcraftfix.text.config.primordialPearlDamageFix=Primordial Pearl Damage Value Fix

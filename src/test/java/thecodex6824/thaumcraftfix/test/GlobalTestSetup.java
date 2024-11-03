@@ -21,6 +21,8 @@
 package thecodex6824.thaumcraftfix.test;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.Type;
 
 import com.google.common.collect.ImmutableMap;
@@ -38,6 +40,8 @@ import net.minecraftforge.fml.common.DummyModContainer;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModMetadata;
 import net.minecraftforge.fml.common.discovery.ASMDataTable;
+import net.minecraftforge.fml.common.event.FMLConstructionEvent;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import thaumcraft.api.blocks.BlocksTC;
 import thaumcraft.api.items.ItemsTC;
@@ -47,8 +51,10 @@ import thaumcraft.common.blocks.basic.BlockStoneTC;
 import thaumcraft.common.config.ConfigResearch;
 import thaumcraft.common.items.baubles.ItemCuriosityBand;
 import thaumcraft.common.items.curios.ItemPrimordialPearl;
+import thecodex6824.thaumcraftfix.ThaumcraftFix;
 import thecodex6824.thaumcraftfix.api.internal.ThaumcraftFixApiBridge;
 import thecodex6824.thaumcraftfix.common.internal.DefaultApiImplementation;
+import thecodex6824.thaumcraftfix.test.lib.MockProxy;
 
 public class GlobalTestSetup {
 
@@ -69,13 +75,23 @@ public class GlobalTestSetup {
 	// without this, many things will throw exceptions, like ItemStack
 	Bootstrap.register();
 
+	// initialize this mod a bit
+	ThaumcraftFix.instance = new ThaumcraftFix();
+	ThaumcraftFix.proxy = new MockProxy();
+	ThaumcraftFix.instance.construction(new FMLConstructionEvent(new Object[] { null, null, null }));
+	ThaumcraftFix.instance.preInit(new FMLPreInitializationEvent(new Object[] { null, null, null }) {
+	    @Override
+	    public Logger getModLog() {
+		return LogManager.getLogger(ThaumcraftFix.class);
+	    }
+	});
+
 	// initialize TC research
 	ConfigResearch.init();
 
 	// set up API
-	DefaultApiImplementation impl = new DefaultApiImplementation();
-	ThaumcraftFixApiBridge.setImplementation(impl);
-	impl.setAllowedTheorycraftCategories(ImmutableSet.copyOf(ResearchCategories.researchCategories.values()));
+	((DefaultApiImplementation) ThaumcraftFixApiBridge.implementation()).setAllowedTheorycraftCategories(
+		ImmutableSet.copyOf(ResearchCategories.researchCategories.values()));
 
 	// make forge think we are registering things as thaumcraft
 	ModMetadata meta = new ModMetadata();

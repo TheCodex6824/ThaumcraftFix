@@ -22,6 +22,7 @@ package thecodex6824.thaumcraftfix.test;
 
 public class TestConstants {
 
+    public static final String RESOURCE_CONFIG = "tf_config";
     public static final String RESOURCE_RESEARCH = "tf_research";
 
 }

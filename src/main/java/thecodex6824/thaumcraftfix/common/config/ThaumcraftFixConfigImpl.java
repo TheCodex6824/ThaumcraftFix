@@ -18,7 +18,9 @@
  *  along with Thaumcraft Fix.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package thecodex6824.thaumcraftfix.common;
+package thecodex6824.thaumcraftfix.common.config;
+
+import java.util.Arrays;
 
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.Config.Comment;
@@ -29,12 +31,15 @@ import net.minecraftforge.common.config.ConfigManager;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.relauncher.Side;
+import thecodex6824.thaumcraftfix.ThaumcraftFix;
 import thecodex6824.thaumcraftfix.api.ThaumcraftFixApi;
 import thecodex6824.thaumcraftfix.api.internal.ThaumcraftFixApiBridge;
+import thecodex6824.thaumcraftfix.common.network.PacketConfigSync;
 
 @Config(modid = ThaumcraftFixApi.MODID)
 @EventBusSubscriber(modid = ThaumcraftFixApi.MODID)
-public final class ThaumcraftFixConfig {
+final class ThaumcraftFixConfigImpl {
 
     private static final String ALLOW_LIST_1 = "Determines if the list of objects specifies things that are allowed to have this feature,";
     private static final String ALLOW_LIST_2 = "instead of listing those that cannot.";
@@ -55,11 +60,22 @@ public final class ThaumcraftFixConfig {
     private static final String DIM_LIST_2 = "Defaults to specifying the biomes to block, set DimListIsAllowList to true to invert behavior.";
     private static final String DIM_LIST_3 = "Use the registered dimension type name - if unsure, use \"/forge dimensions list\" ingame to see them all.";
 
-    private ThaumcraftFixConfig() {}
+    private ThaumcraftFixConfigImpl() {}
+
+    public static class ItemConfig {
+	@Name("primordialPearlDamageFix")
+	@LangKey(ThaumcraftFixApi.MODID + ".text.config.primordialPearlDamageFix")
+	@Comment({
+	    "Enables/disables the Primordial Pearl damage value fix.",
+	    "This fix will prevent vanilla and other mods from repairing Primordial Pearls,",
+	    "but may cause compatibility issues with existing Thaumcraft addons."
+	})
+	public boolean primordialPearlDamageFix = true;
+    }
 
     public static class WorldConfig {
 
-	public static class AuraConfig {
+	public static class AuraConfig implements Cloneable {
 	    @Name("controlAura")
 	    @LangKey(ThaumcraftFixApi.MODID + ".text.config.controlAura")
 	    @Comment({
@@ -87,9 +103,20 @@ public final class ThaumcraftFixConfig {
 	    @LangKey(DIM_LIST_LANG)
 	    @Comment({ DIM_LIST_1, DIM_LIST_2, DIM_LIST_3 })
 	    public String[] dimList = {};
+
+	    @Override
+	    public AuraConfig clone() {
+		AuraConfig config = new AuraConfig();
+		config.controlAura = controlAura;
+		config.biomeAllowList = biomeAllowList;
+		config.biomeList = Arrays.copyOf(biomeList, biomeList.length, String[].class);
+		config.dimAllowList = dimAllowList;
+		config.dimList = Arrays.copyOf(dimList, dimList.length, String[].class);
+		return config;
+	    }
 	}
 
-	public static class CrystalsConfig {
+	public static class CrystalsConfig implements Cloneable {
 	    @Name("controlCrystals")
 	    @LangKey(ThaumcraftFixApi.MODID + ".text.config.controlCrystals")
 	    @Comment({
@@ -116,9 +143,20 @@ public final class ThaumcraftFixConfig {
 	    @LangKey(DIM_LIST_LANG)
 	    @Comment({ DIM_LIST_1, DIM_LIST_2, DIM_LIST_3 })
 	    public String[] dimList = {};
+
+	    @Override
+	    public CrystalsConfig clone() {
+		CrystalsConfig config = new CrystalsConfig();
+		config.controlCrystals = controlCrystals;
+		config.biomeAllowList = biomeAllowList;
+		config.biomeList = Arrays.copyOf(biomeList, biomeList.length, String[].class);
+		config.dimAllowList = dimAllowList;
+		config.dimList = Arrays.copyOf(dimList, dimList.length, String[].class);
+		return config;
+	    }
 	}
 
-	public static class VegetationConfig {
+	public static class VegetationConfig implements Cloneable {
 	    @Name("controlVegetation")
 	    @LangKey(ThaumcraftFixApi.MODID + ".text.config.controlVegetation")
 	    @Comment({
@@ -145,6 +183,17 @@ public final class ThaumcraftFixConfig {
 	    @LangKey(DIM_LIST_LANG)
 	    @Comment({ DIM_LIST_1, DIM_LIST_2, DIM_LIST_3 })
 	    public String[] dimList = {};
+
+	    @Override
+	    public VegetationConfig clone() {
+		VegetationConfig config = new VegetationConfig();
+		config.controlVegetation = controlVegetation;
+		config.biomeAllowList = biomeAllowList;
+		config.biomeList = Arrays.copyOf(biomeList, biomeList.length, String[].class);
+		config.dimAllowList = dimAllowList;
+		config.dimList = Arrays.copyOf(dimList, dimList.length, String[].class);
+		return config;
+	    }
 	}
 
 	@Name("aura")
@@ -162,6 +211,9 @@ public final class ThaumcraftFixConfig {
 
     }
 
+    @Name("item")
+    @LangKey(ThaumcraftFixApi.MODID + ".text.config.item")
+    public static ItemConfig item = new ItemConfig();
     @Name("world")
     @LangKey(ThaumcraftFixApi.MODID + ".text.config.world")
     public static WorldConfig world = new WorldConfig();
@@ -170,7 +222,14 @@ public final class ThaumcraftFixConfig {
     public static void onConfigSync(OnConfigChangedEvent event) {
 	if (event.getModID().equals(ThaumcraftFixApi.MODID)) {
 	    ConfigManager.sync(ThaumcraftFixApi.MODID, Type.INSTANCE);
+	    ThaumcraftFix.instance.getConfig().bind();
 	    ThaumcraftFixApiBridge.implementation().reloadConfig();
+	    if (ThaumcraftFix.proxy.isServerRunning()) {
+		ThaumcraftFix.proxy.scheduleTask(Side.SERVER, () -> {
+		    PacketConfigSync packet = new PacketConfigSync(ThaumcraftFix.instance.getConfig().serializeNetwork());
+		    ThaumcraftFix.instance.getNetworkHandler().sendToAll(packet);
+		});
+	    }
 	}
     }
 

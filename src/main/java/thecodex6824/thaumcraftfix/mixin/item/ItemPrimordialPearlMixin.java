@@ -21,39 +21,42 @@
 package thecodex6824.thaumcraftfix.mixin.item;
 
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.registry.RegistrySimple;
 import thaumcraft.common.items.curios.ItemPrimordialPearl;
+import thecodex6824.thaumcraftfix.ThaumcraftFix;
 
 @Mixin(ItemPrimordialPearl.class)
 public class ItemPrimordialPearlMixin extends Item {
 
-    // overwrite reason: method doesn't exist in the original class
-    // note: these 2 methods are forge methods so aren't obfuscated
+    private boolean fixEnabled() {
+	return ThaumcraftFix.instance.getConfig().item.primordialPearlDamageFix.value();
+    }
+
+    /*
+     * All methods overwritten in this Mixin don't exist in ItemPrimordialPearl
+     */
+
     @Override
     public boolean showDurabilityBar(ItemStack stack) {
-	return stack.getItemDamage() > 0;
+	return fixEnabled() ? stack.getItemDamage() > 0 : super.showDurabilityBar(stack);
     }
 
-    // overwrite reason: method doesn't exist in the original class,
-    // and the super implementation is dangerous (divide by zero risk)
     @Override
     public double getDurabilityForDisplay(ItemStack stack) {
-	return stack.getItemDamage() / 8.0;
+	return fixEnabled() ? stack.getItemDamage() / 8.0 : super.getDurabilityForDisplay(stack);
     }
 
-    @Inject(method = "<init>()V", at = @At("RETURN"), remap = false)
-    private void construct(CallbackInfo info) {
-	setMaxDamage(0);
-	((RegistrySimple<?, ?>) properties).registryObjects.remove(new ResourceLocation("damage"));
-	((RegistrySimple<?, ?>) properties).registryObjects.remove(new ResourceLocation("damaged"));
-	setHasSubtypes(true);
+    @Override
+    @Deprecated
+    public int getMaxDamage() {
+	return fixEnabled() ? 0 : super.getMaxDamage();
+    }
+
+    @Override
+    public boolean getHasSubtypes() {
+	return fixEnabled() ? true : super.getHasSubtypes();
     }
 
 }

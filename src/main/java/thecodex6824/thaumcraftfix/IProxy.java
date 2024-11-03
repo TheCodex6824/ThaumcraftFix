@@ -40,4 +40,6 @@ public interface IProxy {
 
     public InputStream resolveResource(ResourceLocation loc) throws IOException;
 
+    public boolean isServerRunning();
+
 }
