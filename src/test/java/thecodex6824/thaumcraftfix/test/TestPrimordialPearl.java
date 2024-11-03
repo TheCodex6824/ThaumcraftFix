@@ -1,3 +1,23 @@
+/**
+ *  Thaumcraft Fix
+ *  Copyright (c) 2024 TheCodex6824.
+ *
+ *  This file is part of Thaumcraft Fix.
+ *
+ *  Thaumcraft Fix is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU Lesser General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  Thaumcraft Fix is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU Lesser General Public License for more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public License
+ *  along with Thaumcraft Fix.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package thecodex6824.thaumcraftfix.test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -10,7 +30,6 @@ import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -21,15 +40,9 @@ import com.google.common.collect.ImmutableList;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.event.AnvilUpdateEvent;
 import thaumcraft.api.items.ItemsTC;
-import thaumcraft.common.items.curios.ItemPrimordialPearl;
 import thaumcraft.common.lib.events.CraftingEvents;
 
 public class TestPrimordialPearl {
-
-    @BeforeAll
-    static void setup() {
-	ItemsTC.primordialPearl = new ItemPrimordialPearl();
-    }
 
     private static final int PEARL_MAX_META = 8;
 
@@ -52,7 +65,6 @@ public class TestPrimordialPearl {
 	assertTrue(pearl.getHasSubtypes());
     }
 
-    // can't use ItemStack due to classloader issues
     static final List<Arguments> testAnvilHandlerIsDisabled = ImmutableList.of(
 	    Arguments.of(ItemStack.EMPTY, ItemStack.EMPTY),
 	    Arguments.of(new ItemStack(ItemsTC.primordialPearl), ItemStack.EMPTY),

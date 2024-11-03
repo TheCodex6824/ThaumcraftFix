@@ -28,9 +28,9 @@ import net.minecraft.world.WorldType;
 import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraft.world.storage.WorldInfo;
 
-public class UnitTestWorld extends World {
+public class MockWorld extends World {
 
-    public UnitTestWorld() {
+    public MockWorld() {
 	super(null, new WorldInfo(new WorldSettings(0, GameType.CREATIVE, false, false, WorldType.CUSTOMIZED),
 		"test"), new WorldProviderSurface(), null, false);
 	provider.setWorld(this);

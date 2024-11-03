@@ -30,12 +30,12 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 
-public class UnitTestPlayer extends EntityPlayer {
+public class MockPlayer extends EntityPlayer {
 
     // TODO: use the normal CapabilityDispatcher instead (requires reflection)
     private final Map<Capability<?>, Object> caps;
 
-    public UnitTestPlayer(World world, GameProfile profile) {
+    public MockPlayer(World world, GameProfile profile) {
 	super(world, profile);
 	caps = new HashMap<>();
     }

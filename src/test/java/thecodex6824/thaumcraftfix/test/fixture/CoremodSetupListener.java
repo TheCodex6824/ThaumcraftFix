@@ -34,19 +34,14 @@ import org.spongepowered.asm.mixin.Mixins;
 import org.spongepowered.asm.mixin.transformer.Proxy;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.llamalad7.mixinextras.MixinExtrasBootstrap;
 
 import net.bytebuddy.agent.ByteBuddyAgent;
-import net.minecraft.init.Bootstrap;
 import net.minecraft.launchwrapper.IClassTransformer;
 import net.minecraft.launchwrapper.LaunchClassLoader;
 import net.minecraftforge.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
-import thaumcraft.api.research.ResearchCategories;
-import thaumcraft.common.config.ConfigResearch;
-import thecodex6824.thaumcraftfix.api.internal.ThaumcraftFixApiBridge;
-import thecodex6824.thaumcraftfix.common.internal.DefaultApiImplementation;
 import thecodex6824.thaumcraftfix.core.ThaumcraftFixCore;
+import thecodex6824.thaumcraftfix.test.GlobalTestSetup;
 
 public class CoremodSetupListener implements LauncherSessionListener {
 
@@ -124,11 +119,7 @@ public class CoremodSetupListener implements LauncherSessionListener {
 		}
 
 		// Anything below here can use Minecraft / transformed classes safely
-		Bootstrap.register();
-		ConfigResearch.init();
-		DefaultApiImplementation impl = new DefaultApiImplementation();
-		ThaumcraftFixApiBridge.setImplementation(impl);
-		impl.setAllowedTheorycraftCategories(ImmutableSet.copyOf(ResearchCategories.researchCategories.values()));
+		GlobalTestSetup.init();
 	    }
 	}
     }
