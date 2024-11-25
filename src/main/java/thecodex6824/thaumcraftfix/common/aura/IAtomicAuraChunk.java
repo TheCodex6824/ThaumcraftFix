@@ -18,12 +18,26 @@
  *  along with Thaumcraft Fix.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package thecodex6824.thaumcraftfix.test;
+package thecodex6824.thaumcraftfix.common.aura;
 
-public class TestConstants {
+public interface IAtomicAuraChunk {
 
-    public static final String RESOURCE_AURA = "tf_aura";
-    public static final String RESOURCE_CONFIG = "tf_config";
-    public static final String RESOURCE_RESEARCH = "tf_research";
+    public short getBase();
+    public void setBase(short newBase);
+    public boolean compareAndSetBase(short compare, short newValue);
+    public short addBase(short add);
+    public short getAndSetBase(short set);
+
+    public float getVis();
+    public void setVis(float newVis);
+    public boolean compareAndSetVis(float compare, float newValue);
+    public float addVis(float add);
+    public float getAndSetVis(float set);
+
+    public float getFlux();
+    public void setFlux(float newFlux);
+    public boolean compareAndSetFlux(float compare, float newValue);
+    public float addFlux(float add);
+    public float getAndSetFlux(float set);
 
 }

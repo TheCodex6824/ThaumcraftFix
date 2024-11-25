@@ -123,7 +123,6 @@ public class TransformerExecutor implements IClassTransformer {
 	transformers.add(MiscTransformers.ARCANE_WORKBENCH_RECIPE_COMPAT.get());
 	transformers.add(MiscTransformers.ASPECT_REGISTRY_LOOKUP.get());
 	transformers.add(MiscTransformers.ASPECT_RECIPE_MATCHES.get());
-	transformers.add(MiscTransformers.AURA_CHUNK_THREAD_SAFETY.get());
 	transformers.add(MiscTransformers.OBJ_MODEL_NO_SCALA.get());
 	transformers.add(NetworkTransformers.FOCAL_MANIPULATOR_DATA.get());
 	transformers.add(NetworkTransformers.LOGISTICS_REQUEST.get());
