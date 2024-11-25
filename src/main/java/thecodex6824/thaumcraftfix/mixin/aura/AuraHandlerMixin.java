@@ -47,7 +47,7 @@ public class AuraHandlerMixin {
      * @reason The original clamps the amount once, which will not work if someone else updated it between
      * that and adding the amount
      */
-    @Overwrite
+    @Overwrite(remap = false)
     public static float drainVis(World world, BlockPos pos, float amount, boolean simulate) {
 	AuraChunk ac = AuraHandler.getAuraChunk(world.provider.getDimension(),
 		pos.getX() >> 4, pos.getZ() >> 4);
@@ -68,7 +68,7 @@ public class AuraHandlerMixin {
      * @reason The original clamps the amount once, which will not work if someone else updated it between
      * that and adding the amount
      */
-    @Overwrite
+    @Overwrite(remap = false)
     public static float drainFlux(World world, BlockPos pos, float amount, boolean simulate) {
 	AuraChunk ac = AuraHandler.getAuraChunk(world.provider.getDimension(),
 		pos.getX() >> 4, pos.getZ() >> 4);
@@ -89,7 +89,7 @@ public class AuraHandlerMixin {
      * @reason A redirect will not work since the argument passed to setVis had the potentially stale
      * old vis amount added to it
      */
-    @Overwrite
+    @Overwrite(remap = false)
     public static boolean modifyVisInChunk(AuraChunk ac, float amount, boolean notSimulate) {
 	if (notSimulate && ac instanceof IAtomicAuraChunk) {
 	    ((IAtomicAuraChunk) ac).addVis(amount);
@@ -104,7 +104,7 @@ public class AuraHandlerMixin {
      * @reason A redirect will not work since the argument passed to setFlux had the potentially stale
      * old flux amount added to it
      */
-    @Overwrite
+    @Overwrite(remap = false)
     private static boolean modifyFluxInChunk(AuraChunk ac, float amount, boolean notSimulate) {
 	if (notSimulate && ac instanceof IAtomicAuraChunk) {
 	    ((IAtomicAuraChunk) ac).addFlux(amount);
