@@ -43,6 +43,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.Capability.IStorage;
 import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
@@ -75,6 +76,8 @@ import thaumcraft.api.research.ResearchStage.Knowledge;
 import thaumcraft.common.entities.monster.EntitySpellBat;
 import thecodex6824.thaumcraftfix.api.ResearchApi;
 import thecodex6824.thaumcraftfix.api.ThaumcraftFixApi;
+import thecodex6824.thaumcraftfix.api.aura.DefaultAuraProcessor;
+import thecodex6824.thaumcraftfix.api.aura.IAuraProcessor;
 import thecodex6824.thaumcraftfix.api.aura.IOriginalAuraInfo;
 import thecodex6824.thaumcraftfix.api.aura.OriginalAuraInfo;
 import thecodex6824.thaumcraftfix.api.internal.ThaumcraftFixApiBridge;
@@ -112,12 +115,7 @@ public class ThaumcraftFix {
 	proxy.construction();
     }
 
-    @EventHandler
-    public void preInit(FMLPreInitializationEvent event) {
-	logger = event.getModLog();
-	config = new ThaumcraftFixConfig();
-	config.bind();
-	ThaumcraftFixApiBridge.setImplementation(new DefaultApiImplementation());
+    private void registerCapabilities() {
 	CapabilityManager.INSTANCE.register(IOriginalAuraInfo.class, new IStorage<IOriginalAuraInfo>() {
 	    @Override
 	    public void readNBT(Capability<IOriginalAuraInfo> capability, IOriginalAuraInfo instance, EnumFacing side, NBTBase nbt) {
@@ -136,6 +134,36 @@ public class ThaumcraftFix {
 		return ((OriginalAuraInfo) instance).serializeNBT();
 	    }
 	}, OriginalAuraInfo::new);
+	CapabilityManager.INSTANCE.register(IAuraProcessor.class, new IStorage<IAuraProcessor>() {
+	    @Override
+	    @SuppressWarnings("unchecked")
+	    public void readNBT(Capability<IAuraProcessor> capability, IAuraProcessor instance, EnumFacing side, NBTBase nbt) {
+		if (instance instanceof INBTSerializable<?>) {
+		    ((INBTSerializable<NBTTagCompound>) instance).deserializeNBT((NBTTagCompound) nbt);
+		}
+	    }
+
+	    @Override
+	    @Nullable
+	    @SuppressWarnings("unchecked")
+	    public NBTBase writeNBT(Capability<IAuraProcessor> capability, IAuraProcessor instance, EnumFacing side) {
+		if (instance instanceof INBTSerializable<?>) {
+		    return ((INBTSerializable<NBTTagCompound>) instance).serializeNBT();
+		}
+
+		// despite this being nullable, if we return null something else will throw an exception
+		return new NBTTagCompound();
+	    }
+	}, DefaultAuraProcessor::new);
+    }
+
+    @EventHandler
+    public void preInit(FMLPreInitializationEvent event) {
+	logger = event.getModLog();
+	config = new ThaumcraftFixConfig();
+	config.bind();
+	ThaumcraftFixApiBridge.setImplementation(new DefaultApiImplementation());
+	registerCapabilities();
 	ResearchApi.registerScanParser(new ScanParserBlock(), 1000);
 	ResearchApi.registerScanParser(new ScanParserItem(), 1000);
 	ResearchApi.registerScanParser(new ScanParserItemExtended(), 1000);

@@ -18,9 +18,13 @@
  *  along with Thaumcraft Fix.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package thecodex6824.thaumcraftfix.common.aura;
+package thecodex6824.thaumcraftfix.api.aura;
 
-public interface IAtomicAuraChunk {
+import net.minecraft.util.math.ChunkPos;
+
+public interface IAuraChunk {
+
+    public ChunkPos getPosition();
 
     public short getBase();
     public void setBase(short newBase);

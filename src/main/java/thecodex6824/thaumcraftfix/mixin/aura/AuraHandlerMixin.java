@@ -23,23 +23,50 @@ package thecodex6824.thaumcraftfix.mixin.aura;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
+import thaumcraft.common.lib.events.ServerEvents;
 import thaumcraft.common.world.aura.AuraChunk;
 import thaumcraft.common.world.aura.AuraHandler;
+import thaumcraft.common.world.aura.AuraThread;
+import thaumcraft.common.world.aura.AuraWorld;
+import thecodex6824.thaumcraftfix.api.aura.IAuraChunk;
 import thecodex6824.thaumcraftfix.common.aura.AtomicAuraChunk;
-import thecodex6824.thaumcraftfix.common.aura.IAtomicAuraChunk;
+import thecodex6824.thaumcraftfix.common.aura.GenericAuraWorld;
 
 @Mixin(AuraHandler.class)
 public class AuraHandlerMixin {
 
+    @Redirect(method = "addAuraWorld(I)V",
+	    at = @At(value = "NEW", target = "(I)Lthaumcraft/common/world/aura/AuraWorld;"), remap = false)
+    private static AuraWorld redirectAddWorld(int dim) {
+	return new GenericAuraWorld(dim);
+    }
+
     @Redirect(method = "addAuraChunk(ILnet/minecraft/world/chunk/Chunk;SFF)V",
-	    at = @At(value = "NEW", target = "(Lnet/minecraft/world/chunk/Chunk;SFF)Lthaumcraft/common/world/aura/AuraChunk;"))
+	    at = @At(value = "NEW", target = "(I)Lthaumcraft/common/world/aura/AuraWorld;"), remap = false)
+    private static AuraWorld redirectAddWorldInAddAuraChunk(int dim) {
+	return new GenericAuraWorld(dim);
+    }
+
+    @Redirect(method = "addAuraChunk(ILnet/minecraft/world/chunk/Chunk;SFF)V",
+	    at = @At(value = "NEW", target = "(Lnet/minecraft/world/chunk/Chunk;SFF)Lthaumcraft/common/world/aura/AuraChunk;"),
+	    remap = false)
     private static AuraChunk redirectAddAuraChunk(Chunk chunk, short base, float vis, float flux) {
 	return new AtomicAuraChunk(chunk, base, vis, flux);
+    }
+
+    @Inject(method = "removeAuraWorld(I)V", at = @At(value = "RETURN"), remap = false)
+    private static void removeAuraWorldStopThread(int dim, CallbackInfo info) {
+	AuraThread thread = ServerEvents.auraThreads.get(dim);
+	if (thread != null) {
+	    thread.stop();
+	}
     }
 
     /**
@@ -55,8 +82,8 @@ public class AuraHandlerMixin {
 	    if (simulate) {
 		return ac.getVis() - amount;
 	    }
-	    else if (ac instanceof IAtomicAuraChunk) {
-		return -((IAtomicAuraChunk) ac).addVis(-amount);
+	    else if (ac instanceof IAuraChunk) {
+		return -((IAuraChunk) ac).addVis(-amount);
 	    }
 	}
 
@@ -76,8 +103,8 @@ public class AuraHandlerMixin {
 	    if (simulate) {
 		return ac.getFlux() - amount;
 	    }
-	    else if (ac instanceof IAtomicAuraChunk) {
-		return -((IAtomicAuraChunk) ac).addFlux(-amount);
+	    else if (ac instanceof IAuraChunk) {
+		return -((IAuraChunk) ac).addFlux(-amount);
 	    }
 	}
 
@@ -91,8 +118,8 @@ public class AuraHandlerMixin {
      */
     @Overwrite(remap = false)
     public static boolean modifyVisInChunk(AuraChunk ac, float amount, boolean notSimulate) {
-	if (notSimulate && ac instanceof IAtomicAuraChunk) {
-	    ((IAtomicAuraChunk) ac).addVis(amount);
+	if (notSimulate && ac instanceof IAuraChunk) {
+	    ((IAuraChunk) ac).addVis(amount);
 	    return true;
 	}
 
@@ -106,8 +133,8 @@ public class AuraHandlerMixin {
      */
     @Overwrite(remap = false)
     private static boolean modifyFluxInChunk(AuraChunk ac, float amount, boolean notSimulate) {
-	if (notSimulate && ac instanceof IAtomicAuraChunk) {
-	    ((IAtomicAuraChunk) ac).addFlux(amount);
+	if (notSimulate && ac instanceof IAuraChunk) {
+	    ((IAuraChunk) ac).addFlux(amount);
 	    return true;
 	}
 

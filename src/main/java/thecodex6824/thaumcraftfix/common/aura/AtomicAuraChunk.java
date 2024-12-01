@@ -28,8 +28,9 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.chunk.Chunk;
 import thaumcraft.common.world.aura.AuraChunk;
 import thecodex6824.thaumcraftfix.ThaumcraftFix;
+import thecodex6824.thaumcraftfix.api.aura.IAuraChunk;
 
-public class AtomicAuraChunk extends AuraChunk implements IAtomicAuraChunk {
+public class AtomicAuraChunk extends AuraChunk implements IAuraChunk {
 
     private AtomicInteger baseAtomic;
     private AtomicDouble visAtomic;
@@ -47,6 +48,11 @@ public class AtomicAuraChunk extends AuraChunk implements IAtomicAuraChunk {
 	baseAtomic = new AtomicInteger(0);
 	visAtomic = new AtomicDouble(0.0f);
 	fluxAtomic = new AtomicDouble(0.0f);
+    }
+
+    @Override
+    public ChunkPos getPosition() {
+	return getLoc();
     }
 
     @Override
