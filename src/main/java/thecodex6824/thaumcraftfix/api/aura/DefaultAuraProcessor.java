@@ -78,8 +78,8 @@ public class DefaultAuraProcessor implements IAuraProcessor {
 	for (EnumFacing offset : offsets) {
 	    IAuraChunk chunk = world.getAuraChunk(centerX + offset.getXOffset(), centerZ + offset.getZOffset());
 	    if (chunk != null) {
-		if (lowestVis == null || (lowestVis.getVis() > chunk.getVis() &&
-			chunk.getVis() + chunk.getFlux() < chunk.getBase() * PHASE_TO_AURA_MODS[lastMoonPhase].baseMultiplier)) {
+		if ((lowestVis == null || lowestVis.getVis() > chunk.getVis()) &&
+			chunk.getVis() + chunk.getFlux() < chunk.getBase() * PHASE_TO_AURA_MODS[lastMoonPhase].baseMultiplier) {
 
 		    lowestVis = chunk;
 		}
