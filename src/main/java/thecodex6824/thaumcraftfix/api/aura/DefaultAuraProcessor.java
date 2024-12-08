@@ -54,18 +54,29 @@ public class DefaultAuraProcessor implements IAuraProcessor {
 	    new PhaseModifier(0.1f, 1.0f),
 	    new PhaseModifier(0.15f, 1.05f)
     };
+    protected static final int TICK_RATE = 20;
 
     protected volatile int lastMoonPhase;
+    protected volatile long totalWorldTime;
     protected long lastUpdateTime;
 
     @Override
     public void gameTick(World world) {
 	lastMoonPhase = world.provider.getMoonPhase(world.getWorldTime()) % PHASE_TO_AURA_MODS.length;
+	totalWorldTime = world.getTotalWorldTime();
     }
 
     @Override
-    public void processWorld(IAuraWorld world, long totalWorldTime) {
-	lastUpdateTime = totalWorldTime;
+    public void auraTick(IAuraWorld world) {
+	// the abs call deals with overflow or negative world time
+	if (Math.abs(totalWorldTime - lastUpdateTime) >= TICK_RATE) {
+	    lastUpdateTime = totalWorldTime;
+	    for (IAuraChunk chunk : world.getAllAuraChunks()) {
+		equalizeWithNeighbors(world, chunk);
+		generateVisAndFlux(world, chunk);
+		checkForRifts(world, chunk);
+	    }
+	}
     }
 
     protected void equalizeWithNeighbors(IAuraWorld world, IAuraChunk center) {
@@ -132,23 +143,6 @@ public class DefaultAuraProcessor implements IAuraProcessor {
 	    ChunkPos pos = chunk.getPosition();
 	    world.markPositionForRift(new BlockPos(pos.x * 16, 0, pos.z * 16), true);
 	}
-    }
-
-    @Override
-    public void processChunk(IAuraWorld world, IAuraChunk chunk, long totalWorldTime) {
-	equalizeWithNeighbors(world, chunk);
-	generateVisAndFlux(world, chunk);
-	checkForRifts(world, chunk);
-    }
-
-    protected int tickRate() {
-	return 20;
-    }
-
-    @Override
-    public boolean needsUpdate(long totalWorldTime) {
-	// the abs call deals with overflow of world time
-	return Math.abs(totalWorldTime - lastUpdateTime) >= tickRate();
     }
 
 }

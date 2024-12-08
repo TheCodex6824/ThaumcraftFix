@@ -21,9 +21,11 @@
 package thecodex6824.thaumcraftfix.common.aura;
 
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
 
 public interface IListeningAuraThread {
 
     public void notifyUpdate(World world);
+    public void unloadChunk(World world, Chunk chunk);
 
 }

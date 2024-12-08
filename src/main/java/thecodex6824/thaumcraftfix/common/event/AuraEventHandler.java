@@ -32,6 +32,7 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
+import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -63,6 +64,17 @@ public class AuraEventHandler {
 	    AuraThread thread = ServerEvents.auraThreads.get(world.provider.getDimension());
 	    if (thread instanceof IListeningAuraThread) {
 		((IListeningAuraThread) thread).notifyUpdate(world);
+	    }
+	}
+    }
+
+    @SubscribeEvent
+    public static void onChunkUnload(ChunkEvent.Unload event) {
+	if (!event.getWorld().isRemote) {
+	    World world = event.getWorld();
+	    AuraThread thread = ServerEvents.auraThreads.get(world.provider.getDimension());
+	    if (thread instanceof IListeningAuraThread) {
+		((IListeningAuraThread) thread).unloadChunk(world, event.getChunk());
 	    }
 	}
     }

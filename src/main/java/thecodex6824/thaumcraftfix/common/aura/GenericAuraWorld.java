@@ -32,6 +32,8 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.relauncher.Side;
+import thaumcraft.common.lib.utils.PosXY;
+import thaumcraft.common.world.aura.AuraChunk;
 import thaumcraft.common.world.aura.AuraWorld;
 import thecodex6824.thaumcraftfix.ThaumcraftFix;
 import thecodex6824.thaumcraftfix.api.aura.IAuraChunk;
@@ -71,6 +73,11 @@ public class GenericAuraWorld extends AuraWorld implements IAuraWorld {
 		MinecraftForge.EVENT_BUS.post(new RiftTriggerEvent(world, position, useInexactSpawning));
 	    }
 	});
+    }
+
+    public void addAuraChunk(AuraChunk chunk) {
+	ChunkPos pos = chunk.getLoc();
+	getAuraChunks().put(new PosXY(pos.x, pos.z), chunk);
     }
 
 }

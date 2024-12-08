@@ -25,6 +25,7 @@ import net.minecraft.util.math.ChunkPos;
 public interface IAuraChunk {
 
     public ChunkPos getPosition();
+    public boolean isModified();
 
     public short getBase();
     public void setBase(short newBase);

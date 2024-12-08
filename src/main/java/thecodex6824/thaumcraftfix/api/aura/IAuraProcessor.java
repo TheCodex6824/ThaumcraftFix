@@ -25,8 +25,6 @@ import net.minecraft.world.World;
 public interface IAuraProcessor {
 
     public void gameTick(World world);
-    public void processWorld(IAuraWorld auraWorld, long totalWorldTime);
-    public void processChunk(IAuraWorld auraWorld, IAuraChunk chunk, long totalWorldTime);
-    public boolean needsUpdate(long totalWorldTime);
+    public void auraTick(IAuraWorld auraWorld);
 
 }
