@@ -25,6 +25,13 @@ jobs:
       uses: gradle/actions/setup-gradle@v3
     - name: Run build using Gradle Wrapper
       run: ./gradlew build
+    - name: Upload test results on failure
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results-${{ matrix.os }}
+        path: |
+          **/build/test-results/
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
