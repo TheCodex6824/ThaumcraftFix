@@ -31,8 +31,12 @@ import net.minecraft.world.storage.WorldInfo;
 public class MockWorld extends World {
 
     public MockWorld() {
+	this(false);
+    }
+
+    public MockWorld(boolean isRemote) {
 	super(null, new WorldInfo(new WorldSettings(0, GameType.CREATIVE, false, false, WorldType.CUSTOMIZED),
-		"test"), new WorldProviderSurface(), null, false);
+		"test"), new WorldProviderSurface(), null, isRemote);
 	provider.setWorld(this);
     }
 

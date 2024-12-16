@@ -20,6 +20,8 @@
 
 package thecodex6824.thaumcraftfix.test;
 
+import java.lang.reflect.Field;
+
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -42,6 +44,7 @@ import net.minecraftforge.fml.common.ModMetadata;
 import net.minecraftforge.fml.common.discovery.ASMDataTable;
 import net.minecraftforge.fml.common.event.FMLConstructionEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import thaumcraft.api.blocks.BlocksTC;
 import thaumcraft.api.items.ItemsTC;
@@ -51,6 +54,7 @@ import thaumcraft.common.blocks.basic.BlockStoneTC;
 import thaumcraft.common.config.ConfigResearch;
 import thaumcraft.common.items.baubles.ItemCuriosityBand;
 import thaumcraft.common.items.curios.ItemPrimordialPearl;
+import thaumcraft.common.lib.network.PacketHandler;
 import thecodex6824.thaumcraftfix.ThaumcraftFix;
 import thecodex6824.thaumcraftfix.api.internal.ThaumcraftFixApiBridge;
 import thecodex6824.thaumcraftfix.common.internal.DefaultApiImplementation;
@@ -85,6 +89,19 @@ public class GlobalTestSetup {
 		return LogManager.getLogger(ThaumcraftFix.class);
 	    }
 	});
+
+	// initialize TC network messages
+	PacketHandler.preInit();
+	// null out internals so we get an NPE thrown instead of netty just logging
+	// TODO: make packets assertable somehow
+	try {
+	    Field channels = SimpleNetworkWrapper.class.getDeclaredField("channels");
+	    channels.setAccessible(true);
+	    channels.set(PacketHandler.INSTANCE, null);
+	}
+	catch (ReflectiveOperationException ex) {
+	    throw new RuntimeException(ex);
+	}
 
 	// initialize TC research
 	ConfigResearch.init();

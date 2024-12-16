@@ -212,7 +212,7 @@ processResources {
     inputs.property 'apiversion', apiversion
     inputs.property 'mcversion', mcversion
     inputs.property 'forgeminversion', forgeminversion
-    inputs.property 'mixinbooterminversion', mixinbooterminversion
+    inputs.property 'mixinminversion', mixinminversion
     inputs.property 'refmap', refmap
     
     // replace stuff in mcmod.info, nothing else
@@ -227,7 +227,7 @@ processResources {
     from(sourceSets.main.resources.srcDirs) {
         include 'mixin/*.json'
         
-        expand 'mixinbooterminversion': mixinbooterminversion, 'refmap': refmap
+        expand 'mixinminversion': mixinminversion, 'refmap': refmap
     }
         
     // copy everything else except everything handled above

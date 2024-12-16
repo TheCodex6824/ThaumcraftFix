@@ -1,9 +1,9 @@
 {
-  "package": "thecodex6824.thaumcraftfix.mixin.aura",
+  "package": "thecodex6824.thaumcraftfix.mixin.tile",
   "refmap": "${refmap}",
   "minVersion": "${mixinminversion}",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "AuraHandlerMixin"
+    "TileThaumcraftInventoryMixin"
   ]
 }

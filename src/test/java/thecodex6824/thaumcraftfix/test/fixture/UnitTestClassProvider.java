@@ -62,6 +62,11 @@ public class UnitTestClassProvider implements IClassProvider, IClassBytecodeProv
 	return getClassNode(name, true);
     }
 
+    @Override
+    public ClassNode getClassNode(String name, boolean runTransformers) throws ClassNotFoundException, IOException {
+	return getClassNode(name, runTransformers, ClassReader.EXPAND_FRAMES);
+    }
+
     private byte[] getClassBytes(String name) throws IOException {
 	try (InputStream input = getResourceAsStream(name)) {
 	    if (input == null) throw new IOException();
@@ -70,9 +75,11 @@ public class UnitTestClassProvider implements IClassProvider, IClassBytecodeProv
     }
 
     @Override
-    public ClassNode getClassNode(String name, boolean runTransformers) throws ClassNotFoundException, IOException {
+    public ClassNode getClassNode(String name, boolean runTransformers, int readerFlags)
+	    throws ClassNotFoundException, IOException {
+
 	ClassNode node = new ClassNode(Opcodes.ASM5);
-	new ClassReader(getClassBytes(name.replace('.', '/') + ".class")).accept(node, ClassReader.EXPAND_FRAMES);
+	new ClassReader(getClassBytes(name.replace('.', '/') + ".class")).accept(node, readerFlags);
 	if (runTransformers) {
 	    Proxy.transformer.transformClass(MixinEnvironment.getCurrentEnvironment(), name, node);
 	}
