@@ -304,6 +304,7 @@ artifacts {
 
 test {
     useJUnitPlatform()
+    testLogging.showStandardStreams = true
     afterEvaluate {
         configurations.testAgent.each {
             jvmArgs += "-javaagent:${it}"

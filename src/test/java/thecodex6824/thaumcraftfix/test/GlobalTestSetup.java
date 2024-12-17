@@ -46,6 +46,7 @@ import net.minecraftforge.fml.common.event.FMLConstructionEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
+import net.minecraftforge.fml.relauncher.Side;
 import thaumcraft.api.blocks.BlocksTC;
 import thaumcraft.api.items.ItemsTC;
 import thaumcraft.api.research.ResearchCategories;
@@ -89,6 +90,11 @@ public class GlobalTestSetup {
 		return LogManager.getLogger(ThaumcraftFix.class);
 	    }
 	});
+
+	System.out.println("List of sides:");
+	for (Side s : Side.values()) {
+	    System.out.println(s.name());
+	}
 
 	// initialize TC network messages
 	PacketHandler.preInit();
