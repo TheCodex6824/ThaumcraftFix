@@ -118,9 +118,9 @@ mixin {
 }
 
 configurations {
-    testCompile.extendsFrom compile
     testAgent
     testImplementation.extendsFrom testAgent
+    testImplementation.extendsFrom implementation
 }
 
 dependencies {
@@ -162,7 +162,7 @@ dependencies {
         }
     }
     
-    configurations.forEach {
+    configurations.all {
         // mergetool pollutes the classpath with conflicting classes
         it.exclude(group: 'net.minecraftforge', module: 'mergetool')
         
