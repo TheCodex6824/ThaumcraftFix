@@ -162,13 +162,13 @@ dependencies {
         }
     }
     
-    configurations.all {
+    configurations.configureEach {
         // mergetool pollutes the classpath with conflicting classes
         it.exclude(group: 'net.minecraftforge', module: 'mergetool')
         
         // legacydev forge dep wants fatjar as the classifier, but 3.0 lacks it
         it.resolutionStrategy.eachDependency {
-            if (it.requested.module.toString() == "net.minecraftforge:legacydev") {
+            if (it.requested.module.toString() == 'net.minecraftforge:legacydev') {
                 it.artifactSelection {
                     it.selectArtifact(DependencyArtifact.DEFAULT_TYPE, null, null)
                 }
@@ -304,7 +304,6 @@ artifacts {
 
 test {
     useJUnitPlatform()
-    testLogging.showStandardStreams = true
     afterEvaluate {
         configurations.testAgent.each {
             jvmArgs += "-javaagent:${it}"

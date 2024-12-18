@@ -21,6 +21,8 @@
 package thecodex6824.thaumcraftfix.test;
 
 import java.lang.reflect.Field;
+import java.util.EnumMap;
+import java.util.Map;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
@@ -29,6 +31,7 @@ import org.objectweb.asm.Type;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
 
 import baubles.api.cap.BaublesCapabilities;
 import baubles.api.cap.BaublesContainer;
@@ -44,6 +47,8 @@ import net.minecraftforge.fml.common.ModMetadata;
 import net.minecraftforge.fml.common.discovery.ASMDataTable;
 import net.minecraftforge.fml.common.event.FMLConstructionEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.network.FMLEmbeddedChannel;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.relauncher.Side;
@@ -75,6 +80,7 @@ public class GlobalTestSetup {
 	return Pair.of(block, item);
     }
 
+    @SuppressWarnings("unchecked")
     public static void init() {
 	// this registers all vanilla blocks, items, etc
 	// without this, many things will throw exceptions, like ItemStack
@@ -91,12 +97,30 @@ public class GlobalTestSetup {
 	    }
 	});
 
-	System.out.println("List of sides:");
-	for (Side s : Side.values()) {
-	    System.out.println(s.name());
+	// work around Side.BUKKIT issue
+	// if there is a full dev environment, BUKKIT won't exist
+	// however, if someone just cloned the repo and ran tests, the issue will be present
+	// I *think* this is due to the binpatch setup only patching Minecraft itself and not Forge
+
+	// if you found this comment in an attempt to fix a NullPointerException in NetworkRegistry.newChannel,
+	// try running the "runClient" task and then regenerating your IDE configs/runs
+	// If it still doesn't work, see build.gradle for how to remove mergetool from the classpath
+	// If using IDE runs, make sure your runtime classpath has the forge jar ending in -recomp.jar and not others
+	try {
+	    Side maybeBukkit = Side.valueOf("BUKKIT");
+	    Field channels = NetworkRegistry.class.getDeclaredField("channels");
+	    channels.setAccessible(true);
+	    ((EnumMap<Side, Map<String,FMLEmbeddedChannel>>)
+		    channels.get(NetworkRegistry.INSTANCE)).put(maybeBukkit, Maps.newConcurrentMap());
+	}
+	catch (ReflectiveOperationException ex) {
+	    throw new RuntimeException(ex);
+	}
+	catch (IllegalArgumentException ex) {
+	    // it doesn't exist, do nothing
 	}
 
-	// initialize TC network messages
+	// initialize TC network messages and channel
 	PacketHandler.preInit();
 	// null out internals so we get an NPE thrown instead of netty just logging
 	// TODO: make packets assertable somehow
