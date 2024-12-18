@@ -57,7 +57,7 @@ public class GenericAuraThread extends AuraThread implements IListeningAuraThrea
 	AuraWorld auraWorld = AuraHandler.getAuraWorld(dim);
 	if (auraWorld instanceof IAuraWorld) {
 	    IAuraChunk aura = ((IAuraWorld) auraWorld).getAuraChunk(chunk.x, chunk.z);
-	    if (aura.isModified()) {
+	    if (aura != null && aura.isModified()) {
 		chunk.markDirty();
 	    }
 	}
