@@ -11,5 +11,17 @@
         ]
       }
     ]
+  },
+  {
+    "key": "KNOWLEDGETYPES",
+    "ops": [
+      {
+        "op": "replace",
+        "path": "icons",
+        "value": [
+          "thaumcraft:textures/research/knowledge_observation.png"
+        ]
+      }
+    ]
   }
 ]
