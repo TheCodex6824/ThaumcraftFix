@@ -63,10 +63,10 @@ public class TestAtomicAuraChunk {
 	assertEquals(0.0f, aura.addVis(-1.0f), FLOAT_EPSILON);
 	assertEquals(0.0f, aura.getVis(), FLOAT_EPSILON);
 
-	aura.setVis(Float.MAX_VALUE);
-	assertEquals(Float.MAX_VALUE, aura.getVis(), FLOAT_EPSILON);
+	aura.setVis(Short.MAX_VALUE);
+	assertEquals(Short.MAX_VALUE, aura.getVis(), FLOAT_EPSILON);
 	assertEquals(0.0f, aura.addVis(1.0f), FLOAT_EPSILON);
-	assertEquals(Float.MAX_VALUE, aura.getVis(), FLOAT_EPSILON);
+	assertEquals(Short.MAX_VALUE, aura.getVis(), FLOAT_EPSILON);
     }
 
     @Test
@@ -77,10 +77,10 @@ public class TestAtomicAuraChunk {
 	assertEquals(0.0f, aura.addFlux(-1.0f), FLOAT_EPSILON);
 	assertEquals(0.0f, aura.getFlux(), FLOAT_EPSILON);
 
-	aura.setFlux(Float.MAX_VALUE);
-	assertEquals(Float.MAX_VALUE, aura.getFlux(), FLOAT_EPSILON);
+	aura.setFlux(Short.MAX_VALUE);
+	assertEquals(Short.MAX_VALUE, aura.getFlux(), FLOAT_EPSILON);
 	assertEquals(0.0f, aura.addFlux(1.0f), FLOAT_EPSILON);
-	assertEquals(Float.MAX_VALUE, aura.getFlux(), FLOAT_EPSILON);
+	assertEquals(Short.MAX_VALUE, aura.getFlux(), FLOAT_EPSILON);
     }
 
 }

@@ -32,6 +32,8 @@ import thecodex6824.thaumcraftfix.api.aura.IAuraChunk;
 
 public class AtomicAuraChunk extends AuraChunk implements IAuraChunk {
 
+    private static final int MAX_AURA = Short.MAX_VALUE;
+
     private AtomicInteger baseAtomic;
     private AtomicDouble visAtomic;
     private AtomicDouble fluxAtomic;
@@ -39,9 +41,9 @@ public class AtomicAuraChunk extends AuraChunk implements IAuraChunk {
 
     public AtomicAuraChunk(Chunk chunk, short base, float vis, float flux) {
 	super(chunk, base, vis, flux);
-	baseAtomic = new AtomicInteger(Math.max(base, 0));
-	visAtomic = new AtomicDouble(Math.max(vis, 0.0f));
-	fluxAtomic = new AtomicDouble(Math.max(flux, 0.0f));
+	baseAtomic = new AtomicInteger(Math.max(Math.min(base, MAX_AURA), 0));
+	visAtomic = new AtomicDouble(Math.max(Math.min(vis, MAX_AURA), 0.0f));
+	fluxAtomic = new AtomicDouble(Math.max(Math.min(flux, MAX_AURA), 0.0f));
     }
 
     public AtomicAuraChunk(ChunkPos pos) {
@@ -63,7 +65,7 @@ public class AtomicAuraChunk extends AuraChunk implements IAuraChunk {
 
     @Override
     public void setBase(short base) {
-	baseAtomic.set(Math.max(Math.min(base, Short.MAX_VALUE), 0));
+	baseAtomic.set(Math.max(Math.min(base, MAX_AURA), 0));
 	modified = true;
     }
 
@@ -83,7 +85,7 @@ public class AtomicAuraChunk extends AuraChunk implements IAuraChunk {
 	    // current is an int to ensure the math ops below are handled as ints
 	    // this makes sure overflow to a negative value won't happen and instead clamps at max
 	    int current = baseAtomic.shortValue();
-	    short target = (short) Math.max(Math.min(current + add, Short.MAX_VALUE), 0);
+	    short target = (short) Math.max(Math.min(current + add, MAX_AURA), 0);
 	    // at least on my platform, compareAndSet returns false if current == target
 	    // can't find any docs explaining it so just avoid trying it
 	    if (current == target || visAtomic.compareAndSet(current, target)) {
@@ -95,7 +97,7 @@ public class AtomicAuraChunk extends AuraChunk implements IAuraChunk {
 
     @Override
     public short getAndSetBase(short set) {
-	short res = (short) baseAtomic.getAndSet(Math.max(set, 0));
+	short res = (short) baseAtomic.getAndSet(Math.max(Math.min(set, MAX_AURA), 0));
 	modified = true;
 	return res;
     }
@@ -107,13 +109,13 @@ public class AtomicAuraChunk extends AuraChunk implements IAuraChunk {
 
     @Override
     public void setVis(float newVis) {
-	visAtomic.set(newVis);
+	visAtomic.set(Math.max(Math.min(newVis, MAX_AURA), 0.0f));
 	modified = true;
     }
 
     @Override
     public boolean compareAndSetVis(float compare, float newValue) {
-	boolean res = visAtomic.compareAndSet(compare, newValue);
+	boolean res = visAtomic.compareAndSet(compare, Math.max(Math.min(newValue, MAX_AURA), 0.0f));
 	if (res) {
 	    modified = true;
 	}
@@ -124,18 +126,29 @@ public class AtomicAuraChunk extends AuraChunk implements IAuraChunk {
     @Override
     public float addVis(float add) {
 	while (true) {
+	    boolean adjustmentNeeded = false;
 	    double current = visAtomic.get();
-	    float target = (float) Math.max(Math.min(current + add, Float.MAX_VALUE), 0);
+	    double target = current + add;
+	    // this is here so that if current + add is in bounds, we can return add itself
+	    // this prevents any floating point issues from coming in due to having to calc target - current
+	    // if it is out of bounds, we have to do math and all bets are off anyway
+	    // this tries to keep the API the same as Thaumcraft had it, while also not silently throwing away bounds changes
+	    if (current + add > Short.MAX_VALUE || current + add < 0) {
+		target = Math.max(Math.min(current + add, Short.MAX_VALUE), 0);
+		// remember that we can't return the add amount verbatim
+		adjustmentNeeded = true;
+	    }
+
 	    if (current == target || visAtomic.compareAndSet(current, target)) {
 		modified = true;
-		return (float) (target - current);
+		return adjustmentNeeded ? (float) (target - current) : add;
 	    }
 	}
     }
 
     @Override
     public float getAndSetVis(float set) {
-	float res = (float) visAtomic.getAndSet(Math.max(set, 0));
+	float res = (float) visAtomic.getAndSet(Math.max(Math.min(set, MAX_AURA), 0));
 	modified = true;
 	return res;
     }
@@ -147,13 +160,13 @@ public class AtomicAuraChunk extends AuraChunk implements IAuraChunk {
 
     @Override
     public void setFlux(float newFlux) {
-	fluxAtomic.set(newFlux);
+	fluxAtomic.set(Math.max(Math.min(newFlux, MAX_AURA), 0.0f));
 	modified = true;
     }
 
     @Override
     public boolean compareAndSetFlux(float compare, float newValue) {
-	boolean res = fluxAtomic.compareAndSet(compare, newValue);
+	boolean res = fluxAtomic.compareAndSet(compare, Math.max(Math.min(newValue, MAX_AURA), 0.0f));
 	if (res) {
 	    modified = true;
 	}
@@ -164,18 +177,24 @@ public class AtomicAuraChunk extends AuraChunk implements IAuraChunk {
     @Override
     public float addFlux(float add) {
 	while (true) {
-	    double current = fluxAtomic.floatValue();
-	    float target = (float) Math.max(Math.min(current + add, Float.MAX_VALUE), 0);
+	    boolean adjustmentNeeded = false;
+	    double current = fluxAtomic.get();
+	    double target = current + add;
+	    if (current + add > Short.MAX_VALUE || current + add < 0) {
+		target = Math.max(Math.min(current + add, Short.MAX_VALUE), 0);
+		adjustmentNeeded = true;
+	    }
+
 	    if (current == target || fluxAtomic.compareAndSet(current, target)) {
 		modified = true;
-		return (float) (target - current);
+		return adjustmentNeeded ? (float) (target - current) : add;
 	    }
 	}
     }
 
     @Override
     public float getAndSetFlux(float set) {
-	float res = (float) fluxAtomic.getAndSet(Math.max(set, 0));
+	float res = (float) fluxAtomic.getAndSet(Math.max(Math.min(set, MAX_AURA), 0));
 	modified = true;
 	return res;
     }

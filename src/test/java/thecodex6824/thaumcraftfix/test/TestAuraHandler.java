@@ -55,16 +55,18 @@ public class TestAuraHandler {
     public void multiThreadedAddVis() {
 	MockWorld dim0 = new MockWorld();
 	try {
+	    final float visStep = 1.1f;
 	    AuraHandler.addAuraWorld(dim0.provider.getDimension());
 	    AuraHandler.addAuraChunk(dim0.provider.getDimension(), new Chunk(dim0, 0, 0),
 		    (short) 500, 0.0f, 0.0f);
 	    BlockPos pos = new BlockPos(0, 0, 0);
 	    runInThreadPool(() -> {
 		for (int j = 0; j < 50; ++j) {
-		    AuraHandler.addVis(dim0, pos, 1.0f);
+		    AuraHandler.addVis(dim0, pos, visStep);
 		}
 	    });
-	    assertEquals(50 * 8, AuraHandler.getVis(dim0, pos));
+
+	    assertEquals(50 * visStep * 8, AuraHandler.getVis(dim0, pos), 0.0001f);
 	}
 	finally {
 	    AuraHandler.removeAuraChunk(dim0.provider.getDimension(), 0, 0);
@@ -77,16 +79,21 @@ public class TestAuraHandler {
     public void multiThreadedDrainVis() {
 	MockWorld dim0 = new MockWorld();
 	try {
+	    final float visStep = 1.0f;
 	    AuraHandler.addAuraWorld(dim0.provider.getDimension());
 	    AuraHandler.addAuraChunk(dim0.provider.getDimension(), new Chunk(dim0, 0, 0),
 		    (short) 500, 500.0f, 0.0f);
 	    BlockPos pos = new BlockPos(0, 0, 0);
 	    runInThreadPool(() -> {
 		for (int j = 0; j < 50; ++j) {
-		    assertEquals(1.0f, AuraHandler.drainVis(dim0, pos, 1.0f, false));
+		    assertEquals(visStep, AuraHandler.drainVis(dim0, pos, visStep, false));
 		}
 	    });
-	    assertEquals(500 - 50 * 8, AuraHandler.getVis(dim0, pos));
+
+	    // we intentionally only allow an epsilon for the totals
+	    // for the drainVis etc steps, we are expecting the exact value we passed to be returned,
+	    // unless vis or flux would have went out of bounds
+	    assertEquals(500 - 50 * visStep * 8, AuraHandler.getVis(dim0, pos), 0.0001f);
 	}
 	finally {
 	    AuraHandler.removeAuraChunk(dim0.provider.getDimension(), 0, 0);
@@ -99,16 +106,17 @@ public class TestAuraHandler {
     public void multiThreadedAddFlux() {
 	MockWorld dim0 = new MockWorld();
 	try {
+	    final float fluxStep = 1.3f;
 	    AuraHandler.addAuraWorld(dim0.provider.getDimension());
 	    AuraHandler.addAuraChunk(dim0.provider.getDimension(), new Chunk(dim0, 0, 0),
 		    (short) 500, 0.0f, 0.0f);
 	    BlockPos pos = new BlockPos(0, 0, 0);
 	    runInThreadPool(() -> {
 		for (int j = 0; j < 50; ++j) {
-		    AuraHandler.addFlux(dim0, pos, 1.0f);
+		    AuraHandler.addFlux(dim0, pos, fluxStep);
 		}
 	    });
-	    assertEquals(50 * 8, AuraHandler.getFlux(dim0, pos));
+	    assertEquals(50 * fluxStep * 8, AuraHandler.getFlux(dim0, pos), 0.0001f);
 	}
 	finally {
 	    AuraHandler.removeAuraChunk(dim0.provider.getDimension(), 0, 0);
@@ -121,16 +129,39 @@ public class TestAuraHandler {
     public void multiThreadedDrainFlux() {
 	MockWorld dim0 = new MockWorld();
 	try {
+	    final float fluxStep = 1.123456789f;
 	    AuraHandler.addAuraWorld(dim0.provider.getDimension());
 	    AuraHandler.addAuraChunk(dim0.provider.getDimension(), new Chunk(dim0, 0, 0),
 		    (short) 500, 0.0f, 500.0f);
 	    BlockPos pos = new BlockPos(0, 0, 0);
 	    runInThreadPool(() -> {
 		for (int j = 0; j < 50; ++j) {
-		    assertEquals(1.0f, AuraHandler.drainFlux(dim0, pos, 1.0f, false));
+		    assertEquals(fluxStep, AuraHandler.drainFlux(dim0, pos, fluxStep, false));
 		}
 	    });
-	    assertEquals(500 - 50 * 8, AuraHandler.getFlux(dim0, pos));
+	    assertEquals(500 - 50 * fluxStep * 8, AuraHandler.getFlux(dim0, pos), 0.0001f);
+	}
+	finally {
+	    AuraHandler.removeAuraChunk(dim0.provider.getDimension(), 0, 0);
+	    AuraHandler.removeAuraWorld(dim0.provider.getDimension());
+	}
+    }
+
+    @Test
+    @ResourceLock(TestConstants.RESOURCE_AURA)
+    public void drainDecimalVis() {
+	MockWorld dim0 = new MockWorld();
+	try {
+	    final float visStep = 1.8f;
+	    AuraHandler.addAuraWorld(dim0.provider.getDimension());
+	    AuraHandler.addAuraChunk(dim0.provider.getDimension(), new Chunk(dim0, 0, 0),
+		    (short) 500, 300.0f, 0.0f);
+	    BlockPos pos = new BlockPos(0, 0, 0);
+	    for (int i = 0; i < 50; ++i) {
+		assertEquals(visStep, AuraHandler.drainVis(dim0, pos, visStep, false));
+	    }
+
+	    assertEquals(300 - visStep * 50, AuraHandler.getVis(dim0, pos), 0.0001f);
 	}
 	finally {
 	    AuraHandler.removeAuraChunk(dim0.provider.getDimension(), 0, 0);
