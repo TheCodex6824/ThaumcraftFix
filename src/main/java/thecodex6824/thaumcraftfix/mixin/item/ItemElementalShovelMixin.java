@@ -25,9 +25,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Share;
+import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 
 import net.minecraft.block.state.IBlockState;
@@ -35,6 +37,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
@@ -75,7 +78,9 @@ public class ItemElementalShovelMixin {
     private boolean redirectConsumePlayerItemForBlockPlacement(EntityPlayer player, Item wrongItem, int wrongMeta,
 	    @Share("goodItem") LocalRef<ItemStack> goodItem) {
 
-	return InventoryUtils.consumePlayerItem(player, goodItem.get(), false, false);
+	ItemStack stack = goodItem.get();
+	return stack != null && !stack.isEmpty() ?
+		InventoryUtils.consumePlayerItem(player, stack, false, false) : false;
     }
 
     @WrapOperation(method = "onItemUse", at = @At(value = "INVOKE",
@@ -84,8 +89,9 @@ public class ItemElementalShovelMixin {
     private boolean wrapSetBlockStateForBlockPlacement(World world, BlockPos pos, IBlockState state, Operation<Boolean> op,
 	    EntityPlayer player, World worldAgain, BlockPos origPos, EnumHand hand, EnumFacing side,
 	    float hitX, float hitY, float hitZ,
-	    @Share("goodItem") LocalRef<ItemStack> goodItem) {
+	    @Share("goodItem") LocalRef<ItemStack> goodItem, @Share("didSomething") LocalBooleanRef didSomething) {
 
+	boolean result = false;
 	ItemStack item = goodItem.get();
 	float modHitX = hitX + (pos.getX() - origPos.getX());
 	float modHitY = hitY + (pos.getY() - origPos.getY());
@@ -98,15 +104,24 @@ public class ItemElementalShovelMixin {
 
 	    if (item.getItem() instanceof ItemBlock) {
 		ItemBlock itemBlock = (ItemBlock) item.getItem();
-		return itemBlock.placeBlockAt(item, player, world, pos, side,
+		result = itemBlock.placeBlockAt(item, player, world, pos, side,
 			modHitX, modHitY, modHitZ, toPlace);
 	    }
 	    else {
-		return op.call(toPlace, pos);
+		result = op.call(toPlace, pos);
 	    }
 	}
 
-	return false;
+	if (result) {
+	    didSomething.set(true);
+	}
+
+	return result;
+    }
+
+    @ModifyReturnValue(method = "onItemUse", at = @At("RETURN"))
+    private EnumActionResult changeActionResult(EnumActionResult original, @Share("didSomething") LocalBooleanRef didSomething) {
+	return didSomething.get() ? EnumActionResult.SUCCESS : original;
     }
 
 }
