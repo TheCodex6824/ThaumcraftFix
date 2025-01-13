@@ -24,8 +24,13 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraftforge.event.world.BlockEvent;
 import thaumcraft.common.lib.events.ToolEvents;
 
@@ -44,6 +49,35 @@ public class ToolEventsMixin {
 
 	IBlockState state = event.getWorld().getBlockState(event.getPos());
 	return state.getBlock().getHarvestTool(state) == null;
+    }
+
+    private static final ThreadLocal<Boolean> processingBurrowing = ThreadLocal.withInitial(() -> false);
+
+    @WrapOperation(method = "breakBlockEvent(Lnet/minecraftforge/event/world/BlockEvent$BreakEvent;)V",
+	    at = @At(value = "INVOKE",
+	    target = "isValidBurrowBlock(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;)Z",
+	    remap = false),
+	    remap = false)
+    private static boolean wrapIsValidBurrowBlock(World world, BlockPos pos, Operation<Boolean> original) {
+	if (!processingBurrowing.get()) {
+	    processingBurrowing.set(true);
+	    return original.call(world, pos);
+	}
+
+	return false;
+    }
+
+    @WrapOperation(method = "breakBlockEvent(Lnet/minecraftforge/event/world/BlockEvent$BreakEvent;)V",
+	    at = @At(value = "INVOKE",
+	    target = "Lthaumcraft/common/lib/utils/BlockUtils;breakFurthestBlock(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/entity/player/EntityPlayer;)Z",
+	    remap = false),
+	    remap = false)
+    private static boolean wrapBreakFurthestBlock(World world, BlockPos pos, IBlockState state, EntityPlayer player,
+	    Operation<Boolean> original) {
+
+	Boolean result = original.call(world, pos, state, player);
+	processingBurrowing.set(false);
+	return result;
     }
 
 }
