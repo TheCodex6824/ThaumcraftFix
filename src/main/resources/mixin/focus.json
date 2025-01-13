@@ -1,0 +1,9 @@
+{
+  "package": "thecodex6824.thaumcraftfix.mixin.focus",
+  "refmap": "${refmap}",
+  "minVersion": "${mixinminversion}",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "FocusEffectExchangeMixin"
+  ]
+}
