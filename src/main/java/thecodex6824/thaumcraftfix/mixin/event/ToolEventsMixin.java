@@ -61,7 +61,17 @@ public class ToolEventsMixin {
     private static boolean wrapIsValidBurrowBlock(World world, BlockPos pos, Operation<Boolean> original) {
 	if (!processingBurrowing.get()) {
 	    processingBurrowing.set(true);
-	    return original.call(world, pos);
+	    boolean result = false;
+	    try {
+		result = original.call(world, pos);
+	    }
+	    finally {
+		if (!result) {
+		    processingBurrowing.set(false);
+		}
+	    }
+
+	    return result;
 	}
 
 	return false;
@@ -75,8 +85,14 @@ public class ToolEventsMixin {
     private static boolean wrapBreakFurthestBlock(World world, BlockPos pos, IBlockState state, EntityPlayer player,
 	    Operation<Boolean> original) {
 
-	Boolean result = original.call(world, pos, state, player);
-	processingBurrowing.set(false);
+	boolean result = false;
+	try {
+	    result = original.call(world, pos, state, player);
+	}
+	finally {
+	    processingBurrowing.set(false);
+	}
+
 	return result;
     }
 
