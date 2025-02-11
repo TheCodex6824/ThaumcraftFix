@@ -4,6 +4,8 @@
   "minVersion": "${mixinminversion}",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
+    "TileMirrorMixin",
+    "TileMirrorEssentiaMixin",
     "TileThaumcraftInventoryMixin"
   ]
 }
