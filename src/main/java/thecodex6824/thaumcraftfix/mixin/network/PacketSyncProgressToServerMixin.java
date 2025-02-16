@@ -48,7 +48,7 @@ import thaumcraft.common.lib.research.ResearchManager;
 public class PacketSyncProgressToServerMixin {
 
     @WrapOperation(method = "fromBytes", at = @At(value = "FIELD", opcode = Opcodes.PUTFIELD, target =
-	    "Lthaumcraft/common/lib/network/playerdata/PacketSyncProgressToServer;checks:Z", remap = false))
+	    "Lthaumcraft/common/lib/network/playerdata/PacketSyncProgressToServer;checks:Z", remap = false), remap = false)
     private void forceChecksOn(PacketSyncProgressToServer packet, boolean value, Operation<Void> original) {
 	original.call(packet, true);
     }
