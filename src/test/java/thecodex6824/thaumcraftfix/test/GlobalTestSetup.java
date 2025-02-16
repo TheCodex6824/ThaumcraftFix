@@ -53,6 +53,8 @@ import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.relauncher.Side;
 import thaumcraft.api.blocks.BlocksTC;
+import thaumcraft.api.capabilities.IPlayerKnowledge;
+import thaumcraft.api.capabilities.ThaumcraftCapabilities;
 import thaumcraft.api.items.ItemsTC;
 import thaumcraft.api.research.ResearchCategories;
 import thaumcraft.common.blocks.basic.BlockPillar;
@@ -60,6 +62,7 @@ import thaumcraft.common.blocks.basic.BlockStoneTC;
 import thaumcraft.common.config.ConfigResearch;
 import thaumcraft.common.items.baubles.ItemCuriosityBand;
 import thaumcraft.common.items.curios.ItemPrimordialPearl;
+import thaumcraft.common.lib.capabilities.PlayerKnowledge;
 import thaumcraft.common.lib.network.PacketHandler;
 import thecodex6824.thaumcraftfix.ThaumcraftFix;
 import thecodex6824.thaumcraftfix.api.internal.ThaumcraftFixApiBridge;
@@ -135,6 +138,7 @@ public class GlobalTestSetup {
 
 	// initialize TC research
 	ConfigResearch.init();
+	ConfigResearch.postInit();
 
 	// set up API
 	((DefaultApiImplementation) ThaumcraftFixApiBridge.implementation()).setAllowedTheorycraftCategories(
@@ -157,10 +161,13 @@ public class GlobalTestSetup {
 	table.addContainer(Loader.instance().activeModContainer());
 	table.addASMData(null, CapabilityInject.class.getName(), BaublesCapabilities.class.getName(),
 		"CAPABILITY_BAUBLES", ImmutableMap.of("value", Type.getType(IBaublesItemHandler.class)));
+	table.addASMData(null, CapabilityInject.class.getName(), ThaumcraftCapabilities.class.getName(),
+		"KNOWLEDGE", ImmutableMap.of("value", Type.getType(IPlayerKnowledge.class)));
 	CapabilityManager.INSTANCE.injectCapabilities(table);
 
 	CapabilityManager.INSTANCE.register(IBaublesItemHandler.class,
 		new BaublesCapabilities.CapabilityBaubles<IBaublesItemHandler>(), () -> new BaublesContainer());
+	PlayerKnowledge.preInit();
     }
 
 }

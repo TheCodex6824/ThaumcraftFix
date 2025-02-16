@@ -43,14 +43,12 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
-import thaumcraft.api.research.ResearchEntry;
 import thaumcraft.common.container.ContainerFocalManipulator;
 import thaumcraft.common.container.ContainerThaumatorium;
 import thaumcraft.common.lib.network.misc.PacketLogisticsRequestToServer;
 import thaumcraft.common.lib.network.misc.PacketNote;
 import thaumcraft.common.lib.network.misc.PacketSelectThaumotoriumRecipeToServer;
 import thaumcraft.common.lib.network.playerdata.PacketFocusNodesToServer;
-import thaumcraft.common.lib.research.ResearchManager;
 import thaumcraft.common.tiles.crafting.TileFocalManipulator;
 import thaumcraft.common.tiles.crafting.TileResearchTable;
 import thecodex6824.coremodlib.FieldDefinition;
@@ -226,16 +224,6 @@ public class NetworkTransformers {
 	    return ret;
 	}
 
-	public static int checkProgressSyncStage(int originalStage, EntityPlayer player, ResearchEntry entry) {
-	    int logicStage = originalStage;
-	    boolean hasParents = entry.getParents() != null && entry.getParents().length > 0;
-	    if (logicStage < 0 && hasParents && ResearchManager.doesPlayerHaveRequisites(player, entry.getKey())) {
-		logicStage = Integer.MAX_VALUE;
-	    }
-
-	    return logicStage;
-	}
-
     }
 
     private static final String HOOKS = Type.getInternalName(Hooks.class);
@@ -396,65 +384,6 @@ public class NetworkTransformers {
 			new InsnNode(Opcodes.IAND)
 			)
 		.build(), true, 1
-		);
-    };
-
-    public static final Supplier<ITransformer> PROGRESS_SYNC_CHECKS = () -> {
-	return new GenericStateMachineTransformer(
-		PatchStateMachine.builder(
-			new MethodDefinition(
-				"thaumcraft/common/lib/network/playerdata/PacketSyncProgressToServer$1",
-				false,
-				"run",
-				Type.VOID_TYPE
-				)
-			)
-		.findNextMethodCall(new MethodDefinition(
-			"thaumcraft/common/lib/network/playerdata/PacketSyncProgressToServer",
-			false,
-			"access$200",
-			Type.BOOLEAN_TYPE,
-			Type.getType("Lthaumcraft/common/lib/network/playerdata/PacketSyncProgressToServer;")
-			))
-		.insertInstructionsAfter(
-			new InsnNode(Opcodes.POP),
-			new InsnNode(Opcodes.ICONST_1)
-			)
-		.build()
-		);
-    };
-
-    public static final Supplier<ITransformer> PROGRESS_SYNC_REQS = () -> {
-	return new GenericStateMachineTransformer(
-		PatchStateMachine.builder(
-			new MethodDefinition(
-				"thaumcraft/common/lib/network/playerdata/PacketSyncProgressToServer",
-				false,
-				"checkRequisites",
-				Type.BOOLEAN_TYPE,
-				Types.ENTITY_PLAYER, Types.STRING
-				)
-			)
-		.findConsecutive()
-		.findNextOpcode(Opcodes.ICONST_1)
-		.findNextOpcode(Opcodes.ISUB)
-		.findNextLocalAccess(4)
-		.endConsecutive()
-		.insertInstructionsAfter(
-			new VarInsnNode(Opcodes.ILOAD, 4),
-			new VarInsnNode(Opcodes.ALOAD, 1),
-			new VarInsnNode(Opcodes.ALOAD, 3),
-			new MethodInsnNode(Opcodes.INVOKESTATIC,
-				HOOKS,
-				"checkProgressSyncStage",
-				Type.getMethodDescriptor(Type.INT_TYPE,
-					Type.INT_TYPE, Types.ENTITY_PLAYER,
-					Type.getType("Lthaumcraft/api/research/ResearchEntry;")),
-				false
-				),
-			new VarInsnNode(Opcodes.ISTORE, 4)
-			)
-		.build()
 		);
     };
 

@@ -127,8 +127,6 @@ public class TransformerExecutor implements IClassTransformer {
 	transformers.add(NetworkTransformers.FOCAL_MANIPULATOR_DATA.get());
 	transformers.add(NetworkTransformers.LOGISTICS_REQUEST.get());
 	transformers.add(NetworkTransformers.NOTE_HANDLER.get());
-	transformers.add(NetworkTransformers.PROGRESS_SYNC_CHECKS.get());
-	transformers.add(NetworkTransformers.PROGRESS_SYNC_REQS.get());
 	transformers.add(NetworkTransformers.RESEARCH_TABLE_AIDS.get());
 	transformers.add(NetworkTransformers.THAUMATORIUM_RECIPE_SELECTION.get());
 	transformers.add(ResearchTransformers.KNOWLEDGE_GAIN_EVENT_CLIENT.get());
