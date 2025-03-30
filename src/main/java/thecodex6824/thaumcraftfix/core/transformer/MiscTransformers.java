@@ -105,39 +105,51 @@ public class MiscTransformers {
 	    // if the recipe has a width of less than 3, then we make sure to skip slots
 	    // so the indices line up to match the actual recipe shape
 	    int slot = 0;
-	    for (Ingredient ingredient : recipe.getIngredients()) {
-		boolean isEmpty = ingredient == Ingredient.EMPTY;
-		if (!isEmpty && ingredient.getMatchingStacks().length == 0) {
-		    return null;
-		}
+	    boolean bail = false;
+	    try {
+		for (Ingredient ingredient : recipe.getIngredients()) {
+		    boolean isEmpty = ingredient == Ingredient.EMPTY;
+		    if (!isEmpty && ingredient.getMatchingStacks().length == 0) {
+			return null;
+		    }
 
-		ItemStack stack = isEmpty ? ItemStack.EMPTY : ingredient.getMatchingStacks()[0].copy();
-		ret.setInventorySlotContents(slot++, stack);
-		if (recipeWidth > 0 && (slot % 3) % recipeWidth == 0) {
-		    slot += 3 - recipeWidth;
-		}
-	    }
-
-	    if (recipe instanceof IArcaneRecipe) {
-		IArcaneRecipe arcane = (IArcaneRecipe) recipe;
-		if (arcane.getCrystals() != null) {
-		    for (ShardType shard : ShardType.values()) {
-			if (shard.getMetadata() < 6 && arcane.getCrystals().getAmount(shard.getAspect()) > 0) {
-			    ret.setInventorySlotContents(shard.getMetadata() + 9,
-				    ThaumcraftApiHelper.makeCrystal(shard.getAspect(), arcane.getCrystals().getAmount(shard.getAspect())));
-			}
+		    ItemStack stack = isEmpty ? ItemStack.EMPTY : ingredient.getMatchingStacks()[0].copy();
+		    ret.setInventorySlotContents(slot++, stack);
+		    if (recipeWidth > 0 && (slot % 3) % recipeWidth == 0) {
+			slot += 3 - recipeWidth;
 		    }
 		}
 	    }
-
-	    boolean matches = false;
-	    try {
-		matches = recipe.matches(ret, null);
-	    }
 	    catch (Exception ex) {
 		if (BROKEN_RECIPES.add(recipe.getRegistryName())) {
-		    ThaumcraftFix.instance.getLogger().error("Failed calling IRecipe#matches", ex);
+		    ThaumcraftFix.instance.getLogger().error("Failed setting crafting grid slots (recipe might have lied about fitting in a 3x3 grid)", ex);
 		    ThaumcraftFix.instance.getLogger().error("Note: future errors with this recipe will not be logged");
+		}
+		bail = true;
+	    }
+
+	    boolean matches = false;
+	    if (!bail) {
+		if (recipe instanceof IArcaneRecipe) {
+		    IArcaneRecipe arcane = (IArcaneRecipe) recipe;
+		    if (arcane.getCrystals() != null) {
+			for (ShardType shard : ShardType.values()) {
+			    if (shard.getMetadata() < 6 && arcane.getCrystals().getAmount(shard.getAspect()) > 0) {
+				ret.setInventorySlotContents(shard.getMetadata() + 9,
+					ThaumcraftApiHelper.makeCrystal(shard.getAspect(), arcane.getCrystals().getAmount(shard.getAspect())));
+			    }
+			}
+		    }
+		}
+
+		try {
+		    matches = recipe.matches(ret, null);
+		}
+		catch (Exception ex) {
+		    if (BROKEN_RECIPES.add(recipe.getRegistryName())) {
+			ThaumcraftFix.instance.getLogger().error("Failed calling IRecipe#matches", ex);
+			ThaumcraftFix.instance.getLogger().error("Note: future errors with this recipe will not be logged");
+		    }
 		}
 	    }
 
