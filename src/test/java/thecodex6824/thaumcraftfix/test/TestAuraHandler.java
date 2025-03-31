@@ -169,4 +169,46 @@ public class TestAuraHandler {
 	}
     }
 
+    @Test
+    @ResourceLock(TestConstants.RESOURCE_AURA)
+    public void testDrainVisSimulate() {
+	MockWorld dim0 = new MockWorld();
+	try {
+	    AuraHandler.addAuraWorld(dim0.provider.getDimension());
+	    AuraHandler.addAuraChunk(dim0.provider.getDimension(), new Chunk(dim0, 0, 0),
+		    (short) 200, 100.0f, 0.0f);
+	    BlockPos pos = new BlockPos(0, 0, 0);
+	    assertEquals(0.5f, AuraHandler.drainVis(dim0, pos, 0.5f, true));
+	    assertEquals(10.0f, AuraHandler.drainVis(dim0, pos, 10.0f, true));
+	    assertEquals(14.12378989783f, AuraHandler.drainVis(dim0, pos, 14.12378989783f, true));
+	    assertEquals(100.0f, AuraHandler.drainVis(dim0, pos, 100.1f, true), 0.0001f);
+	    assertEquals(Short.MAX_VALUE - 100.0f, AuraHandler.drainVis(dim0, pos, -Short.MAX_VALUE, true), 0.0001f);
+	}
+	finally {
+	    AuraHandler.removeAuraChunk(dim0.provider.getDimension(), 0, 0);
+	    AuraHandler.removeAuraWorld(dim0.provider.getDimension());
+	}
+    }
+
+    @Test
+    @ResourceLock(TestConstants.RESOURCE_AURA)
+    public void testDrainFluxSimulate() {
+	MockWorld dim0 = new MockWorld();
+	try {
+	    AuraHandler.addAuraWorld(dim0.provider.getDimension());
+	    AuraHandler.addAuraChunk(dim0.provider.getDimension(), new Chunk(dim0, 0, 0),
+		    (short) 200, 0.0f, 100.0f);
+	    BlockPos pos = new BlockPos(0, 0, 0);
+	    assertEquals(0.5f, AuraHandler.drainFlux(dim0, pos, 0.5f, true));
+	    assertEquals(10.0f, AuraHandler.drainFlux(dim0, pos, 10.0f, true));
+	    assertEquals(14.12378989783f, AuraHandler.drainFlux(dim0, pos, 14.12378989783f, true));
+	    assertEquals(100.0f, AuraHandler.drainFlux(dim0, pos, 100.1f, true), 0.0001f);
+	    assertEquals(Short.MAX_VALUE - 100.0f, AuraHandler.drainFlux(dim0, pos, -Short.MAX_VALUE, true), 0.0001f);
+	}
+	finally {
+	    AuraHandler.removeAuraChunk(dim0.provider.getDimension(), 0, 0);
+	    AuraHandler.removeAuraWorld(dim0.provider.getDimension());
+	}
+    }
+
 }

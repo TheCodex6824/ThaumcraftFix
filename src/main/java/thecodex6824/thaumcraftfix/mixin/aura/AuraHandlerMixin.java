@@ -80,7 +80,15 @@ public class AuraHandlerMixin {
 		pos.getX() >> 4, pos.getZ() >> 4);
 	if (ac != null) {
 	    if (simulate) {
-		return ac.getVis() - amount;
+		float ret = amount;
+		float test = ac.getVis() - amount;
+		if (test >= Short.MAX_VALUE) {
+		    ret = Short.MAX_VALUE - ac.getVis();
+		}
+		else if (test < 0.0f) {
+		    ret = ac.getVis();
+		}
+		return ret;
 	    }
 	    else if (ac instanceof IAuraChunk) {
 		return -((IAuraChunk) ac).addVis(-amount);
@@ -101,7 +109,15 @@ public class AuraHandlerMixin {
 		pos.getX() >> 4, pos.getZ() >> 4);
 	if (ac != null) {
 	    if (simulate) {
-		return ac.getFlux() - amount;
+		float ret = amount;
+		float test = ac.getFlux() - amount;
+		if (test >= Short.MAX_VALUE) {
+		    ret = Short.MAX_VALUE - ac.getFlux();
+		}
+		else if (test < 0.0f) {
+		    ret = ac.getFlux();
+		}
+		return ret;
 	    }
 	    else if (ac instanceof IAuraChunk) {
 		return -((IAuraChunk) ac).addFlux(-amount);
