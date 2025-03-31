@@ -1,13 +1,13 @@
 newmtl body
 d 1.0000
 Tr 0.0000
-Kd 0.5880 0.5880 0.5880
+Kd 1.0000 1.0000 1.0000
 map_Ka thaumcraft:items/scanner
 map_Kd thaumcraft:items/scanner
 
 newmtl pane
 d 1.0000
 Tr 0.0000
-Kd 0.5880 0.5880 0.5880
+Kd 1.0000 1.0000 1.0000
 map_Ka thaumcraft:items/scanscreen
 map_Kd thaumcraft:items/scanscreen

@@ -1,0 +1,9 @@
+# 3ds Max Wavefront OBJ Exporter v0.97b - (c)2007 guruware
+# File Created: 01.10.2015 14:06:11
+
+newmtl Material__25
+	d 1.0000
+	Tr 0.0000
+	Kd 1.0000 1.0000 1.0000
+	map_Ka thaumcraft:blocks/crystal
+	map_Kd thaumcraft:blocks/crystal
