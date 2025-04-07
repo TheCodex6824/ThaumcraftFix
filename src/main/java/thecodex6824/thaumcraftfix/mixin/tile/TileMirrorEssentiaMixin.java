@@ -40,25 +40,25 @@ public class TileMirrorEssentiaMixin extends TileThaumcraft {
     }
 
     @WrapOperation(method = "doesContainerAccept", at = @At(value = "INVOKE", target =
-	    "Lnet/minecraft/world/World;getTileEntity(Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/tileentity/TileEntity;"), remap = false)
+	    "Lnet/minecraft/world/World;getTileEntity(Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/tileentity/TileEntity;", remap = true), remap = false)
     private TileEntity wrapDoesContainerAcceptGetTile(World world, BlockPos pos, Operation<TileEntity> original) {
 	return getTileIfWorldExists(world, pos, original);
     }
 
     @WrapOperation(method = "addToContainer", at = @At(value = "INVOKE", target =
-	    "Lnet/minecraft/world/World;getTileEntity(Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/tileentity/TileEntity;"), remap = false)
+	    "Lnet/minecraft/world/World;getTileEntity(Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/tileentity/TileEntity;", remap = true), remap = false)
     private TileEntity wrapAddToContainerGetTile(World world, BlockPos pos, Operation<TileEntity> original) {
 	return getTileIfWorldExists(world, pos, original);
     }
 
     @WrapOperation(method = "takeFromContainer(Lthaumcraft/api/aspects/Aspect;I)Z", at = @At(value = "INVOKE", target =
-	    "Lnet/minecraft/world/World;getTileEntity(Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/tileentity/TileEntity;"), remap = false)
+	    "Lnet/minecraft/world/World;getTileEntity(Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/tileentity/TileEntity;", remap = true), remap = false)
     private TileEntity wrapTakeFromContainerGetTile(World world, BlockPos pos, Operation<TileEntity> original) {
 	return getTileIfWorldExists(world, pos, original);
     }
 
     @WrapOperation(method = "doesContainerContainAmount", at = @At(value = "INVOKE", target =
-	    "Lnet/minecraft/world/World;getTileEntity(Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/tileentity/TileEntity;"), remap = false)
+	    "Lnet/minecraft/world/World;getTileEntity(Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/tileentity/TileEntity;", remap = true), remap = false)
     private TileEntity wrapDoesContainerContainAmountGetTile(World world, BlockPos pos, Operation<TileEntity> original) {
 	return getTileIfWorldExists(world, pos, original);
     }

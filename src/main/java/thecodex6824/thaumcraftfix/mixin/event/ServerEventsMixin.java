@@ -205,7 +205,8 @@ public class ServerEventsMixin {
     @WrapOperation(method = "tickBlockSwap(Lnet/minecraft/world/World;)V",
 	    at = @At(
 		    value = "INVOKE",
-		    target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/state/IBlockState;I)Z"
+		    target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/state/IBlockState;I)Z",
+		    remap = true
 		    ),
 	    remap = false)
     private static boolean wrapOriginalSetBlockstate(World world, BlockPos pos, IBlockState state,
@@ -223,7 +224,8 @@ public class ServerEventsMixin {
     @WrapOperation(method = "tickBlockSwap(Lnet/minecraft/world/World;)V",
 	    at = @At(
 		    value = "INVOKE",
-		    target = "Lnet/minecraft/world/World;setBlockToAir(Lnet/minecraft/util/math/BlockPos;)Z"
+		    target = "Lnet/minecraft/world/World;setBlockToAir(Lnet/minecraft/util/math/BlockPos;)Z",
+		    remap = true
 		    ),
 	    remap = false)
     private static boolean wrapOriginalSetBlockToAir(World world, BlockPos pos,
