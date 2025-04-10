@@ -69,7 +69,6 @@ public class ServerEventsMixin {
 
     private static ThreadLocal<Field> sourceField = new ThreadLocal<>();
     private static ThreadLocal<Field> targetField = new ThreadLocal<>();
-    private static ThreadLocal<Field> playerField = new ThreadLocal<>();
 
     private static Object getSwapperSource(VirtualSwapper vs) {
 	try {
@@ -101,21 +100,6 @@ public class ServerEventsMixin {
 	}
     }
 
-    private static EntityPlayer getSwapperPlayer(VirtualSwapper vs) {
-	try {
-	    if (playerField.get() == null) {
-		Field field = VirtualSwapper.class.getDeclaredField("player");
-		field.setAccessible(true);
-		playerField.set(field);
-	    }
-
-	    return (EntityPlayer) playerField.get().get(vs);
-	}
-	catch (ReflectiveOperationException ex) {
-	    throw new RuntimeException(ex);
-	}
-    }
-
     @WrapOperation(method = "tickBlockSwap(Lnet/minecraft/world/World;)V",
 	    at = @At(
 		    value = "NEW",
@@ -131,9 +115,7 @@ public class ServerEventsMixin {
 	if (target != null && !target.isEmpty()) {
 	    Block block = Block.getBlockFromItem(target.getItem());
 	    if (block != null && block != Blocks.AIR) {
-		EntityPlayer placer = getSwapperPlayer(vs);
-		toPlace = block.getStateForPlacement(world, pos, EnumFacing.UP, 0.5f, 0.5f, 0.5f,
-			target.getMetadata(), placer, placer.getActiveHand());
+		toPlace = block.getStateFromMeta(target.getItemDamage());
 	    }
 	}
 
