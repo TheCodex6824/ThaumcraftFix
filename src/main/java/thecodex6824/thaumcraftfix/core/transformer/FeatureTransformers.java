@@ -46,7 +46,7 @@ public class FeatureTransformers {
 		return 1;
 	    }
 	    else if (!FeatureControlApi.auraAllowedBiomes().contains(chunk.getWorld().getBiome(
-		    new BlockPos(chunk.x * 16 + 8, 0, chunk.z * 16 + 8)))) {
+		    chunk.getWorld().getHeight(new BlockPos(chunk.x * 16 + 8, 0, chunk.z * 16 + 8))))) {
 		return 1;
 	    }
 
@@ -61,7 +61,7 @@ public class FeatureTransformers {
 		return false;
 	    }
 	    else if (!FeatureControlApi.crystalAllowedBiomes().contains(world.getBiome(
-		    new BlockPos(chunkX * 16 + 8, 0, chunkZ * 16 + 8)))) {
+		    world.getHeight(new BlockPos(chunkX * 16 + 8, 0, chunkZ * 16 + 8))))) {
 		return false;
 	    }
 
@@ -76,7 +76,7 @@ public class FeatureTransformers {
 		return 1;
 	    }
 	    else if (!FeatureControlApi.vegetationAllowedBiomes().contains(world.getBiome(
-		    new BlockPos(chunkX * 16 + 8, 0, chunkZ * 16 + 8)))) {
+		    world.getHeight(new BlockPos(chunkX * 16 + 8, 0, chunkZ * 16 + 8))))) {
 		return 1;
 	    }
 
