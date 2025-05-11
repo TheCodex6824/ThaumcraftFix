@@ -24,9 +24,18 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.GameType;
 import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.FakePlayer;
+import net.minecraftforge.event.world.BlockEvent;
 import thaumcraft.common.lib.utils.BlockUtils;
 
 @Mixin(BlockUtils.class)
@@ -39,6 +48,36 @@ public class BlockUtilsMixin {
 	    remap = false)
     private static boolean redirectHarvestBlock(World world, EntityPlayer player, BlockPos pos) {
 	return BlockUtils.harvestBlock(world, player, pos, false, false, 0, false);
+    }
+
+    @WrapOperation(method = "harvestBlock(Lnet/minecraft/world/World;Lnet/minecraft/entity/player/EntityPlayer;Lnet/minecraft/util/math/BlockPos;ZZIZ)Z",
+	    at = @At(value = "INVOKE",
+	    target = "Lnet/minecraftforge/common/ForgeHooks;onBlockBreakEvent(Lnet/minecraft/world/World;Lnet/minecraft/world/GameType;Lnet/minecraft/entity/player/EntityPlayerMP;Lnet/minecraft/util/math/BlockPos;)I",
+	    remap = false),
+	    remap = false)
+    private static int wrapBlockBreakEvent(World world, GameType type, EntityPlayerMP player, BlockPos pos, Operation<Integer> original) {
+	if (player instanceof FakePlayer) {
+	    // do stuff the hook does but don't send packets
+	    boolean preCancelEvent = false;
+	    ItemStack stack = player.getHeldItemMainhand();
+	    if (type.isCreative() && !stack.isEmpty()
+		    && !stack.getItem().canDestroyBlockInCreative(world, pos, stack, player))
+		preCancelEvent = true;
+
+	    if (type.hasLimitedInteractions() &&
+		    (type == GameType.SPECTATOR ||
+		    (!player.isAllowEdit() && (stack.isEmpty() || !stack.canDestroy(world.getBlockState(pos).getBlock()))))) {
+		preCancelEvent = true;
+	    }
+
+	    BlockEvent.BreakEvent event = new BlockEvent.BreakEvent(world, pos, world.getBlockState(pos), player);
+	    event.setCanceled(preCancelEvent);
+	    MinecraftForge.EVENT_BUS.post(event);
+	    return event.isCanceled() ? -1 : event.getExpToDrop();
+	}
+	else {
+	    return original.call(world, type, player, pos);
+	}
     }
 
 }
