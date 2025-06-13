@@ -53,10 +53,10 @@ public class ModelBipedMixin extends ModelBase {
     @Shadow
     public ModelRenderer bipedHeadwear;
 
-    @Inject(method = "Lnet/minecraft/client/model/ModelBiped;setRotationAngles(FFFFFFLnet/minecraft/entity/Entity;)V",
+    @Inject(method = "setRotationAngles(FFFFFFLnet/minecraft/entity/Entity;)V",
 	    at = @At(
-		    value = "FIELD",
-		    target = "Lnet/minecraft/client/model/ModelBiped;bipedRightArm:Lnet/minecraft/client/model/ModelRenderer;",
+		    value = "INVOKE",
+		    target = "Lnet/minecraft/util/math/MathHelper;cos(F)F",
 		    ordinal = 0
 		    ),
             slice = @Slice(from = @At(value = "FIELD", target = "Lnet/minecraft/client/model/ModelBiped;isSneak:Z"))
