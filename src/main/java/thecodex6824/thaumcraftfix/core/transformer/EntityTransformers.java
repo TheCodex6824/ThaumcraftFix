@@ -42,6 +42,7 @@ import com.mojang.authlib.GameProfile;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
@@ -68,6 +69,7 @@ import net.minecraftforge.fml.common.eventhandler.Event.Result;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import thaumcraft.api.blocks.BlocksTC;
+import thaumcraft.client.renderers.models.gear.ModelCustomArmor;
 import thaumcraft.common.config.ModConfig;
 import thaumcraft.common.entities.EntityFluxRift;
 import thaumcraft.common.entities.construct.EntityArcaneBore;
@@ -262,6 +264,29 @@ public class EntityTransformers {
 
     @SideOnly(Side.CLIENT)
     public static final class HooksClient {
+
+	public static void correctRotationPoints(ModelBiped model) {
+		if (model instanceof ModelCustomArmor) {
+			if (model.isSneak) {
+				model.bipedRightLeg.rotationPointY = 13.0F;
+				model.bipedLeftLeg.rotationPointY = 13.0F;
+				model.bipedHead.rotationPointY = 4.5F;
+
+				model.bipedBody.rotationPointY = 4.5F;
+				model.bipedRightArm.rotationPointY = 5.0F;
+				model.bipedLeftArm.rotationPointY = 5.0F;
+			}
+			else {
+				model.bipedBody.rotationPointY = 0.0F;
+				model.bipedRightArm.rotationPointY = 2.0F;
+				model.bipedLeftArm.rotationPointY = 2.0F;
+			}
+
+			model.bipedHeadwear.rotationPointX = model.bipedHead.rotationPointX;
+			model.bipedHeadwear.rotationPointY = model.bipedHead.rotationPointY;
+			model.bipedHeadwear.rotationPointZ = model.bipedHead.rotationPointZ;
+		}
+	}
 
 	public static TextureAtlasSprite getBlockParticleTexture(TextureAtlasSprite old, IBlockState state) {
 	    return Minecraft.getMinecraft().getBlockRendererDispatcher()

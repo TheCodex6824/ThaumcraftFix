@@ -30,28 +30,28 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelRenderer;
-import net.minecraft.entity.Entity;
-import thaumcraft.client.renderers.models.gear.ModelCustomArmor;
+
+import thecodex6824.thaumcraftfix.core.transformer.EntityTransformers;
 
 @Mixin(ModelBiped.class)
 public class ModelBipedMixin extends ModelBase {
 
     @Shadow
-    private boolean isSneak;
+    public boolean isSneak;
     @Shadow
-    private ModelRenderer bipedRightLeg;
+    public ModelRenderer bipedRightLeg;
     @Shadow
-    private ModelRenderer bipedLeftLeg;
+    public ModelRenderer bipedLeftLeg;
     @Shadow
-    private ModelRenderer bipedHead;
+    public ModelRenderer bipedHead;
     @Shadow
-    private ModelRenderer bipedBody;
+    public ModelRenderer bipedBody;
     @Shadow
-    private ModelRenderer bipedRightArm;
+    public ModelRenderer bipedRightArm;
     @Shadow
-    private ModelRenderer bipedLeftArm;
+    public ModelRenderer bipedLeftArm;
     @Shadow
-    private ModelRenderer bipedHeadwear;
+    public ModelRenderer bipedHeadwear;
 
     @Inject(method = "Lnet/minecraft/client/model/ModelBiped;setRotationAngles(FFFFFFLnet/minecraft/entity/Entity;)V",
 	    at = @At(
@@ -59,32 +59,15 @@ public class ModelBipedMixin extends ModelBase {
 		    target = "Lnet/minecraft/client/model/ModelBiped;bipedRightArm:Lnet/minecraft/client/model/ModelRenderer;",
 		    ordinal = 0
 		    ),
-	    slice = @Slice(from = @At(value = "FIELD", target = "Lnet/minecraft/client/model/ModelBiped;isSneak:Z"))
-	    )
-    private void setupRotation(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw,
-	    float headPitch, float scaleFactor, Entity entity, CallbackInfo ci) {
-	// the double cast is not strictly necessary but my IDE autoremoves it
-	// if it is just an Object cast
-	if ((ModelBiped) ((Object) this) instanceof ModelCustomArmor) {
-	    if (isSneak) {
-		bipedRightLeg.rotationPointY = 13.0F;
-		bipedLeftLeg.rotationPointY = 13.0F;
-		bipedHead.rotationPointY = 4.5F;
+            slice = @Slice(from = @At(value = "FIELD", target = "Lnet/minecraft/client/model/ModelBiped;isSneak:Z"))
+    )
+    private void setupRotation(CallbackInfo ci) {
+        // the double cast is not strictly necessary but my IDE autoremoves it
+        // if it is just an Object cast
 
-		bipedBody.rotationPointY = 4.5F;
-		bipedRightArm.rotationPointY = 5.0F;
-		bipedLeftArm.rotationPointY = 5.0F;
-	    }
-	    else {
-		bipedBody.rotationPointY = 0.0F;
-		bipedRightArm.rotationPointY = 2.0F;
-		bipedLeftArm.rotationPointY = 2.0F;
-	    }
-
-	    bipedHeadwear.rotationPointX = bipedHead.rotationPointX;
-	    bipedHeadwear.rotationPointY = bipedHead.rotationPointY;
-	    bipedHeadwear.rotationPointZ = bipedHead.rotationPointZ;
-	}
+        // Calling a hook method because class-loading TC's ModelCustomArmor seems
+        // to cause issues with other transformers (#83)
+        EntityTransformers.HooksClient.correctRotationPoints((ModelBiped) ((Object) this));
     }
 
 }
