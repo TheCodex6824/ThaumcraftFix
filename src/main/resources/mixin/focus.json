@@ -11,6 +11,10 @@
     "FocusEffectFluxMixin",
     "FocusEffectFrostMixin",
     "FocusEffectHealMixin",
-    "FocusEffectRiftMixin"
+    "FocusEffectRiftMixin",
+    "FocusMediumBoltMixin",
+    "FocusMediumCloudMixin",
+    "FocusMediumMineMixin",
+    "FocusMediumSpellbatMixin"
   ]
 }
