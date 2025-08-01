@@ -32,10 +32,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import thaumcraft.api.casters.FocusEffect;
 import thaumcraft.api.casters.Trajectory;
-import thaumcraft.common.items.casters.foci.FocusEffectFrost;
+import thaumcraft.common.items.casters.foci.FocusEffectRift;
 import thaumcraft.common.lib.SoundsTC;
 
-@Mixin(FocusEffectFrost.class)
+@Mixin(FocusEffectRift.class)
 public abstract class FocusEffectRiftMixin extends FocusEffect {
 
     @Override
