@@ -4,6 +4,13 @@
   "minVersion": "${mixinminversion}",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "FocusEffectExchangeMixin"
+    "FocusEffectBreakMixin",
+    "FocusEffectEarthMixin",
+    "FocusEffectExchangeMixin",
+    "FocusEffectFireMixin",
+    "FocusEffectFluxMixin",
+    "FocusEffectFrostMixin",
+    "FocusEffectHealMixin",
+    "FocusEffectRiftMixin"
   ]
 }

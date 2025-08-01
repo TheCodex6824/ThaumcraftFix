@@ -20,7 +20,7 @@
 
 package thecodex6824.thaumcraftfix.mixin.focus;
 
-import net.minecraft.entity.Entity;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.RayTraceResult;
 
@@ -29,33 +29,17 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import com.llamalad7.mixinextras.injector.ModifyReturnValue;
-
 import thaumcraft.api.casters.FocusEffect;
 import thaumcraft.api.casters.Trajectory;
-import thaumcraft.common.items.casters.foci.FocusEffectExchange;
-import thaumcraft.common.lib.SoundsTC;
+import thaumcraft.common.items.casters.foci.FocusEffectFlux;
 
-@Mixin(FocusEffectExchange.class)
-public abstract class FocusEffectExchangeMixin extends FocusEffect {
-
-    @ModifyReturnValue(method = "getComplexity", at = @At("RETURN"), remap = false)
-    private int addComplexityForSilkTouch(int original) {
-        return original + (getSettingValue("silk") > 0 ? 4 : 0);
-    }
-
-    @Override
-    public void onCast(final Entity caster) {
-        try {
-            caster.world.playSound(null, caster.getPosition().up(), SoundsTC.hhoff, SoundCategory.PLAYERS, 0.8F, 0.45F + (float) (caster.world.rand.nextGaussian() * 0.05F));
-        } catch (Exception ignored) {
-        }
-    }
+@Mixin(FocusEffectFlux.class)
+public abstract class FocusEffectFluxMixin extends FocusEffect {
 
     @Inject(method = "execute", at = @At(value = "RETURN"), remap = false)
-    public void exchangeFocusImpactSound(RayTraceResult target, Trajectory trajectory, float finalPower, int num, CallbackInfoReturnable<Boolean> cir) {
+    public void fluxFocusImpactSound(RayTraceResult target, Trajectory trajectory, float finalPower, int num, CallbackInfoReturnable<Boolean> cir) {
         try {
-            this.getPackage().world.playSound(null, target.hitVec.x, target.hitVec.y, target.hitVec.z, SoundsTC.hhon, SoundCategory.PLAYERS, 0.8F, 0.85F + (float) (this.getPackage().getCaster().world.rand.nextGaussian() * 0.05F));
+            this.getPackage().world.playSound(null, target.hitVec.x, target.hitVec.y, target.hitVec.z, SoundEvents.BLOCK_CHORUS_FLOWER_DEATH, SoundCategory.PLAYERS, 1.5F, 2.0F + (float) (this.getPackage().getCaster().world.rand.nextGaussian() * 0.05F));
         } catch (Exception ignored) {
         }
     }

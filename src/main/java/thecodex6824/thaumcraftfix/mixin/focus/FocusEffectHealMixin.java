@@ -29,33 +29,26 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import com.llamalad7.mixinextras.injector.ModifyReturnValue;
-
 import thaumcraft.api.casters.FocusEffect;
 import thaumcraft.api.casters.Trajectory;
-import thaumcraft.common.items.casters.foci.FocusEffectExchange;
+import thaumcraft.common.items.casters.foci.FocusEffectHeal;
 import thaumcraft.common.lib.SoundsTC;
 
-@Mixin(FocusEffectExchange.class)
-public abstract class FocusEffectExchangeMixin extends FocusEffect {
-
-    @ModifyReturnValue(method = "getComplexity", at = @At("RETURN"), remap = false)
-    private int addComplexityForSilkTouch(int original) {
-        return original + (getSettingValue("silk") > 0 ? 4 : 0);
-    }
+@Mixin(FocusEffectHeal.class)
+public abstract class FocusEffectHealMixin extends FocusEffect {
 
     @Override
     public void onCast(final Entity caster) {
         try {
-            caster.world.playSound(null, caster.getPosition().up(), SoundsTC.hhoff, SoundCategory.PLAYERS, 0.8F, 0.45F + (float) (caster.world.rand.nextGaussian() * 0.05F));
+            caster.world.playSound(null, caster.getPosition().up(), SoundsTC.wand, SoundCategory.PLAYERS, 0.825F, 3.0F + (float) (caster.world.rand.nextGaussian() * 0.05F));
         } catch (Exception ignored) {
         }
     }
 
     @Inject(method = "execute", at = @At(value = "RETURN"), remap = false)
-    public void exchangeFocusImpactSound(RayTraceResult target, Trajectory trajectory, float finalPower, int num, CallbackInfoReturnable<Boolean> cir) {
+    public void earthFocusImpactSound(RayTraceResult target, Trajectory trajectory, float finalPower, int num, CallbackInfoReturnable<Boolean> cir) {
         try {
-            this.getPackage().world.playSound(null, target.hitVec.x, target.hitVec.y, target.hitVec.z, SoundsTC.hhon, SoundCategory.PLAYERS, 0.8F, 0.85F + (float) (this.getPackage().getCaster().world.rand.nextGaussian() * 0.05F));
+            this.getPackage().world.playSound(null, target.hitVec.x, target.hitVec.y, target.hitVec.z, SoundsTC.wand, SoundCategory.PLAYERS, 0.525F, 0.7F + (float) (this.getPackage().getCaster().world.rand.nextGaussian() * 0.05F));
         } catch (Exception ignored) {
         }
     }
