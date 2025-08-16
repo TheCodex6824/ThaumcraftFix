@@ -1,9 +1,9 @@
 thaumcraftfix.alreadyinuse=有人已经在使用这个了
 
 thaumcraftfix.text.config.world=世界
-thaumcraftfix.text.config.aura=光环
+thaumcraftfix.text.config.aura=灵气场
 thaumcraftfix.text.config.crystals=水晶
-thaumcraftfix.text.config.vegetation=蔬菜
+thaumcraftfix.text.config.vegetation=植被
 thaumcraftfix.text.config.biomeList=生物群系
 thaumcraftfix.text.config.biomeListIsAllowList=生物群系列表白名单
 thaumcraftfix.text.config.dimList=维度

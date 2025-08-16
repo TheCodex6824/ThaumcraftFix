@@ -22,13 +22,16 @@ package thecodex6824.thaumcraftfix.mixin;
 
 import java.util.List;
 
+import net.minecraftforge.fml.common.Optional;
 import thecodex6824.thaumcraftfix.core.ThaumcraftFixCore;
 import zone.rong.mixinbooter.ILateMixinLoader;
 
 // this class should be automatically found and loaded by MixinBooter
+@Optional.Interface(iface = "zone.rong.mixinbooter.ILateMixinLoader", modid = "mixinbooter")
 public class MixinBooterLateMixinLoader implements ILateMixinLoader {
 
     @Override
+    @Optional.Method(modid = "mixinbooter")
     public List<String> getMixinConfigs() {
 	return ThaumcraftFixCore.getLateMixinConfigs();
     }

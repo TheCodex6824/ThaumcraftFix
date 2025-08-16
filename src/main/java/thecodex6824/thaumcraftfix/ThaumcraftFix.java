@@ -93,7 +93,7 @@ import thecodex6824.thaumcraftfix.common.research.parser.ScanParserItemExtended;
 import thecodex6824.thaumcraftfix.common.world.AuraFinalizerWorldGenerator;
 
 @Mod(modid = ThaumcraftFixApi.MODID, name = "Thaumcraft Fix", version = ThaumcraftFix.VERSION, useMetadata = true,
-certificateFingerprint = "@FINGERPRINT@")
+certificateFingerprint = "@FINGERPRINT@", dependencies = "after:mixinbooter; after:fermiumbooter")
 @EventBusSubscriber
 public class ThaumcraftFix {
 

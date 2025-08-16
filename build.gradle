@@ -128,6 +128,7 @@ dependencies {
     
     implementation fg.deobf('curse.maven:thaumcraft-223628:2629023')
     implementation fg.deobf('curse.maven:baubles-227083:2518667')
+    implementation fg.deobf('curse.maven:fermiumbooter-968474:6386622')
     
     testImplementation 'org.junit.jupiter:junit-jupiter:5.11.+'
     testImplementation 'org.junit.platform:junit-platform-launcher:1.11.+'
@@ -144,7 +145,8 @@ dependencies {
     
     // fixes annotation compiler warnings in guava
     compileOnly 'com.google.errorprone:error_prone_annotations:2.10.0'
-    
+
+
     implementation("zone.rong:mixinbooter:${mixinbooterversion}") {
         transitive = false
     }
