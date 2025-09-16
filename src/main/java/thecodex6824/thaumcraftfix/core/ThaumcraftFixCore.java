@@ -20,6 +20,7 @@
 
 package thecodex6824.thaumcraftfix.core;
 
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 
@@ -92,6 +93,41 @@ public class ThaumcraftFixCore implements IFMLLoadingPlugin {
 
     @Override
     public void injectData(Map<String, Object> data) {
+	// I know addConfigurations exists, but the single-argument form doesn't exist in FermiumBooter
+	// trying to use the 2 argument version here runs into classloader issues from IMixinConfigSource
+	try {
+	    for (String c : getEarlyMixinConfigs()) {
+		Mixins.addConfiguration(c);
+	    }
+	}
+	catch (NoClassDefFoundError ex) {
+	    log.error("No Mixin provider is loaded. The game will probably fail to load very soon.", ex);
+	    // we don't want the game to start, but we also want to show a nice message
+	    // there is a handler in PreInit that will do that, so avoid crashing for now
+	    return;
+	}
+	// determine if we should use MixinBooter or FermiumBooter for late Mixins
+	try {
+	    Class.forName("zone.rong.mixinbooter.ILateMixinLoader");
+	    // if we got here then we have MixinBooter, so MixinBooterLateMixinLoader will be found and used
+	    log.info("Using MixinBooter for late Mixin loading");
+	}
+	catch (ClassNotFoundException ex) {
+	    // We do not have MixinBooter, so FermiumBooter needs configuration
+	    try {
+		Class<?> registryClass = Class.forName("fermiumbooter.FermiumRegistryAPI");
+		Method enqueue = registryClass.getMethod("enqueueMixin", boolean.class, String.class);
+		for (String c : getLateMixinConfigs()) {
+		    enqueue.invoke(null, true, c);
+		}
+		log.info("Using FermiumBooter for late Mixin loading");
+	    }
+	    catch (ReflectiveOperationException e2) {
+		// This time it's actually a problem
+		throw new RuntimeException(e2);
+	    }
+	}
+
 	String debugProp = System.getProperty("thaumcraftfix.debug");
 	boolean debugBoolTrue = Boolean.parseBoolean(debugProp);
 	boolean debugIntTrue = false;
@@ -122,8 +158,6 @@ public class ThaumcraftFixCore implements IFMLLoadingPlugin {
 	    thaumicWands = true;
 	}
 	catch (Exception ex) {}
-
-	Mixins.addConfigurations(getEarlyMixinConfigs().toArray(new String[0]));
 
 	ready = true;
 	log.info("Thaumcraft Fix coremod initialized");

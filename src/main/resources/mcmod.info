@@ -12,7 +12,7 @@
   "logoFile": "assets/thaumcraftfix/textures/gui/logo.png",
   "screenshots": [],
   "useDependencyInformation": true,
-  "requiredMods": ["forge@[${forgeminversion},)", "thaumcraft@[6.1.BETA26,)", "mixinbooter@[10.0,)"],
-  "dependencies": ["thaumcraft", "mixinbooter"]
+  "requiredMods": ["forge@[${forgeminversion},)", "thaumcraft@[6.1.BETA26,)"],
+  "dependencies": ["fermiumbooter", "mixinbooter", "thaumcraft"]
 }
 ]

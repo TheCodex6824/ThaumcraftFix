@@ -33,6 +33,8 @@ import net.minecraftforge.fml.common.FMLContainerHolder;
 import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.relauncher.Side;
 import thecodex6824.thaumcraftfix.api.ThaumcraftFixApi;
+import thecodex6824.thaumcraftfix.client.ThaumcraftFixLoaderException;
+import thecodex6824.thaumcraftfix.common.util.TranslatableMessage;
 
 public class ClientProxy implements IProxy {
 
@@ -69,6 +71,11 @@ public class ClientProxy implements IProxy {
 	    // thaumcraftIndex == new list size is also acceptable here
 	    packs.add(thaumcraftIndex, fix);
 	}
+    }
+
+    @Override
+    public void raiseFatalLoaderException(String excMessage, TranslatableMessage... messages) {
+	throw new ThaumcraftFixLoaderException(excMessage, messages);
     }
 
     @Override

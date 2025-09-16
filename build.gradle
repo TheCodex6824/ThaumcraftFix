@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'jvm-test-suite'
     id 'eclipse'
     id 'idea'
     id 'net.minecraftforge.gradle' version '6.0.+'
@@ -144,14 +145,17 @@ dependencies {
     
     // fixes annotation compiler warnings in guava
     compileOnly 'com.google.errorprone:error_prone_annotations:2.10.0'
-    
+
+    // warning: booters will need to be filtered out in unit tests
     implementation("zone.rong:mixinbooter:${mixinbooterversion}") {
         transitive = false
     }
     annotationProcessor("zone.rong:mixinbooter:${mixinbooterversion}") {
         transitive = false
     }
-    
+    // it is very difficult to get fermiumbooter and mixinbooter together on the classpath without disaster
+    // we only need to call a single method in fermiumbooter so we just use reflection
+
     constraints {
         implementation('net.minecraftforge:legacydev:0.3.0.0-legacyExt') {
             because 'needed to have all ATs work properly'
@@ -161,7 +165,7 @@ dependencies {
             because 'newer ASM versions include module info that causes errors in Java 8'
         }
     }
-    
+
     configurations.configureEach {
         // mergetool pollutes the classpath with conflicting classes
         it.exclude(group: 'net.minecraftforge', module: 'mergetool')
@@ -271,7 +275,6 @@ tasks.compileJava {
 }
 
 tasks.build.dependsOn(tasks.signJar)
-tasks.test.dependsOn(tasks.createSrgToMcp)
 
 project.tasks.whenTaskAdded {
     if (it.name.equals('reobfJar')) {
@@ -302,11 +305,82 @@ artifacts {
     archives sourcesJar
 }
 
-test {
-    useJUnitPlatform()
-    afterEvaluate {
-        configurations.testAgent.each {
-            jvmArgs += "-javaagent:${it}"
+def setupTestConfigurations(ConfigurationContainer config, SourceSet sources, String excludeModule = null) {
+    
+    config.named(sources.implementationConfigurationName) {
+        extendsFrom(configurations.testImplementation)
+        if (excludeModule != null) {
+            exclude(module: excludeModule)
+        }
+    }
+    config.named(sources.annotationProcessorConfigurationName) {
+        extendsFrom(configurations.annotationProcessor)
+        if (excludeModule != null) {
+            exclude(module: excludeModule)
+        }
+    }
+
+    sources.java {
+        srcDirs = testing.suites.test.sources.getJava().getSrcDirs()
+    }
+    sources.resources {
+        srcDirs = testing.suites.test.sources.getResources().getSrcDirs()
+    }
+    sources.compileClasspath = testing.suites.test.sources.compileClasspath
+    sources.runtimeClasspath = testing.suites.test.sources.runtimeClasspath
+}
+
+def setupTestAgent(JvmTestSuite suite) {
+    suite.targets.all {
+        testTask.configure {
+            configurations.testAgent.each {
+                jvmArgs += "-javaagent:${it}"
+            }
         }
     }
 }
+
+testing {
+    suites {
+        configureEach {
+            useJUnitJupiter()
+            def suite = it
+            afterEvaluate {
+                setupTestAgent(suite)
+            }
+            targets.all {
+                testTask.configure {
+                    dependsOn(tasks.createSrgToMcp)
+                }
+            }
+        }
+
+        test {
+            dependencies {
+                implementation fg.deobf('curse.maven:fermiumbooter-968474:6386622')
+            }
+        }
+        mixinBooterTest(JvmTestSuite) {
+            setupTestConfigurations(configurations, sources)
+            targets.all {
+                testTask.configure {
+                    shouldRunAfter(tasks.test)
+                }
+            }
+        }
+        fermiumBooterTest(JvmTestSuite) {
+            dependencies {
+                implementation fg.deobf('curse.maven:fermiumbooter-968474:6386622')
+            }
+            setupTestConfigurations(configurations, sources, 'mixinbooter')
+            targets.all {
+                testTask.configure {
+                    shouldRunAfter(tasks.test)
+                }
+            }
+        }
+    }
+}
+
+tasks.check.dependsOn(testing.suites.mixinBooterTest)
+tasks.check.dependsOn(testing.suites.fermiumBooterTest)

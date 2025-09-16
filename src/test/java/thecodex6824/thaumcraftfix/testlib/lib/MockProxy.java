@@ -28,11 +28,22 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import thecodex6824.thaumcraftfix.IProxy;
+import thecodex6824.thaumcraftfix.common.util.TranslatableMessage;
 
 public class MockProxy implements IProxy {
 
     @Override
     public void construction() {}
+
+    @Override
+    public void raiseFatalLoaderException(String excMessage, TranslatableMessage... messages) {
+	StringBuilder builder = new StringBuilder(excMessage);
+	builder.append('\n');
+	for (TranslatableMessage m : messages) {
+	    builder.append(String.format(m.key, m.args));
+	}
+	throw new RuntimeException(builder.toString());
+    }
 
     @Override
     public EntityPlayer getClientPlayer() {

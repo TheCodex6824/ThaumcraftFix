@@ -13,3 +13,7 @@ thaumcraftfix.text.config.controlCrystals=Enabled
 thaumcraftfix.text.config.controlVegetation=Enabled
 thaumcraftfix.text.config.item=Item
 thaumcraftfix.text.config.primordialPearlDamageFix=Primordial Pearl Damage Value Fix
+
+thaumcraftfix.text.loader.loaderError=Thaumcraft Fix Fatal Mod Loading Error
+thaumcraftfix.text.loader.missingMixin=A compatible version of either MixinBooter or FermiumBooter (or both) must be installed.
+thaumcraftfix.text.loader.compatibleModVersions=Compatible %s versions are: %s

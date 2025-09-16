@@ -18,31 +18,20 @@
  *  along with Thaumcraft Fix.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package thecodex6824.thaumcraftfix;
+package thecodex6824.thaumcraftfix.testlib.fixture;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import org.spongepowered.asm.mixin.extensibility.IMixinConfigSource;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.relauncher.Side;
-import thecodex6824.thaumcraftfix.common.util.TranslatableMessage;
+public class UnitTestMixinConfigSource implements IMixinConfigSource {
 
-public interface IProxy {
+    @Override
+    public String getId() {
+	return "unit_test";
+    }
 
-    public void construction();
-
-    public void raiseFatalLoaderException(String excMessage, TranslatableMessage... messages);
-
-    public void scheduleTask(Side intendedSide, Runnable task);
-
-    public EntityPlayer getClientPlayer();
-
-    public File getGameDirectory();
-
-    public InputStream resolveResource(ResourceLocation loc) throws IOException;
-
-    public boolean isServerRunning();
+    @Override
+    public String getDescription() {
+	return "Configuration required for unit testing";
+    }
 
 }

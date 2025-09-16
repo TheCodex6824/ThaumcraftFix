@@ -32,7 +32,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.spongepowered.asm.mixin.transformer.Proxy;
+import org.spongepowered.asm.mixin.MixinEnvironment;
+import org.spongepowered.asm.mixin.transformer.IMixinTransformer;
 
 import net.minecraft.launchwrapper.IClassTransformer;
 import scala.actors.threadpool.Arrays;
@@ -71,7 +72,8 @@ public class UnitTestClassFileTransformer implements ClassFileTransformer {
 	for (IClassTransformer t : asmTransformers) {
 	    classCopy = t.transform(classNameWithDots, classNameWithDots, classCopy);
 	}
-	classCopy = Proxy.transformer.transformClassBytes(classNameWithDots, classNameWithDots, classCopy);
+	classCopy = ((IMixinTransformer) MixinEnvironment.getCurrentEnvironment().getActiveTransformer())
+		.transformClassBytes(classNameWithDots, classNameWithDots, classCopy);
 	return classCopy;
     }
 

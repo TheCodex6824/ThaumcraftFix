@@ -26,13 +26,30 @@ import java.io.InputStream;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.common.LoaderException;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.server.FMLServerHandler;
+import thecodex6824.thaumcraftfix.common.util.TranslatableMessage;
 
 public class ServerProxy implements IProxy {
 
     @Override
     public void construction() {}
+
+    @Override
+    @SuppressWarnings("deprecation")
+    public void raiseFatalLoaderException(String excMessage, TranslatableMessage... messages) {
+	StringBuilder builder = new StringBuilder(excMessage);
+	builder.append('\n');
+	for (int i = 0; i < messages.length; ++i) {
+	    TranslatableMessage m = messages[i];
+	    builder.append(net.minecraft.util.text.translation.I18n.translateToLocalFormatted(m.key, m.args));
+	    if (i != messages.length - 1) {
+		builder.append('\n');
+	    }
+	}
+	throw new LoaderException(builder.toString());
+    }
 
     @Override
     public void scheduleTask(Side intendedSide, Runnable task) {

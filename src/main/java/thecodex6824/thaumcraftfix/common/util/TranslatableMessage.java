@@ -1,6 +1,6 @@
 /**
  *  Thaumcraft Fix
- *  Copyright (c) 2024 TheCodex6824.
+ *  Copyright (c) 2025 TheCodex6824.
  *
  *  This file is part of Thaumcraft Fix.
  *
@@ -18,22 +18,14 @@
  *  along with Thaumcraft Fix.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package thecodex6824.thaumcraftfix.mixin;
+package thecodex6824.thaumcraftfix.common.util;
 
-import java.util.List;
+public class TranslatableMessage {
+    public final String key;
+    public final Object[] args;
 
-import net.minecraftforge.fml.common.Optional;
-import thecodex6824.thaumcraftfix.core.ThaumcraftFixCore;
-import zone.rong.mixinbooter.ILateMixinLoader;
-
-// this class should be automatically found and loaded by MixinBooter
-@Optional.Interface(iface = "zone.rong.mixinbooter.ILateMixinLoader", modid = "mixinbooter")
-public class MixinBooterLateMixinLoader implements ILateMixinLoader {
-
-    @Override
-    @Optional.Method(modid = "mixinbooter")
-    public List<String> getMixinConfigs() {
-	return ThaumcraftFixCore.getLateMixinConfigs();
+    public TranslatableMessage(String key, Object... args) {
+	this.key = key;
+	this.args = args;
     }
-
 }

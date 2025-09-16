@@ -45,10 +45,13 @@ import net.minecraftforge.common.capabilities.Capability.IStorage;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.fml.common.DummyModContainer;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
+import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLConstructionEvent;
 import net.minecraftforge.fml.common.event.FMLFingerprintViolationEvent;
@@ -62,6 +65,10 @@ import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.common.registry.EntityEntry;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.fml.common.versioning.ArtifactVersion;
+import net.minecraftforge.fml.common.versioning.DefaultArtifactVersion;
+import net.minecraftforge.fml.common.versioning.InvalidVersionSpecificationException;
+import net.minecraftforge.fml.common.versioning.VersionRange;
 import thaumcraft.api.ThaumcraftApi;
 import thaumcraft.api.ThaumcraftMaterials;
 import thaumcraft.api.aspects.Aspect;
@@ -91,6 +98,7 @@ import thecodex6824.thaumcraftfix.common.research.parser.ScanParserEntity;
 import thecodex6824.thaumcraftfix.common.research.parser.ScanParserItem;
 import thecodex6824.thaumcraftfix.common.research.parser.ScanParserItemExtended;
 import thecodex6824.thaumcraftfix.common.util.PechTradeHelper;
+import thecodex6824.thaumcraftfix.common.util.TranslatableMessage;
 import thecodex6824.thaumcraftfix.common.world.AuraFinalizerWorldGenerator;
 
 @Mod(modid = ThaumcraftFixApi.MODID, name = "Thaumcraft Fix", version = ThaumcraftFix.VERSION, useMetadata = true,
@@ -99,6 +107,8 @@ certificateFingerprint = "@FINGERPRINT@")
 public class ThaumcraftFix {
 
     public static final String VERSION = "@VERSION@";
+    private static final String MIXINBOOTER_VERSION_SPEC = "[10.0,)";
+    private static final String FERMIUMBOOTER_VERSION_SPEC = "[1.4.0,)";
 
     @Instance(ThaumcraftFixApi.MODID)
     public static ThaumcraftFix instance;
@@ -114,6 +124,30 @@ public class ThaumcraftFix {
     @EventHandler
     public void construction(FMLConstructionEvent event) {
 	proxy.construction();
+    }
+
+    private void checkMixinDepdendency() {
+	ArtifactVersion mixinBooter = null;
+	ArtifactVersion fermiumBooter = null;
+	try {
+	    mixinBooter = new DefaultArtifactVersion("mixinbooter", VersionRange.createFromVersionSpec(MIXINBOOTER_VERSION_SPEC));
+	    fermiumBooter = new DefaultArtifactVersion("fermiumbooter", VersionRange.createFromVersionSpec(FERMIUMBOOTER_VERSION_SPEC));
+	}
+	catch (InvalidVersionSpecificationException ex) {
+	    throw new RuntimeException(ex);
+	}
+
+	for (ModContainer c : Loader.instance().getActiveModList()) {
+	    if (mixinBooter.containsVersion(c.getProcessedVersion()) || fermiumBooter.containsVersion(c.getProcessedVersion())) {
+		return;
+	    }
+	}
+
+	proxy.raiseFatalLoaderException("No supported Mixin provider mod is installed",
+		new TranslatableMessage("thaumcraftfix.text.loader.missingMixin"),
+		new TranslatableMessage("thaumcraftfix.text.loader.compatibleModVersions", "MixinBooter", mixinBooter.getRangeString()),
+		new TranslatableMessage("thaumcraftfix.text.loader.compatibleModVersions", "FermiumBooter", fermiumBooter.getRangeString())
+		);
     }
 
     private void registerCapabilities() {
@@ -160,6 +194,10 @@ public class ThaumcraftFix {
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
+	// if this check fails then we are probably in tests
+	if (Loader.instance().activeModContainer() != null && !(Loader.instance().activeModContainer() instanceof DummyModContainer)) {
+	    checkMixinDepdendency();
+	}
 	logger = event.getModLog();
 	config = new ThaumcraftFixConfig();
 	config.bind();
