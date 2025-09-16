@@ -13,8 +13,6 @@ jobs:
     steps:
     - name: Checkout source
       uses: actions/checkout@v4
-    - name: Validate Gradle Wrapper
-      uses: gradle/actions/wrapper-validation@v3
     - name: Setup Java 8 (Temurin)
       uses: actions/setup-java@v4
       with:
@@ -22,7 +20,7 @@ jobs:
         java-version: 8
         architecture: x64
     - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@v3
+      uses: gradle/actions/setup-gradle@v4
     - name: Run build using Gradle Wrapper
       run: ./gradlew build
     - name: Upload test results on failure
