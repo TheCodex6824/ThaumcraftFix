@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'jvm-test-suite'
     id 'eclipse'
     id 'idea'
     id 'net.minecraftforge.gradle' version '6.0.+'
@@ -128,7 +129,6 @@ dependencies {
     
     implementation fg.deobf('curse.maven:thaumcraft-223628:2629023')
     implementation fg.deobf('curse.maven:baubles-227083:2518667')
-    implementation fg.deobf('curse.maven:fermiumbooter-968474:6386622')
     
     testImplementation 'org.junit.jupiter:junit-jupiter:5.11.+'
     testImplementation 'org.junit.platform:junit-platform-launcher:1.11.+'
@@ -146,13 +146,14 @@ dependencies {
     // fixes annotation compiler warnings in guava
     compileOnly 'com.google.errorprone:error_prone_annotations:2.10.0'
 
-
+    // warning: booters will need to be filtered out in unit tests
     implementation("zone.rong:mixinbooter:${mixinbooterversion}") {
         transitive = false
     }
     annotationProcessor("zone.rong:mixinbooter:${mixinbooterversion}") {
         transitive = false
     }
+    implementation fg.deobf('curse.maven:fermiumbooter-968474:6386622')
     
     constraints {
         implementation('net.minecraftforge:legacydev:0.3.0.0-legacyExt') {
@@ -273,7 +274,6 @@ tasks.compileJava {
 }
 
 tasks.build.dependsOn(tasks.signJar)
-tasks.test.dependsOn(tasks.createSrgToMcp)
 
 project.tasks.whenTaskAdded {
     if (it.name.equals('reobfJar')) {
@@ -304,11 +304,72 @@ artifacts {
     archives sourcesJar
 }
 
-test {
-    useJUnitPlatform()
-    afterEvaluate {
-        configurations.testAgent.each {
-            jvmArgs += "-javaagent:${it}"
+def setupTestConfigurations(ConfigurationContainer config, SourceSet sources, String excludeModule) {
+    config.named(sources.implementationConfigurationName) {
+        extendsFrom(configurations.testImplementation)
+        exclude(module: excludeModule)
+    }
+    config.named(sources.annotationProcessorConfigurationName) {
+        extendsFrom(configurations.annotationProcessor)
+        exclude(module: excludeModule)
+    }
+
+    sources.java {
+        srcDirs = testing.suites.test.sources.getJava().getSrcDirs()
+    }
+    sources.resources {
+        srcDirs = testing.suites.test.sources.getResources().getSrcDirs()
+    }
+    sources.compileClasspath = testing.suites.test.sources.compileClasspath
+    sources.runtimeClasspath = testing.suites.test.sources.runtimeClasspath
+}
+
+def setupTestAgent(JvmTestSuite suite) {
+    suite.targets.all {
+        testTask.configure {
+            configurations.testAgent.each {
+                jvmArgs += "-javaagent:${it}"
+            }
         }
     }
 }
+
+testing {
+    suites {
+        configureEach {
+            useJUnitJupiter()
+            def suite = it
+            afterEvaluate {
+                setupTestAgent(suite)
+            }
+            targets.all {
+                testTask.configure {
+                    dependsOn(tasks.createSrgToMcp)
+                }
+            }
+        }
+
+        // note there is an implicit suite called "test"
+        // that configuration will have every mixin loader installed
+
+        mixinBooterTest(JvmTestSuite) {
+            setupTestConfigurations(configurations, sources, 'fermiumbooter-968474')
+            targets.all {
+                testTask.configure {
+                    shouldRunAfter(tasks.test)
+                }
+            }
+        }
+        fermiumBooterTest(JvmTestSuite) {
+            setupTestConfigurations(configurations, sources, 'mixinbooter')
+            targets.all {
+                testTask.configure {
+                    shouldRunAfter(tasks.test)
+                }
+            }
+        }
+    }
+}
+
+tasks.check.dependsOn(testing.suites.mixinBooterTest)
+tasks.check.dependsOn(testing.suites.fermiumBooterTest)

@@ -30,7 +30,7 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.MixinEnvironment;
-import org.spongepowered.asm.mixin.transformer.Proxy;
+import org.spongepowered.asm.mixin.transformer.IMixinTransformer;
 import org.spongepowered.asm.service.IClassBytecodeProvider;
 import org.spongepowered.asm.service.IClassProvider;
 
@@ -81,7 +81,8 @@ public class UnitTestClassProvider implements IClassProvider, IClassBytecodeProv
 	ClassNode node = new ClassNode(Opcodes.ASM5);
 	new ClassReader(getClassBytes(name.replace('.', '/') + ".class")).accept(node, readerFlags);
 	if (runTransformers) {
-	    Proxy.transformer.transformClass(MixinEnvironment.getCurrentEnvironment(), name, node);
+	    MixinEnvironment env = MixinEnvironment.getCurrentEnvironment();
+	    ((IMixinTransformer) env.getActiveTransformer()).transformClass(env, name, node);
 	}
 	return node;
     }

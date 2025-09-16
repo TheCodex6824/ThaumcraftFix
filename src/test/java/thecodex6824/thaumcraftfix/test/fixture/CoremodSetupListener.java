@@ -58,7 +58,9 @@ public class CoremodSetupListener implements LauncherSessionListener {
 	    if (coremodInit.compareAndSet(false, true)) {
 		// this MUST run before test discovery, so we must run everything immediately
 		MixinBootstrap.init();
-		MixinEnvironment.getDefaultEnvironment().setActiveTransformer(Proxy.transformer);
+		// this does a bunch of init we can't do ourselves due to class visibility
+		// (via creating a MixinTransformer instance)
+		new Proxy();
 		MixinExtrasBootstrap.init();
 		MixinEnvironment.getDefaultEnvironment().setSide(Side.CLIENT);
 
@@ -72,7 +74,8 @@ public class CoremodSetupListener implements LauncherSessionListener {
 		ThaumcraftFixCore coremod = new ThaumcraftFixCore();
 		coremod.injectData(ImmutableMap.of());
 		// early configs were already handled in injectData
-		Mixins.addConfigurations(ThaumcraftFixCore.getLateMixinConfigs().toArray(new String[0]));
+		Mixins.addConfigurations(ThaumcraftFixCore.getLateMixinConfigs().toArray(new String[0]),
+			new UnitTestMixinConfigSource());
 
 		UnitTestClassFileTransformer transformer = new UnitTestClassFileTransformer();
 		for (String c : coremod.getASMTransformerClass()) {
