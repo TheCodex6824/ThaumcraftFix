@@ -20,16 +20,16 @@
 
 package thecodex6824.thaumcraftfix.mixin.event;
 
-import java.util.ArrayList;
-import java.util.Set;
-
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import net.minecraft.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-
-import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import thaumcraft.common.lib.events.PlayerEvents;
 import thecodex6824.thaumcraftfix.api.research.ResearchCategoryTheorycraftFilter;
+
+import java.util.ArrayList;
+import java.util.Set;
 
 @Mixin(PlayerEvents.class)
 public class PlayerEventsMixin {
@@ -52,4 +52,35 @@ public class PlayerEventsMixin {
 	return retained.toArray(new String[retained.size()]);
     }
 
+	@ModifyVariable(
+			method = "getRunicCharge(Lnet/minecraft/item/ItemStack;)I",
+			at = @At(
+					value = "STORE",
+					target = "Lnet/minecraft/nbt/NBTTagCompound;getByte(Ljava/lang/String;)B"
+			),
+			remap = false,
+			index = 1
+	)
+	private static int modifyRunicChargeVariable(int originalValue, ItemStack stack) {
+		if (stack.hasTagCompound() && stack.getTagCompound().hasKey("TC.RUNIC")) {
+			return stack.getTagCompound().getInteger("TC.RUNIC");
+		}
+		return originalValue;
+	}
+
+	@ModifyVariable(
+			method = "getFinalWarp",
+			at = @At(
+					value = "STORE",
+					target = "Lnet/minecraft/nbt/NBTTagCompound;getByte(Ljava/lang/String;)B"
+			),
+			remap = false,
+			index = 2
+	)
+	private static int mixinGetFinalWarp(int originalValue, ItemStack stack) {
+		if (stack.hasTagCompound() && stack.getTagCompound().hasKey("TC.WARP")) {
+			return stack.getTagCompound().getInteger("TC.WARP");
+		}
+		return originalValue;
+	}
 }
