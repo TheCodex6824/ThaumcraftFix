@@ -23,16 +23,14 @@ package thecodex6824.thaumcraftfix.mixin.event;
 import java.lang.reflect.Field;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
-import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.google.common.base.Predicate;
+import com.llamalad7.mixinextras.expression.Definition;
+import com.llamalad7.mixinextras.expression.Expression;
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -49,6 +47,8 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.BlockSnapshot;
+import net.minecraftforge.event.ForgeEventFactory;
+import net.minecraftforge.event.world.BlockEvent.PlaceEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import thaumcraft.common.lib.events.ServerEvents;
 import thaumcraft.common.lib.events.ServerEvents.VirtualSwapper;
@@ -67,18 +67,34 @@ public class ServerEventsMixin {
 		event.world.getCapability(CapabilityAuraProcessor.AURA_PROCESSOR, null));
     }
 
-    private static ThreadLocal<Field> sourceField = new ThreadLocal<>();
+    private static ThreadLocal<Field> playerField = new ThreadLocal<>();
+    private static ThreadLocal<Field> posField = new ThreadLocal<>();
     private static ThreadLocal<Field> targetField = new ThreadLocal<>();
 
-    private static Object getSwapperSource(VirtualSwapper vs) {
+    private static EntityPlayer getSwapperPlayer(VirtualSwapper vs) {
 	try {
-	    if (sourceField.get() == null) {
-		Field field = VirtualSwapper.class.getDeclaredField("source");
+	    if (playerField.get() == null) {
+		Field field = VirtualSwapper.class.getDeclaredField("player");
 		field.setAccessible(true);
-		sourceField.set(field);
+		playerField.set(field);
 	    }
 
-	    return sourceField.get().get(vs);
+	    return (EntityPlayer) playerField.get().get(vs);
+	}
+	catch (ReflectiveOperationException ex) {
+	    throw new RuntimeException(ex);
+	}
+    }
+
+    private static BlockPos getSwapperPos(VirtualSwapper vs) {
+	try {
+	    if (posField.get() == null) {
+		Field field = VirtualSwapper.class.getDeclaredField("pos");
+		field.setAccessible(true);
+		posField.set(field);
+	    }
+
+	    return (BlockPos) posField.get().get(vs);
 	}
 	catch (ReflectiveOperationException ex) {
 	    throw new RuntimeException(ex);
@@ -100,88 +116,68 @@ public class ServerEventsMixin {
 	}
     }
 
-    @WrapOperation(method = "tickBlockSwap(Lnet/minecraft/world/World;)V",
-	    at = @At(
-		    value = "NEW",
-		    target = "(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/state/IBlockState;)Lnet/minecraftforge/common/util/BlockSnapshot;",
-		    remap = false),
-	    remap = false)
-    private static BlockSnapshot wrapCreateSnapshot(World world, BlockPos pos, IBlockState oldStateIgnore,
-	    Operation<BlockSnapshot> originalThatIsWrong,
-	    @Share("snapshot") LocalRef<BlockSnapshot> snapshotRef, @Local(ordinal = 0) VirtualSwapper vs) {
-
-	IBlockState toPlace = null;
-	ItemStack target = getSwapperTarget(vs);
-	if (target != null && !target.isEmpty()) {
-	    Block block = Block.getBlockFromItem(target.getItem());
-	    if (block != null && block != Blocks.AIR) {
-		toPlace = block.getStateFromMeta(target.getItemDamage());
-	    }
-	}
-
-	BlockSnapshot newSnapshot = BlockSnapshot.getBlockSnapshot(world, pos);
-	snapshotRef.set(newSnapshot);
-	if (toPlace != null) {
-	    world.setBlockState(pos, toPlace);
-	}
-	else {
-	    world.setBlockToAir(pos);
-	}
-
-	return newSnapshot;
-    }
-
-    @WrapOperation(method = "tickBlockSwap(Lnet/minecraft/world/World;)V",
+    @Redirect(method = "tickBlockSwap(Lnet/minecraft/world/World;)V",
 	    at = @At(
 		    value = "INVOKE",
 		    target = "Lnet/minecraftforge/event/ForgeEventFactory;onPlayerBlockPlace(Lnet/minecraft/entity/player/EntityPlayer;Lnet/minecraftforge/common/util/BlockSnapshot;Lnet/minecraft/util/EnumFacing;Lnet/minecraft/util/EnumHand;)Lnet/minecraftforge/event/world/BlockEvent$PlaceEvent;",
 		    remap = false),
 	    remap = false)
-    private static net.minecraftforge.event.world.BlockEvent.PlaceEvent wrapPlaceEvent(@Nonnull EntityPlayer player,
+    private static net.minecraftforge.event.world.BlockEvent.PlaceEvent redirectPlaceEvent(@Nonnull EntityPlayer player,
 	    @Nonnull BlockSnapshot snapshot, @Nonnull EnumFacing direction, @Nonnull EnumHand hand,
-	    Operation<net.minecraftforge.event.world.BlockEvent.PlaceEvent> original) {
+	    @Share("snapshot") LocalRef<BlockSnapshot> snapshotRef) {
 
-	// the full name is used to not fail the build for importing a deprecated thing
-	net.minecraftforge.event.world.BlockEvent.PlaceEvent result = original.call(player, snapshot, direction, hand);
-	if (result.isCanceled()) {
-	    snapshot.restore(true, false);
-	}
-
-	return result;
+	snapshotRef.set(snapshot);
+	// this event just has to be not cancelled - don't post it and the fields don't really matter
+	return new PlaceEvent(snapshot, snapshot.getReplacedBlock(), player, hand);
     }
 
-    @WrapOperation(method = "tickBlockSwap(Lnet/minecraft/world/World;)V",
-	    at = @At(
-		    value = "INVOKE",
-		    target = "Lcom/google/common/base/Predicate;apply(Ljava/lang/Object;)Z",
-		    remap = false,
-		    ordinal = 0),
-	    remap = false)
-    private static boolean wrapSwapperPredicateCheck(Predicate<Boolean> predicate, @Nullable Object input,
-	    Operation<Boolean> original, @Share("snapshot") LocalRef<BlockSnapshot> snapshotRef) {
+    @Definition(id = "slot", local = @Local(type = int.class, ordinal = 1))
+    @Expression("slot >= 0")
+    @ModifyExpressionValue(method = "tickBlockSwap(Lnet/minecraft/world/World;)V",
+    at = @At(
+	    value = "MIXINEXTRAS:EXPRESSION",
+	    remap = false),
+    remap = false)
+    private static boolean hookSlotCheck(boolean original, World world,
+	    @Share("snapshot") LocalRef<BlockSnapshot> snapshotRef, @Local(ordinal = 0) VirtualSwapper vs) {
 
-	boolean result = original.call(predicate, input);
-	if (!result) {
-	    snapshotRef.get().restore(true, false);
+	boolean placeAllowed = original;
+	BlockSnapshot snapshot = snapshotRef.get();
+	if (snapshot != null) {
+	    IBlockState toPlace = null;
+	    ItemStack target = getSwapperTarget(vs);
+	    if (target != null && !target.isEmpty()) {
+		Block block = Block.getBlockFromItem(target.getItem());
+		if (block != null && block != Blocks.AIR) {
+		    toPlace = block.getStateFromMeta(target.getItemDamage());
+		}
+	    }
+
+	    if (placeAllowed) {
+		BlockPos pos = getSwapperPos(vs);
+		if (toPlace != null) {
+		    world.setBlockState(pos, toPlace);
+		    EntityPlayer player = getSwapperPlayer(vs);
+		    placeAllowed = !ForgeEventFactory.onPlayerBlockPlace(player, snapshot, EnumFacing.UP,
+			    EnumHand.MAIN_HAND).isCanceled();
+		    if (!placeAllowed) {
+			// we can't restore block snapshots since side effects of the block being destroyed already happened
+			// instead, just drop the old block as an item and leave it as air
+			world.setBlockToAir(pos);
+			if (!player.isCreative()) {
+			    snapshot.getReplacedBlock().getBlock().dropBlockAsItem(
+				    snapshot.getWorld(), snapshot.getPos(), snapshot.getReplacedBlock(), 0);
+			}
+		    }
+		}
+		else {
+		    world.setBlockToAir(pos);
+		    // there is no further event if the block is being set to air
+		}
+	    }
 	}
 
-	return result;
-    }
-
-    @Inject(method = "tickBlockSwap(Lnet/minecraft/world/World;)V",
-	    at = @At(
-		    value = "FIELD",
-		    target = "Lthaumcraft/common/lib/events/ServerEvents$VirtualSwapper;source:Ljava/lang/Object;",
-		    ordinal = 10,
-		    opcode = Opcodes.GETFIELD),
-	    remap = false)
-    private static void handleRestoreIfNeeded(World world, CallbackInfo info,
-	    @Local(ordinal = 0) VirtualSwapper vs, @Local(ordinal = 1) boolean matches,
-	    @Local(ordinal = 1) int slot, @Share("snapshot") LocalRef<BlockSnapshot> snapshotRef) {
-
-	if ((getSwapperSource(vs) != null && !matches) || slot < 0) {
-	    snapshotRef.get().restore(true, false);
-	}
+	return placeAllowed;
     }
 
     @WrapOperation(method = "tickBlockSwap(Lnet/minecraft/world/World;)V",
