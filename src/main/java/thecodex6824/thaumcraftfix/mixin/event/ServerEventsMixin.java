@@ -26,11 +26,11 @@ import javax.annotation.Nonnull;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Constant;
+import org.spongepowered.asm.mixin.injection.Constant.Condition;
+import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-import com.llamalad7.mixinextras.expression.Definition;
-import com.llamalad7.mixinextras.expression.Expression;
-import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -132,19 +132,19 @@ public class ServerEventsMixin {
 		snapshot.getReplacedBlock(), player, hand);
     }
 
-    @Definition(id = "slot", local = @Local(type = int.class, ordinal = 1))
-    @Expression("slot >= 0")
-    @ModifyExpressionValue(method = "tickBlockSwap(Lnet/minecraft/world/World;)V",
-    at = @At(
-	    value = "MIXINEXTRAS:EXPRESSION",
-	    remap = false),
-    remap = false)
-    private static boolean hookSlotCheck(boolean original, World world,
-	    @Share("snapshot") LocalRef<BlockSnapshot> snapshotRef, @Local(ordinal = 0) VirtualSwapper vs) {
+    // this can be replaced with a MixinExtras expression once MixinBooter updates to a non-broken version
+    @ModifyConstant(
+	    method = "tickBlockSwap(Lnet/minecraft/world/World;)V",
+	    constant = @Constant(ordinal = 0, expandZeroConditions = Condition.GREATER_THAN_OR_EQUAL_TO_ZERO),
+	    remap = false
+	    )
+    private static int wrapSlotCheck(int original, World world,
+	    @Share("snapshot") LocalRef<BlockSnapshot> snapshotRef, @Local(ordinal = 0) VirtualSwapper vs,
+	    @Local(ordinal = 1) int slot) {
 
-	boolean placeAllowed = original;
+	boolean placeAllowed = slot >= original;
 	BlockSnapshot snapshot = snapshotRef.get();
-	if (snapshot != null) {
+	if (placeAllowed && snapshot != null) {
 	    IBlockState toPlace = null;
 	    ItemStack target = getSwapperTarget(vs);
 	    if (target != null && !target.isEmpty()) {
@@ -154,31 +154,29 @@ public class ServerEventsMixin {
 		}
 	    }
 
-	    if (placeAllowed) {
-		BlockPos pos = getSwapperPos(vs);
-		if (toPlace != null) {
-		    world.setBlockState(pos, toPlace);
-		    EntityPlayer player = getSwapperPlayer(vs);
-		    placeAllowed = !ForgeEventFactory.onPlayerBlockPlace(player, snapshot, EnumFacing.UP,
-			    EnumHand.MAIN_HAND).isCanceled();
-		    if (!placeAllowed) {
-			// we can't restore block snapshots since side effects of the block being destroyed already happened
-			// instead, just drop the old block as an item and leave it as air
-			world.setBlockToAir(pos);
-			if (!player.isCreative()) {
-			    snapshot.getReplacedBlock().getBlock().dropBlockAsItem(
-				    snapshot.getWorld(), snapshot.getPos(), snapshot.getReplacedBlock(), 0);
-			}
+	    BlockPos pos = getSwapperPos(vs);
+	    if (toPlace != null) {
+		world.setBlockState(pos, toPlace);
+		EntityPlayer player = getSwapperPlayer(vs);
+		placeAllowed = !ForgeEventFactory.onPlayerBlockPlace(player, snapshot, EnumFacing.UP,
+			EnumHand.MAIN_HAND).isCanceled();
+		if (!placeAllowed) {
+		    // we can't restore block snapshots since side effects of the block being destroyed already happened
+		    // instead, just drop the old block as an item and leave it as air
+		    world.setBlockToAir(pos);
+		    if (!player.isCreative()) {
+			snapshot.getReplacedBlock().getBlock().dropBlockAsItem(
+				snapshot.getWorld(), snapshot.getPos(), snapshot.getReplacedBlock(), 0);
 		    }
 		}
-		else {
-		    world.setBlockToAir(pos);
-		    // there is no further event if the block is being set to air
-		}
+	    }
+	    else {
+		world.setBlockToAir(pos);
+		// there is no further event if the block is being set to air
 	    }
 	}
 
-	return placeAllowed;
+	return placeAllowed ? original : Integer.MAX_VALUE;
     }
 
     @WrapOperation(method = "tickBlockSwap(Lnet/minecraft/world/World;)V",
