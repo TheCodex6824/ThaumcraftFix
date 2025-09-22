@@ -48,7 +48,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.BlockSnapshot;
 import net.minecraftforge.event.ForgeEventFactory;
-import net.minecraftforge.event.world.BlockEvent.PlaceEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import thaumcraft.common.lib.events.ServerEvents;
 import thaumcraft.common.lib.events.ServerEvents.VirtualSwapper;
@@ -128,7 +127,9 @@ public class ServerEventsMixin {
 
 	snapshotRef.set(snapshot);
 	// this event just has to be not cancelled - don't post it and the fields don't really matter
-	return new PlaceEvent(snapshot, snapshot.getReplacedBlock(), player, hand);
+	// fully qualified name is used to not fail build for importing a deprecated thing
+	return new net.minecraftforge.event.world.BlockEvent.PlaceEvent(snapshot,
+		snapshot.getReplacedBlock(), player, hand);
     }
 
     @Definition(id = "slot", local = @Local(type = int.class, ordinal = 1))
