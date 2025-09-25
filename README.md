@@ -66,6 +66,7 @@ Thaumcraft Fix is licensed under the GNU Lesser Public License v3 (or later). So
 - Fixed Vis draining into chunks it isn't supposed to
 - Fixed Void Thaumaturge Robes displaying twice the amount of armor on the hud
 - Fixed wisps having really small burst particles on death
+- Made eldritch crabs rotate all the way to match the death animations of spiders, silverfish and endermites
 - Removed Thaumcraft's single usage of a scala class
 - Silenced all Thaumcraft texture/model errors
 - Stopped screen shake and damage sound if fall damage is reduced to 0 from gear
