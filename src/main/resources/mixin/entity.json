@@ -1,9 +1,0 @@
-{
-  "package": "thecodex6824.thaumcraftfix.mixin.entity",
-  "refmap": "${refmap}",
-  "minVersion": "${mixinminversion}",
-  "compatibilityLevel": "JAVA_8",
-  "mixins": [
-    "EntityFocusMineMixin"
-  ]
-}

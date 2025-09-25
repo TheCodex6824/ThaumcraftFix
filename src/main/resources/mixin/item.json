@@ -6,7 +6,6 @@
   "mixins": [
     "ItemElementalShovelMixin",
     "ItemGenericEssentiaContainerMixin",
-    "ItemThaumometerMixin",
     "ItemPrimordialPearlMixin"
   ]
 }

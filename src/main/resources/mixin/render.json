@@ -5,7 +5,6 @@
   "compatibilityLevel": "JAVA_8",
   "client": [
     "ModelCustomArmorMixin",
-    "ModelRobeMixin",
-    "RenderEldritchCrabMixin"
+    "ModelRobeMixin"
   ]
 }
