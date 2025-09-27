@@ -18,7 +18,7 @@
  *  along with Thaumcraft Fix.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package thecodex6824.thaumcraftfix.test.lib;
+package thecodex6824.thaumcraftfix.testlib.lib;
 
 import java.util.HashMap;
 import java.util.Map;

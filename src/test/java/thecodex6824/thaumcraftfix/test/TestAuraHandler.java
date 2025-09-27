@@ -32,7 +32,7 @@ import org.junit.jupiter.api.parallel.ResourceLock;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.chunk.Chunk;
 import thaumcraft.common.world.aura.AuraHandler;
-import thecodex6824.thaumcraftfix.test.lib.MockWorld;
+import thecodex6824.thaumcraftfix.testlib.lib.MockWorld;
 
 public class TestAuraHandler {
 

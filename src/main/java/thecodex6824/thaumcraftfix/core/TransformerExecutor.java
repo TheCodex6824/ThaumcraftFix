@@ -45,7 +45,7 @@ public class TransformerExecutor implements IClassTransformer {
 
     private List<ITransformer> transformers;
 
-    private void initTransformers() {
+    public TransformerExecutor() {
 	transformers = new ArrayList<>();
 	if (!ThaumcraftFixCore.isOldThaumicAugmentationDetected()) {
 	    transformers.add(EntityTransformers.ELDRITCH_GUARDIAN_FOG);
@@ -161,10 +161,6 @@ public class TransformerExecutor implements IClassTransformer {
     public byte[] transform(String name, String transformedName, byte[] basicClass) {
 	if (!ThaumcraftFixCore.isInitComplete()) {
 	    return basicClass;
-	}
-
-	if (transformers == null) {
-	    initTransformers();
 	}
 
 	if (isTransformNeeded(transformedName)) {

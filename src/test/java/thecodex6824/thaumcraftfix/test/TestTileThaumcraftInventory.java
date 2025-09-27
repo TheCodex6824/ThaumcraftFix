@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import thaumcraft.common.tiles.crafting.TileResearchTable;
-import thecodex6824.thaumcraftfix.test.lib.MockWorld;
+import thecodex6824.thaumcraftfix.testlib.lib.MockWorld;
 
 public class TestTileThaumcraftInventory {
 

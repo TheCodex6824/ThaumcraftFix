@@ -18,14 +18,18 @@
  *  along with Thaumcraft Fix.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package thecodex6824.thaumcraftfix.test.fixture;
+package thecodex6824.thaumcraftfix.testlib.fixture;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.spongepowered.asm.mixin.transformer.Proxy;
@@ -37,15 +41,26 @@ public class UnitTestClassFileTransformer implements ClassFileTransformer {
 
     private final Set<String> exclusions;
     private final List<IClassTransformer> asmTransformers;
+    private boolean minecraftOk;
+    private Map<String, String> minecraftClassesLoadedTooEarly;
 
     public UnitTestClassFileTransformer() {
 	exclusions = new HashSet<>();
 	asmTransformers = new ArrayList<>();
+	minecraftOk = false;
+	minecraftClassesLoadedTooEarly = new HashMap<>();
     }
 
     @Override
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
 	    ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
+
+	if (!minecraftOk && className.startsWith("net/minecraft/") && !minecraftClassesLoadedTooEarly.containsKey(className)) {
+	    StringWriter sw = new StringWriter();
+	    PrintWriter pw = new PrintWriter(sw);
+	    new Throwable().printStackTrace(pw);
+	    minecraftClassesLoadedTooEarly.put(className, sw.toString());
+	}
 
 	if (exclusions.stream().anyMatch(s -> className.startsWith(s))) {
 	    return null;
@@ -66,6 +81,20 @@ public class UnitTestClassFileTransformer implements ClassFileTransformer {
 
     public void registerTransformer(IClassTransformer transformer) {
 	asmTransformers.add(transformer);
+    }
+
+    public void allowMinecraftClassLoading() {
+	if (!minecraftClassesLoadedTooEarly.isEmpty()) {
+	    System.err.println("The following classes were loaded too early:");
+	    for (Map.Entry<String, String> e : minecraftClassesLoadedTooEarly.entrySet()) {
+		System.err.println(e.getKey());
+		System.err.println(e.getValue());
+		System.err.println();
+	    }
+	    throw new RuntimeException("Minecraft was loaded too early");
+	}
+	minecraftClassesLoadedTooEarly.clear();
+	minecraftOk = true;
     }
 
 }

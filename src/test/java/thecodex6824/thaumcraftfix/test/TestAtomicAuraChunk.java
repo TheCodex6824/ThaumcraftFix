@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 
 import net.minecraft.world.chunk.Chunk;
 import thecodex6824.thaumcraftfix.common.aura.AtomicAuraChunk;
-import thecodex6824.thaumcraftfix.test.lib.MockWorld;
+import thecodex6824.thaumcraftfix.testlib.lib.MockWorld;
 
 public class TestAtomicAuraChunk {
 

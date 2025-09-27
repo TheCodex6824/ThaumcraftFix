@@ -18,7 +18,7 @@
  *  along with Thaumcraft Fix.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package thecodex6824.thaumcraftfix.test.fixture;
+package thecodex6824.thaumcraftfix.testlib.fixture;
 
 import java.io.IOException;
 import java.io.InputStream;

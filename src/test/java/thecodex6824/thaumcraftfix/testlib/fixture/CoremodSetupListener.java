@@ -18,15 +18,20 @@
  *  along with Thaumcraft Fix.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package thecodex6824.thaumcraftfix.test.fixture;
+package thecodex6824.thaumcraftfix.testlib.fixture;
 
 import java.io.File;
+import java.lang.instrument.IllegalClassFormatException;
 import java.net.URLClassLoader;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.platform.commons.util.ReflectionUtils;
 import org.junit.platform.launcher.LauncherSession;
 import org.junit.platform.launcher.LauncherSessionListener;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 import org.spongepowered.asm.launch.MixinBootstrap;
 import org.spongepowered.asm.mixin.MixinEnvironment;
 import org.spongepowered.asm.mixin.MixinEnvironment.Side;
@@ -62,39 +67,7 @@ public class CoremodSetupListener implements LauncherSessionListener {
 		MixinExtrasBootstrap.init();
 		MixinEnvironment.getDefaultEnvironment().setSide(Side.CLIENT);
 
-		// TODO: figure this out from the build environment
-		// passing arguments/properties from Gradle to the IDE runs seems to be a challenge though...
-		System.getProperties().computeIfAbsent(SRG_MCP_PROP, obj -> new File(
-			"./build/createSrgToMcp/output.srg").getAbsolutePath());
-		FMLDeobfuscatingRemapper.INSTANCE.setup(null, new LaunchClassLoader(
-			((URLClassLoader) ClassLoader.getSystemClassLoader()).getURLs()), null);
-
-		ThaumcraftFixCore coremod = new ThaumcraftFixCore();
-		coremod.injectData(ImmutableMap.of());
-		// early configs were already handled in injectData
-		Mixins.addConfigurations(ThaumcraftFixCore.getLateMixinConfigs().toArray(new String[0]));
-
 		UnitTestClassFileTransformer transformer = new UnitTestClassFileTransformer();
-		for (String c : coremod.getASMTransformerClass()) {
-		    try {
-			transformer.registerTransformer(
-				(IClassTransformer) ReflectionUtils.newInstance(Class.forName(c)));
-		    }
-		    catch (ReflectiveOperationException ex) {
-			throw new RuntimeException(ex);
-		    }
-		}
-
-		transformer.registerExclusion("java/");
-		transformer.registerExclusion("javax/");
-		transformer.registerExclusion("sun/");
-		transformer.registerExclusion("com/sun/");
-		transformer.registerExclusion("org/apache/logging/");
-		transformer.registerExclusion("org/junit/");
-		transformer.registerExclusion("org/spongepowered/");
-		transformer.registerExclusion("com/llamalad7/mixinextras/");
-		transformer.registerExclusion(CoremodSetupListener.class.getPackage().getName().replace('.', '/') + "/");
-
 		// The agent may already be started, in which case this will just work
 		try {
 		    ByteBuddyAgent.getInstrumentation().addTransformer(transformer, false);
@@ -117,6 +90,60 @@ public class CoremodSetupListener implements LauncherSessionListener {
 			throw e2;
 		    }
 		}
+
+		transformer.registerExclusion("java/");
+		transformer.registerExclusion("javax/");
+		transformer.registerExclusion("sun/");
+		transformer.registerExclusion("com/sun/");
+		transformer.registerExclusion("org/apache/logging/");
+		transformer.registerExclusion("org/junit/");
+		transformer.registerExclusion("org/spongepowered/");
+		transformer.registerExclusion("com/llamalad7/mixinextras/");
+		transformer.registerExclusion(CoremodSetupListener.class.getPackage().getName().replace('.', '/') + "/");
+
+		// TODO: figure this out from the build environment
+		// passing arguments/properties from Gradle to the IDE runs seems to be a challenge though...
+		System.getProperties().computeIfAbsent(SRG_MCP_PROP, obj -> new File(
+			"./build/createSrgToMcp/output.srg").getAbsolutePath());
+		FMLDeobfuscatingRemapper.INSTANCE.setup(null, new LaunchClassLoader(
+			((URLClassLoader) ClassLoader.getSystemClassLoader()).getURLs()), null);
+
+		ThaumcraftFixCore coremod = new ThaumcraftFixCore();
+		coremod.injectData(ImmutableMap.of());
+		// early configs were already handled in injectData
+		Mixins.addConfigurations(ThaumcraftFixCore.getLateMixinConfigs().toArray(new String[0]));
+		for (String c : coremod.getASMTransformerClass()) {
+		    try {
+			transformer.registerTransformer(
+				(IClassTransformer) ReflectionUtils.newInstance(Class.forName(c)));
+		    }
+		    catch (ReflectiveOperationException ex) {
+			throw new RuntimeException(ex);
+		    }
+		}
+
+		// make a fake class to inject into the transformer to see if it loads classes it shouldn't
+		ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+		String fullClass = "thecodex6824/thaumcraftfix/FakeClass";
+		String objectClass = Type.getInternalName(Object.class);
+		writer.visit(Opcodes.V1_8, Opcodes.ACC_PUBLIC | Opcodes.ACC_SUPER, fullClass, null, objectClass, null);
+		MethodVisitor init = writer.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
+		init.visitCode();
+		init.visitVarInsn(Opcodes.ALOAD, 0);
+		init.visitMethodInsn(Opcodes.INVOKESPECIAL, objectClass, "<init>", "()V", false);
+		init.visitEnd();
+		writer.visitEnd();
+		byte[] fakeClassBytes = writer.toByteArray();
+
+		// custom agent is set up, do classloading test now
+		try {
+		    transformer.transform(getClass().getClassLoader(), fullClass, null, getClass().getProtectionDomain(), fakeClassBytes);
+		}
+		catch (IllegalClassFormatException ex) {
+		    throw new RuntimeException(ex);
+		}
+		// it passed the test, let it load minecraft now
+		transformer.allowMinecraftClassLoading();
 
 		// Anything below here can use Minecraft / transformed classes safely
 		GlobalTestSetup.init();

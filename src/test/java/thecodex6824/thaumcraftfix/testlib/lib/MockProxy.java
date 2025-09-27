@@ -18,35 +18,44 @@
  *  along with Thaumcraft Fix.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package thecodex6824.thaumcraftfix.test.lib;
+package thecodex6824.thaumcraftfix.testlib.lib;
 
-import net.minecraft.world.GameType;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldProviderSurface;
-import net.minecraft.world.WorldSettings;
-import net.minecraft.world.WorldType;
-import net.minecraft.world.chunk.IChunkProvider;
-import net.minecraft.world.storage.WorldInfo;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 
-public class MockWorld extends World {
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.relauncher.Side;
+import thecodex6824.thaumcraftfix.IProxy;
 
-    public MockWorld() {
-	this(false);
-    }
+public class MockProxy implements IProxy {
 
-    public MockWorld(boolean isRemote) {
-	super(null, new WorldInfo(new WorldSettings(0, GameType.CREATIVE, false, false, WorldType.CUSTOMIZED),
-		"test"), new WorldProviderSurface(), null, isRemote);
-	provider.setWorld(this);
+    @Override
+    public void construction() {}
+
+    @Override
+    public EntityPlayer getClientPlayer() {
+	throw new UnsupportedOperationException();
     }
 
     @Override
-    protected IChunkProvider createChunkProvider() {
-	return null;
+    public File getGameDirectory() {
+	return new File(".");
     }
 
     @Override
-    protected boolean isChunkLoaded(int x, int z, boolean allowEmpty) {
+    public InputStream resolveResource(ResourceLocation loc) throws IOException {
+	throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void scheduleTask(Side intendedSide, Runnable task) {
+	task.run();
+    }
+
+    @Override
+    public boolean isServerRunning() {
 	return true;
     }
 

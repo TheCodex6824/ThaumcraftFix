@@ -44,8 +44,8 @@ import thaumcraft.common.lib.events.PlayerEvents;
 import thecodex6824.thaumcraftfix.api.internal.ThaumcraftFixApiBridge;
 import thecodex6824.thaumcraftfix.api.research.ResearchCategoryTheorycraftFilter;
 import thecodex6824.thaumcraftfix.common.internal.DefaultApiImplementation;
-import thecodex6824.thaumcraftfix.test.lib.MockPlayer;
-import thecodex6824.thaumcraftfix.test.lib.MockWorld;
+import thecodex6824.thaumcraftfix.testlib.lib.MockPlayer;
+import thecodex6824.thaumcraftfix.testlib.lib.MockWorld;
 
 public class TestPlayerEvents {
 

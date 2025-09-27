@@ -39,7 +39,7 @@ import thecodex6824.thaumcraftfix.api.aura.IAuraWorld;
 import thecodex6824.thaumcraftfix.common.aura.AtomicAuraChunk;
 import thecodex6824.thaumcraftfix.common.aura.GenericAuraThread;
 import thecodex6824.thaumcraftfix.common.aura.GenericAuraWorld;
-import thecodex6824.thaumcraftfix.test.lib.MockWorld;
+import thecodex6824.thaumcraftfix.testlib.lib.MockWorld;
 
 public class TestAuraProcessor {
 

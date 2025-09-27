@@ -35,8 +35,8 @@ import thaumcraft.api.research.ResearchCategories;
 import thaumcraft.api.research.ResearchCategory;
 import thaumcraft.api.research.ResearchEntry;
 import thaumcraft.common.lib.network.playerdata.PacketSyncProgressToServer;
-import thecodex6824.thaumcraftfix.test.lib.MockPlayer;
-import thecodex6824.thaumcraftfix.test.lib.MockWorld;
+import thecodex6824.thaumcraftfix.testlib.lib.MockPlayer;
+import thecodex6824.thaumcraftfix.testlib.lib.MockWorld;
 
 public class TestResearchPacket {
 

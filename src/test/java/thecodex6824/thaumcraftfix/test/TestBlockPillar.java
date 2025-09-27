@@ -30,7 +30,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.item.Item;
 import net.minecraft.util.math.BlockPos;
 import thaumcraft.api.blocks.BlocksTC;
-import thecodex6824.thaumcraftfix.test.lib.MockWorld;
+import thecodex6824.thaumcraftfix.testlib.lib.MockWorld;
 
 public class TestBlockPillar {
 

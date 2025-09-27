@@ -67,7 +67,7 @@ import thaumcraft.common.lib.network.PacketHandler;
 import thecodex6824.thaumcraftfix.ThaumcraftFix;
 import thecodex6824.thaumcraftfix.api.internal.ThaumcraftFixApiBridge;
 import thecodex6824.thaumcraftfix.common.internal.DefaultApiImplementation;
-import thecodex6824.thaumcraftfix.test.lib.MockProxy;
+import thecodex6824.thaumcraftfix.testlib.lib.MockProxy;
 
 public class GlobalTestSetup {
 
