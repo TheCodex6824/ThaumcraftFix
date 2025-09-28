@@ -35,7 +35,6 @@ import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
@@ -46,6 +45,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import thaumcraft.common.items.tools.ItemElementalShovel;
 import thaumcraft.common.lib.utils.InventoryUtils;
+import thecodex6824.thaumcraftfix.core.transformer.hooks.ItemTransformersHooksCommon;
 
 @Mixin(ItemElementalShovel.class)
 public class ItemElementalShovelMixin {
@@ -91,32 +91,9 @@ public class ItemElementalShovelMixin {
 	    float hitX, float hitY, float hitZ,
 	    @Share("goodItem") LocalRef<ItemStack> goodItem, @Share("didSomething") LocalBooleanRef didSomething) {
 
-	boolean result = false;
-	ItemStack item = goodItem.get();
-	float modHitX = hitX + (pos.getX() - origPos.getX());
-	float modHitY = hitY + (pos.getY() - origPos.getY());
-	float modHitZ = hitZ + (pos.getZ() - origPos.getZ());
-	IBlockState toPlace = state.getBlock().getStateForPlacement(world, pos, side, modHitX, modHitY,
-		modHitZ, item.getMetadata(), player, hand);
-	IBlockState existing = world.getBlockState(pos);
-	if (existing.getBlock().isReplaceable(world, pos) && player.canPlayerEdit(pos, side, item) &&
-		world.mayPlace(state.getBlock(), pos, false, side, player)) {
-
-	    if (item.getItem() instanceof ItemBlock) {
-		ItemBlock itemBlock = (ItemBlock) item.getItem();
-		result = itemBlock.placeBlockAt(item, player, world, pos, side,
-			modHitX, modHitY, modHitZ, toPlace);
-	    }
-	    else {
-		result = op.call(toPlace, pos);
-	    }
-	}
-
-	if (result) {
-	    didSomething.set(true);
-	}
-
-	return result;
+	return ItemTransformersHooksCommon.elementalShovelWrapSetBlockStateForBlockPlacement(worldAgain,
+		origPos,state, op, player, worldAgain, origPos, hand, side, hitZ, hitZ, hitZ,
+		goodItem, didSomething);
     }
 
     @ModifyReturnValue(method = "onItemUse", at = @At("RETURN"))

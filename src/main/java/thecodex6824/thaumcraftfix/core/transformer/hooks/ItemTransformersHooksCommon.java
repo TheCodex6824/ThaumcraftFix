@@ -20,16 +20,27 @@
 
 package thecodex6824.thaumcraftfix.core.transformer.hooks;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.sugar.Share;
+import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
+import com.llamalad7.mixinextras.sugar.ref.LocalRef;
+
 import baubles.api.cap.BaublesCapabilities;
 import it.unimi.dsi.fastutil.ints.IntRBTreeSet;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraftforge.oredict.OreDictionary;
 import thaumcraft.common.items.casters.ItemFocus;
 import thaumcraft.common.items.tools.ItemHandMirror;
@@ -117,6 +128,39 @@ public class ItemTransformersHooksCommon {
 
     public static boolean skipGivingPhial(EntityPlayer player) {
 	return player.isCreative();
+    }
+
+    public static boolean elementalShovelWrapSetBlockStateForBlockPlacement(World world, BlockPos pos, IBlockState state, Operation<Boolean> op,
+	    EntityPlayer player, World worldAgain, BlockPos origPos, EnumHand hand, EnumFacing side,
+	    float hitX, float hitY, float hitZ,
+	    @Share("goodItem") LocalRef<ItemStack> goodItem, @Share("didSomething") LocalBooleanRef didSomething) {
+
+	boolean result = false;
+	ItemStack item = goodItem.get();
+	float modHitX = hitX + (pos.getX() - origPos.getX());
+	float modHitY = hitY + (pos.getY() - origPos.getY());
+	float modHitZ = hitZ + (pos.getZ() - origPos.getZ());
+	IBlockState toPlace = state.getBlock().getStateForPlacement(world, pos, side, modHitX, modHitY,
+		modHitZ, item.getMetadata(), player, hand);
+	IBlockState existing = world.getBlockState(pos);
+	if (existing.getBlock().isReplaceable(world, pos) && player.canPlayerEdit(pos, side, item) &&
+		world.mayPlace(state.getBlock(), pos, false, side, player)) {
+
+	    if (item.getItem() instanceof ItemBlock) {
+		ItemBlock itemBlock = (ItemBlock) item.getItem();
+		result = itemBlock.placeBlockAt(item, player, world, pos, side,
+			modHitX, modHitY, modHitZ, toPlace);
+	    }
+	    else {
+		result = op.call(toPlace, pos);
+	    }
+	}
+
+	if (result) {
+	    didSomething.set(true);
+	}
+
+	return result;
     }
 
 }
