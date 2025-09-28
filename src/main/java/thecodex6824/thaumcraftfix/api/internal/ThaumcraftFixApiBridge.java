@@ -42,6 +42,7 @@ public class ThaumcraftFixApiBridge {
 
 	public static final String PATH_RESOURCE_PREFIX = "$filesystem:";
 
+	public String getModVersion();
 	public void reloadConfig();
 
 	Set<ResearchCategory> getAllowedTheorycraftCategories();

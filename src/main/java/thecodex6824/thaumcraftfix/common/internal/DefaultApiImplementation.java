@@ -116,6 +116,11 @@ public class DefaultApiImplementation implements InternalImplementation {
     }
 
     @Override
+    public String getModVersion() {
+	return ThaumcraftFix.VERSION;
+    }
+
+    @Override
     public void reloadConfig() {
 	ThaumcraftFixConfig config = ThaumcraftFix.instance.getConfig();
 	controlAura = config.world.aura.controlAura.value();

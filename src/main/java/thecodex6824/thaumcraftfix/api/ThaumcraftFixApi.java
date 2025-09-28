@@ -20,6 +20,8 @@
 
 package thecodex6824.thaumcraftfix.api;
 
+import thecodex6824.thaumcraftfix.api.internal.ThaumcraftFixApiBridge;
+
 /**
  * Contains basic constants identifying the mod.
  */
@@ -31,5 +33,15 @@ public final class ThaumcraftFixApi {
     public static final String NAME = "Thaumcraft Fix";
     public static final String PROVIDES = MODID + "|api";
     public static final String API_VERSION = "@APIVERSION@";
+
+    /**
+     * Returns the version of the actual ThaumcraftFix mod, which can be different from the API version.
+     * The mod version will increment with each release, unlike the API version which increments
+     * only on API changes.
+     * @return The version of the Thaumcraft Fix mod itself
+     */
+    public static String getModVersion() {
+	return ThaumcraftFixApiBridge.implementation().getModVersion();
+    }
 
 }
