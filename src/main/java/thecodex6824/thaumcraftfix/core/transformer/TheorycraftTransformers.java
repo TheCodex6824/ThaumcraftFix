@@ -20,62 +20,19 @@
 
 package thecodex6824.thaumcraftfix.core.transformer;
 
-import java.util.ArrayList;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 
-import com.google.common.collect.Lists;
-
-import net.minecraft.entity.player.EntityPlayer;
-import thaumcraft.api.research.theorycraft.ResearchTableData;
 import thecodex6824.coremodlib.MethodDefinition;
 import thecodex6824.coremodlib.PatchStateMachine;
-import thecodex6824.thaumcraftfix.api.research.ResearchCategoryTheorycraftFilter;
 
 public class TheorycraftTransformers {
 
-    public static final class Hooks {
-
-	public static boolean isTheorycraftCategoryAllowed(boolean originalDecision, String category,
-		EntityPlayer player, ResearchTableData data) {
-
-	    return originalDecision && data.getAvailableCategories(player).contains(category) &&
-		    ResearchCategoryTheorycraftFilter.getAllowedTheorycraftCategories().stream()
-		    .map(c -> c.key)
-		    .anyMatch(s -> s.equals(category));
-	}
-
-	public static ArrayList<String> filterTheorycraftCategories(ArrayList<String> input) {
-	    input.retainAll(ResearchCategoryTheorycraftFilter.getAllowedTheorycraftCategories().stream()
-		    .map(c -> c.key)
-		    .collect(Collectors.toList()));
-	    return input;
-	}
-
-	public static ArrayList<String> filterTheorycraftCategories(ArrayList<String> input,
-		EntityPlayer player, ResearchTableData data) {
-
-	    input.retainAll(data.getAvailableCategories(player));
-	    input.retainAll(ResearchCategoryTheorycraftFilter.getAllowedTheorycraftCategories().stream()
-		    .map(c -> c.key)
-		    .collect(Collectors.toList()));
-	    return input;
-	}
-
-	public static String[] filterTheorycraftCategoriesArray(String[] input, EntityPlayer player, ResearchTableData data) {
-	    ArrayList<String> list = Lists.newArrayList(input);
-	    list = filterTheorycraftCategories(list, player, data);
-	    return list.toArray(new String[0]);
-	}
-
-    }
-
-    private static final String HOOKS = Type.getInternalName(Hooks.class);
+    private static final String HOOKS = "thecodex6824/thaumcraftfix/core/transformer/hooks/TheorycraftTransformersHooks";
 
     private static Supplier<ITransformer> makeStringArrayFilterTransformer(String internalName) {
 	return () -> {

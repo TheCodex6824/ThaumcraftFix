@@ -30,8 +30,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelRenderer;
-
-import thecodex6824.thaumcraftfix.core.transformer.EntityTransformers;
+import thecodex6824.thaumcraftfix.core.transformer.hooks.EntityTransformersHooksClient;
 
 @Mixin(ModelBiped.class)
 public class ModelBipedMixin extends ModelBase {
@@ -59,15 +58,15 @@ public class ModelBipedMixin extends ModelBase {
 		    target = "Lnet/minecraft/util/math/MathHelper;cos(F)F",
 		    ordinal = 0
 		    ),
-            slice = @Slice(from = @At(value = "FIELD", target = "Lnet/minecraft/client/model/ModelBiped;isSneak:Z"))
-    )
+	    slice = @Slice(from = @At(value = "FIELD", target = "Lnet/minecraft/client/model/ModelBiped;isSneak:Z"))
+	    )
     private void setupRotation(CallbackInfo ci) {
-        // the double cast is not strictly necessary but my IDE autoremoves it
-        // if it is just an Object cast
+	// the double cast is not strictly necessary but my IDE autoremoves it
+	// if it is just an Object cast
 
-        // Calling a hook method because class-loading TC's ModelCustomArmor seems
-        // to cause issues with other transformers (#83)
-        EntityTransformers.HooksClient.correctRotationPoints((ModelBiped) ((Object) this));
+	// Calling a hook method because class-loading TC's ModelCustomArmor seems
+	// to cause issues with other transformers (#83)
+	EntityTransformersHooksClient.correctRotationPoints((ModelBiped) ((Object) this));
     }
 
 }

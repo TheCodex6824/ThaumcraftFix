@@ -30,7 +30,6 @@ import org.objectweb.asm.tree.VarInsnNode;
 
 import thecodex6824.coremodlib.MethodDefinition;
 import thecodex6824.thaumcraftfix.core.transformer.ITransformer;
-import thecodex6824.thaumcraftfix.core.transformer.NetworkTransformers;
 import thecodex6824.thaumcraftfix.core.transformer.TransformUtil;
 
 public class PacketNoteHandlerRewriteTransformer implements ITransformer {
@@ -60,7 +59,7 @@ public class PacketNoteHandlerRewriteTransformer implements ITransformer {
 	wrapper.instructions.add(new VarInsnNode(Opcodes.ALOAD, 1));
 	wrapper.instructions.add(new VarInsnNode(Opcodes.ALOAD, 2));
 	wrapper.instructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-		Type.getInternalName(NetworkTransformers.Hooks.class),
+		"thecodex6824/thaumcraftfix/core/transformer/hooks/NetworkTransformersHooks",
 		"handlePacketNote",
 		Type.getMethodDescriptor(Type.VOID_TYPE,
 			Type.getType("Lthaumcraft/common/lib/network/misc/PacketNote;"),
