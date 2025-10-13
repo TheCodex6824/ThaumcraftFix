@@ -21,20 +21,34 @@
 package thecodex6824.thaumcraftfix.common.event;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 
+import net.minecraft.block.material.Material;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockPos.MutableBlockPos;
+import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraftforge.common.util.Constants.BlockFlags;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+import net.minecraftforge.fml.common.eventhandler.Event.Result;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import thaumcraft.api.ThaumcraftApi;
@@ -42,6 +56,7 @@ import thaumcraft.api.ThaumcraftApi.BluePrint;
 import thaumcraft.api.blocks.BlocksTC;
 import thaumcraft.api.crafting.IDustTrigger;
 import thaumcraft.api.crafting.Part;
+import thaumcraft.api.items.ItemsTC;
 import thaumcraft.common.blocks.basic.BlockPillar;
 import thaumcraft.common.lib.crafting.DustTriggerMultiblock;
 import thaumcraft.common.lib.events.PlayerEvents;
@@ -71,6 +86,63 @@ public class CommonEventHandler {
 	    PlayerEvents.onFallDamage(fakeEvent);
 	    if (fakeEvent.isCanceled()) {
 		event.setCanceled(true);
+	    }
+	}
+    }
+
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public static void onInteractWithBlock(PlayerInteractEvent.RightClickBlock event) {
+	if (event.getUseBlock() != Result.DENY && event.getUseItem() != Result.DENY &&
+		event.getItemStack().getItem() == ItemsTC.primalCrusher &&
+		event.getFace() != EnumFacing.DOWN) {
+
+	    World world = event.getWorld();
+	    BlockPos originalPos = event.getPos();
+	    if (world.getBlockState(originalPos).getBlock() == Blocks.GRASS &&
+		    world.getBlockState(originalPos.up()).getMaterial() == Material.AIR) {
+
+		EntityPlayer player = event.getEntityPlayer();
+		if (!world.isRemote) {
+		    MutableBlockPos pos = new MutableBlockPos(originalPos);
+		    ItemStack stack = event.getItemStack();
+		    ArrayList<BlockPos> pathPos = new ArrayList<>();
+		    if (!player.isSneaking()) {
+			for (int x = -1; x < 2; ++x) {
+			    for (int z = -1; z < 2; ++z) {
+				pos.setPos(originalPos.getX() + x, originalPos.getY(), originalPos.getZ() + z);
+				if (world.getBlockState(pos).getBlock() == Blocks.GRASS &&
+					world.getBlockState(pos.up()).getMaterial() == Material.AIR &&
+					player.canPlayerEdit(pos.offset(event.getFace()), event.getFace(), stack)) {
+				    pathPos.add(pos.toImmutable());
+				}
+			    }
+			}
+		    }
+		    // only flatten 1 block if sneaking
+		    else if (world.getBlockState(pos).getBlock() == Blocks.GRASS &&
+			    world.getBlockState(pos.up()).getMaterial() == Material.AIR &&
+			    player.canPlayerEdit(pos.offset(event.getFace()), event.getFace(), stack)) {
+			pathPos.add(pos.toImmutable());
+		    }
+
+		    for (BlockPos newPath : pathPos) {
+			world.setBlockState(newPath, Blocks.GRASS_PATH.getDefaultState(), BlockFlags.DEFAULT_AND_RERENDER);
+			stack.damageItem(1, player);
+			if (stack.isEmpty()) {
+			    break;
+			}
+		    }
+
+		    if (!pathPos.isEmpty()) {
+			world.playSound(null, event.getPos(), SoundEvents.ITEM_SHOVEL_FLATTEN, SoundCategory.BLOCKS, 1.0F, 1.0F);
+			event.setCanceled(true);
+			event.setCancellationResult(EnumActionResult.SUCCESS);
+			player.swingArm(event.getHand());
+		    }
+		}
+		else {
+		    player.swingArm(event.getHand());
+		}
 	    }
 	}
     }
