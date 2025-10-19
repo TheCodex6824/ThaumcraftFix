@@ -22,13 +22,25 @@ package thecodex6824.thaumcraftfix.mixin.render;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.asm.mixin.Shadow;
 
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.EntityArmorStand;
+import net.minecraft.entity.monster.EntitySkeleton;
+import net.minecraft.entity.monster.EntityZombie;
 import thaumcraft.client.renderers.models.gear.ModelCustomArmor;
 
 @Mixin(ModelCustomArmor.class)
-public class ModelCustomArmorMixin extends ModelBiped {
+public abstract class ModelCustomArmorMixin extends ModelBiped {
+
+    @Shadow(remap = false)
+    public abstract void setRotationAnglesStand(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw,
+	    float headPitch, float scaleFactor, Entity entityIn);
+
+    @Shadow(remap = false)
+    public abstract void setRotationAnglesZombie(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw,
+	    float headPitch, float scaleFactor, Entity entityIn);
 
     /**
      * @author TheCodex6824
@@ -42,6 +54,14 @@ public class ModelCustomArmorMixin extends ModelBiped {
 
 	super.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw,
 		headPitch, scaleFactor, entityIn);
+	if (entityIn instanceof EntityArmorStand) {
+	    setRotationAnglesStand(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw,
+		    headPitch, scaleFactor, entityIn);
+	}
+	else if (entityIn instanceof EntitySkeleton || entityIn instanceof EntityZombie) {
+	    setRotationAnglesZombie(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw,
+		    headPitch, scaleFactor, entityIn);
+	}
     }
 
 }
