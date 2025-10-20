@@ -261,4 +261,8 @@ public class BlockTransformersHooksCommon {
 	}
     }
 
+    public static boolean isResearchTableItemValidForSlot(boolean original, int slot) {
+	return slot < 2 ? original : true;
+    }
+
 }

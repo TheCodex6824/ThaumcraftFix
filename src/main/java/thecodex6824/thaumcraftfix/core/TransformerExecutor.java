@@ -85,6 +85,7 @@ public class TransformerExecutor implements IClassTransformer {
 	transformers.add(BlockTransformers.INFERNAL_FURNACE_ITEM_CHECKS.get());
 	transformers.add(BlockTransformers.PLANT_CINDERPEARL_OFFSET.get());
 	transformers.add(BlockTransformers.PLANT_SHIMMERLEAF_OFFSET.get());
+	transformers.add(BlockTransformers.RESEARCH_TABLE_SHIFT_CLICK.get());
 	transformers.add(BlockTransformers.TABLE_TOP_SOLID.get());
 	transformers.add(BlockTransformers.THAUMATORIUM_TOP_EMPTY.get());
 	transformers.add(CastingTransformers.EXCHANGE_MOD_INTERFACEIFY);
