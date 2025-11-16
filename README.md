@@ -41,6 +41,7 @@ Thaumcraft Fix is licensed under the GNU Lesser Public License v3 (or later). So
 - Fixed Focal Manipulator not reporting the actual amount of levels required for crafting
 - Fixed Focal Manipulator not playing a sound when it fails to craft
 - Fixed Focal Manipulator sometimes not completing and/or creating glitched foci
+- Fixed Giant Taintacle spamming log errors when rendering
 - Fixed HUD texture and positioning issues when holding Caster's Gauntlet, Sanity checker or Thaumometer
 - Fixed items having aspects registered even when there are no aspects available
 - Fixed Magical Forest biome decoration causing cascading lag
