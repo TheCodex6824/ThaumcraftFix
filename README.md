@@ -23,6 +23,7 @@ Thaumcraft Fix is licensed under the GNU Lesser Public License v3 (or later). So
 - Fixed Automated Crossbow Gui positions
 - Fixed Automated Crossbows being unable to fire special arrows
 - Fixed Burrowing infusion enchantment not dropping any experience
+- Fixed Caster's Gauntlet select focus keybind breaking swap hands keybind
 - Fixed duplication issue with the Arcane Workbench
 - Fixed duplication issue with brain jars
 - Fixed duplication issue with owned constructs
