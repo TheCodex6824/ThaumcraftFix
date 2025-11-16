@@ -22,6 +22,7 @@ Thaumcraft Fix is licensed under the GNU Lesser Public License v3 (or later). So
 - Fixed aura chunks sometimes not holding any Vis in multiplayer
 - Fixed Automated Crossbow Gui positions
 - Fixed Automated Crossbows being unable to fire special arrows
+- Fixed Banners consuming Phials when applying essentia icon
 - Fixed Burrowing infusion enchantment not dropping any experience
 - Fixed Caster's Gauntlet select focus keybind breaking swap hands keybind
 - Fixed duplication issue with the Arcane Workbench

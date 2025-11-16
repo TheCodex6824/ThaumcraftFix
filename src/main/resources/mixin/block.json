@@ -4,6 +4,7 @@
   "minVersion": "${mixinminversion}",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
+    "BlockBannerTCMixin",
     "BlockPillarMixin"
   ]
 }
