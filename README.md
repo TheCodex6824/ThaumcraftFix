@@ -51,6 +51,7 @@ Thaumcraft Fix is licensed under the GNU Lesser Public License v3 (or later). So
 - Fixed not being able to put the scatter modifier after any trajectory pattern on the Focal Manipulator
 - Fixed Pech trading Gui position and item shading
 - Fixed Primal Crusher's texture not being animated
+- Fixed Primordial Pearl boss drop spawn location and movement logic
 - Fixed Redstone Inlay texture having white borders
 - Fixed research items not accepting wildcard metadata
 - Fixed research page formatting tags getting dropped if they are the last text in an entry
