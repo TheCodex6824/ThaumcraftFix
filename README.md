@@ -62,6 +62,7 @@ Thaumcraft Fix is licensed under the GNU Lesser Public License v3 (or later). So
 - Fixed the 'runicshieldcharge' sound event not playing
 - Fixed TileThaumcraftInventory trying to send packets to the client on the client side
 - Fixed Triple Meat Treat's texture not being animated
+- Fixed Uncraftable Potion Pech trade item
 - Fixed unloaded dimensions still retaining Thaumcraft particles
 - Fixed Vis draining into chunks it isn't supposed to
 - Fixed Void Thaumaturge Robes displaying twice the amount of armor on the hud

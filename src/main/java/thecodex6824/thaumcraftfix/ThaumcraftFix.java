@@ -90,6 +90,7 @@ import thecodex6824.thaumcraftfix.common.research.parser.ScanParserBlock;
 import thecodex6824.thaumcraftfix.common.research.parser.ScanParserEntity;
 import thecodex6824.thaumcraftfix.common.research.parser.ScanParserItem;
 import thecodex6824.thaumcraftfix.common.research.parser.ScanParserItemExtended;
+import thecodex6824.thaumcraftfix.common.util.PechTradeHelper;
 import thecodex6824.thaumcraftfix.common.world.AuraFinalizerWorldGenerator;
 
 @Mod(modid = ThaumcraftFixApi.MODID, name = "Thaumcraft Fix", version = ThaumcraftFix.VERSION, useMetadata = true,
@@ -202,6 +203,7 @@ public class ThaumcraftFix {
 	if (errors) {
 	    logger.error("One or more research errors have occurred. Please check the log file for more information.");
 	}
+	PechTradeHelper.fixPechTrades();
     }
 
     private static void setToolMaterialRepairItem(ToolMaterial material, ItemStack repair) {
