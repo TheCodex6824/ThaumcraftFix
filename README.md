@@ -12,6 +12,7 @@ Thaumcraft Fix is licensed under the GNU Lesser Public License v3 (or later). So
 - Deregistered spellbat spawn egg to prevent a crash when using it
 - Fixed all plant hitboxes
 - Fixed Ancient and Eldritch Infusion Altars being impossible to create
+- Fixed Arcane Bore Gui position
 - Fixed Arcane Bore having errored particles when digging certain blocks
 - Fixed Arcane Bore having some issues with the Destructive infusion enchantment
 - Fixed Arcane Bore not working with the Lamplighter infusion enchantment
@@ -19,6 +20,7 @@ Thaumcraft Fix is licensed under the GNU Lesser Public License v3 (or later). So
 - Fixed Arcane Workbench causing issues with certain items from other mods like Akashic Tome or Morph-o-Tool
 - Fixed aura chunks impacting performance
 - Fixed aura chunks sometimes not holding any Vis in multiplayer
+- Fixed Automated Crossbow Gui positions
 - Fixed Automated Crossbows being unable to fire special arrows
 - Fixed Burrowing infusion enchantment not dropping any experience
 - Fixed duplication issue with the Arcane Workbench
@@ -42,6 +44,7 @@ Thaumcraft Fix is licensed under the GNU Lesser Public License v3 (or later). So
 - Fixed Magical Hand Mirror not checking which hand it's in, causing NBT loss and other issues
 - Fixed Magical Mirrors causing a crash when they link to an invalid dimension
 - Fixed not being able to put the scatter modifier after any trajectory pattern on the Focal Manipulator
+- Fixed Pech trading Gui position and item shading
 - Fixed Primal Crusher's texture not being animated
 - Fixed Redstone Inlay texture having white borders
 - Fixed research items not accepting wildcard metadata

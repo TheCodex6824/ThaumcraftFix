@@ -1,0 +1,13 @@
+{
+  "package": "thecodex6824.thaumcraftfix.mixin.client",
+  "refmap": "${refmap}",
+  "minVersion": "${mixinminversion}",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [],
+  "client": [
+    "GuiArcaneBoreMixin",
+    "GuiPechMixin",
+    "GuiTurretAdvancedMixin",
+    "GuiTurretBasicMixin"
+  ]
+}
