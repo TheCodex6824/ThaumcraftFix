@@ -1,0 +1,9 @@
+{
+  "package": "thecodex6824.thaumcraftfix.mixin.inventory",
+  "refmap": "${refmap}",
+  "minVersion": "${mixinminversion}",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "ContainerResearchTableMixin"
+  ]
+}

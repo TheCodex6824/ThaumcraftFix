@@ -57,6 +57,7 @@ Thaumcraft Fix is licensed under the GNU Lesser Public License v3 (or later). So
 - Fixed Redstone Inlay texture having white borders
 - Fixed research items not accepting wildcard metadata
 - Fixed research page formatting tags getting dropped if they are the last text in an entry
+- Fixed Research Table shift-click interaction for Paper and Scribing Tools
 - Fixed Runic Shielding infusion not working on items with baubles capability
 - Fixed scribing tools from other addons not being able to be used for celestial note scanning
 - Fixed sounds not properly playing for casting gauntlets
