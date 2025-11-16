@@ -38,6 +38,7 @@ Thaumcraft Fix is licensed under the GNU Lesser Public License v3 (or later). So
 - Fixed extra colored nitor recipes not displaying in Discovering Alchemy
 - Fixed firebats not having particles
 - Fixed Flux pollution client crash with large pollution values
+- Fixed Flux Rifts not collapsing when fully drained by Void Siphons
 - Fixed Focal Manipulator not reporting the actual amount of levels required for crafting
 - Fixed Focal Manipulator not playing a sound when it fails to craft
 - Fixed Focal Manipulator sometimes not completing and/or creating glitched foci
