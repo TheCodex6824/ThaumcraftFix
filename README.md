@@ -24,6 +24,9 @@ Thaumcraft Fix is licensed under the GNU Lesser Public License v3 (or later). So
 - Fixed Automated Crossbows being unable to fire special arrows
 - Fixed Banners consuming Phials when applying essentia icon
 - Fixed Burrowing infusion enchantment not dropping any experience
+- Fixes Caster's Gauntlet Gui rendering in the incorrect location if gauntlet is held in the offhand
+- Fixed Caster's Gauntlet Gui causing rendering issues when gauntlet is in mainhand and Thaumometer or Sanity Checker is held in the offhand
+- Fixed Caster's Gauntlet Gui causing rendering issues when plan focus is equipped and Thaumometer or Sanity Checker is also held
 - Fixed Caster's Gauntlet select focus keybind breaking swap hands keybind
 - Fixed duplication issue with the Arcane Workbench
 - Fixed duplication issue with brain jars
@@ -45,7 +48,6 @@ Thaumcraft Fix is licensed under the GNU Lesser Public License v3 (or later). So
 - Fixed Focal Manipulator sometimes not completing and/or creating glitched foci
 - Fixed Giant Taintacle spamming log errors when rendering
 - Fixed Golems voiding held items when interacting with Use Seals with "Can use empty hand" enabled
-- Fixed HUD texture and positioning issues when holding Caster's Gauntlet, Sanity checker or Thaumometer
 - Fixed items having aspects registered even when there are no aspects available
 - Fixed Magical Forest biome decoration causing cascading lag
 - Fixed Magical Hand Mirror not checking which hand it's in, causing NBT loss and other issues

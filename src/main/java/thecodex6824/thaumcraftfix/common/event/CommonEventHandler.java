@@ -275,6 +275,7 @@ public class CommonEventHandler {
 	 * Fixes an internal logic bug with Thaumcraft preventing players from receiving exploration research if they already
 	 * had other research completed.
 	 */
+	@SuppressWarnings("deprecation")
 	@SubscribeEvent(priority = EventPriority.LOW)
 	public static void onLivingTickLate(LivingEvent.LivingUpdateEvent event) {
 		if(!event.getEntityLiving().world.isRemote && event.getEntityLiving() instanceof EntityPlayer && event.getEntityLiving().ticksExisted % 200 == 0) {
