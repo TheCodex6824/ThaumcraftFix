@@ -8,6 +8,7 @@
     "GuiArcaneBoreMixin",
     "GuiPechMixin",
     "GuiTurretAdvancedMixin",
-    "GuiTurretBasicMixin"
+    "GuiTurretBasicMixin",
+    "HudHandlerMixin"
   ]
 }
