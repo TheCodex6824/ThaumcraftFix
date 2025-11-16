@@ -35,6 +35,7 @@ Thaumcraft Fix is licensed under the GNU Lesser Public License v3 (or later). So
 - Fixed duplication issue with the Infernal Furnace
 - Fixed duplication issue with the Thaumatorium
 - Fixed eldritch guardians always creating fog regardless of dimension
+- Fixed Exploration Research missing or not being granted to players under specific circumstances
 - Fixed extra colored nitor recipes not displaying in Discovering Alchemy
 - Fixed firebats not having particles
 - Fixed Flux pollution client crash with large pollution values

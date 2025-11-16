@@ -37,12 +37,18 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockPos.MutableBlockPos;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
+import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraftforge.common.BiomeDictionary;
 import net.minecraftforge.common.util.Constants.BlockFlags;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
+import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -54,6 +60,8 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import thaumcraft.api.ThaumcraftApi;
 import thaumcraft.api.ThaumcraftApi.BluePrint;
 import thaumcraft.api.blocks.BlocksTC;
+import thaumcraft.api.capabilities.IPlayerKnowledge;
+import thaumcraft.api.capabilities.ThaumcraftCapabilities;
 import thaumcraft.api.crafting.IDustTrigger;
 import thaumcraft.api.crafting.Part;
 import thaumcraft.api.items.ItemsTC;
@@ -262,5 +270,45 @@ public class CommonEventHandler {
 	}));
 
     }
+
+	/**
+	 * Fixes an internal logic bug with Thaumcraft preventing players from receiving exploration research if they already
+	 * had other research completed.
+	 */
+	@SubscribeEvent(priority = EventPriority.LOW)
+	public static void onLivingTickLate(LivingEvent.LivingUpdateEvent event) {
+		if(!event.getEntityLiving().world.isRemote && event.getEntityLiving() instanceof EntityPlayer && event.getEntityLiving().ticksExisted % 200 == 0) {
+			EntityPlayer player = (EntityPlayer) event.getEntityLiving();
+			IPlayerKnowledge knowledge = ThaumcraftCapabilities.getKnowledge(player);
+			Biome biome = player.world.getBiome(player.getPosition());
+
+			//Fixes bug caused when rewarding research with command locking players out of this research.
+			if (knowledge.isResearchKnown("UNLOCKAUROMANCY@1")) {
+				if (player.posY < (double)10.0F && !knowledge.isResearchKnown("m_deepdown")) {
+					knowledge.addResearch("m_deepdown");
+					knowledge.sync((EntityPlayerMP)player);
+					player.sendStatusMessage(new TextComponentString(TextFormatting.DARK_PURPLE + I18n.translateToLocal("got.deepdown")), true);
+				}
+
+				if (player.posY > (double)player.getEntityWorld().getActualHeight() * 0.4 && !knowledge.isResearchKnown("m_uphigh")) {
+					knowledge.addResearch("m_uphigh");
+					knowledge.sync((EntityPlayerMP)player);
+					player.sendStatusMessage(new TextComponentString(TextFormatting.DARK_PURPLE + I18n.translateToLocal("got.uphigh")), true);
+				}
+			}
+
+			//Fixes Thaumcraft not granting players exploration research correctly
+			if (!knowledge.isResearchKnown("m_finddesert") && BiomeDictionary.hasType(biome, BiomeDictionary.Type.HOT)) {
+				knowledge.addResearch("m_finddesert");
+				knowledge.sync((EntityPlayerMP) player);
+				player.sendStatusMessage(new TextComponentString(TextFormatting.DARK_PURPLE + net.minecraft.util.text.translation.I18n.translateToLocal("got.finddesert")), true);
+			}
+			if (!knowledge.isResearchKnown("m_findocean") && BiomeDictionary.hasType(biome, BiomeDictionary.Type.OCEAN)) {
+				knowledge.addResearch("m_findocean");
+				knowledge.sync((EntityPlayerMP) player);
+				player.sendStatusMessage(new TextComponentString(TextFormatting.DARK_PURPLE + net.minecraft.util.text.translation.I18n.translateToLocal("got.findocean")), true);
+			}
+		}
+	}
 
 }
