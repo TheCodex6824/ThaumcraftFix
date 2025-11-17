@@ -506,33 +506,6 @@ public class BlockTransformers {
     public static final Supplier<ITransformer> PLANT_SHIMMERLEAF_OFFSET = () -> new ThrowingTransformerWrapper(
 	    new BlockApplyOffsetTransformer("thaumcraft/common/blocks/world/plants/BlockPlantShimmerleaf"));
 
-    public static final Supplier<ITransformer> RESEARCH_TABLE_SHIFT_CLICK = () -> {
-	return new GenericStateMachineTransformer(
-		PatchStateMachine.builder(
-			TransformUtil.remapMethod(new MethodDefinition(
-				"thaumcraft/common/tiles/crafting/TileResearchTable",
-				false,
-				"func_94041_b",
-				Type.BOOLEAN_TYPE,
-				Type.INT_TYPE, Types.ITEM_STACK
-				)
-				))
-		.findNextOpcode(Opcodes.IRETURN)
-		.findNextOpcode(Opcodes.IRETURN)
-		.findNextOpcode(Opcodes.IRETURN)
-		.insertInstructionsBefore(
-			new VarInsnNode(Opcodes.ILOAD, 1),
-			new MethodInsnNode(Opcodes.INVOKESTATIC,
-				HOOKS_COMMON,
-				"isResearchTableItemValidForSlot",
-				Type.getMethodDescriptor(Type.BOOLEAN_TYPE, Type.BOOLEAN_TYPE, Type.INT_TYPE),
-				false
-				)
-			)
-		.build()
-		);
-    };
-
     public static final Supplier<ITransformer> TABLE_TOP_SOLID = () -> {
 	return new GenericStateMachineTransformer(
 		PatchStateMachine.builder(
