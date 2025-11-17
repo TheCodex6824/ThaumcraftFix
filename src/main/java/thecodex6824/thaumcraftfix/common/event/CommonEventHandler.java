@@ -37,9 +37,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockPos.MutableBlockPos;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.translation.I18n;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
@@ -275,7 +273,6 @@ public class CommonEventHandler {
 	 * Fixes an internal logic bug with Thaumcraft preventing players from receiving exploration research if they already
 	 * had other research completed.
 	 */
-	@SuppressWarnings("deprecation")
 	@SubscribeEvent(priority = EventPriority.LOW)
 	public static void onLivingTickLate(LivingEvent.LivingUpdateEvent event) {
 		if(!event.getEntityLiving().world.isRemote && event.getEntityLiving() instanceof EntityPlayer && event.getEntityLiving().ticksExisted % 200 == 0) {
@@ -288,13 +285,13 @@ public class CommonEventHandler {
 				if (player.posY < (double)10.0F && !knowledge.isResearchKnown("m_deepdown")) {
 					knowledge.addResearch("m_deepdown");
 					knowledge.sync((EntityPlayerMP)player);
-					player.sendStatusMessage(new TextComponentString(TextFormatting.DARK_PURPLE + I18n.translateToLocal("got.deepdown")), true);
+					player.sendStatusMessage(new TextComponentTranslation("got.deepdown"), true);
 				}
 
 				if (player.posY > (double)player.getEntityWorld().getActualHeight() * 0.4 && !knowledge.isResearchKnown("m_uphigh")) {
 					knowledge.addResearch("m_uphigh");
 					knowledge.sync((EntityPlayerMP)player);
-					player.sendStatusMessage(new TextComponentString(TextFormatting.DARK_PURPLE + I18n.translateToLocal("got.uphigh")), true);
+					player.sendStatusMessage(new TextComponentTranslation("got.uphigh"), true);
 				}
 			}
 
@@ -302,12 +299,12 @@ public class CommonEventHandler {
 			if (!knowledge.isResearchKnown("m_finddesert") && BiomeDictionary.hasType(biome, BiomeDictionary.Type.HOT)) {
 				knowledge.addResearch("m_finddesert");
 				knowledge.sync((EntityPlayerMP) player);
-				player.sendStatusMessage(new TextComponentString(TextFormatting.DARK_PURPLE + net.minecraft.util.text.translation.I18n.translateToLocal("got.finddesert")), true);
+				player.sendStatusMessage(new TextComponentTranslation("got.finddesert"), true);
 			}
 			if (!knowledge.isResearchKnown("m_findocean") && BiomeDictionary.hasType(biome, BiomeDictionary.Type.OCEAN)) {
 				knowledge.addResearch("m_findocean");
 				knowledge.sync((EntityPlayerMP) player);
-				player.sendStatusMessage(new TextComponentString(TextFormatting.DARK_PURPLE + net.minecraft.util.text.translation.I18n.translateToLocal("got.findocean")), true);
+				player.sendStatusMessage(new TextComponentTranslation("got.findocean"), true);
 			}
 		}
 	}
