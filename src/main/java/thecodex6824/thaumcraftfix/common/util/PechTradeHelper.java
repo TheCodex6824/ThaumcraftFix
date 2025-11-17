@@ -28,12 +28,14 @@ public class PechTradeHelper {
         Logger logger = ThaumcraftFix.instance.getLogger();
         try {
             //Removing Pech trades with broken potion items caused by invalid metadata values.
-            removePechTrade(EnumPechType.MAGE, Ingredient.fromStacks(new ItemStack(Items.POTIONITEM, 1, 8193)));
-            removePechTrade(EnumPechType.MAGE, Ingredient.fromStacks(new ItemStack(Items.POTIONITEM, 1, 8261)));
-            //Re-adding the potion Pech trades.
-            addPechTrade(EnumPechType.MAGE, 2, PotionUtils.addPotionToItemStack(new ItemStack(Items.POTIONITEM), PotionTypes.REGENERATION));
-            addPechTrade(EnumPechType.MAGE, 2, PotionUtils.addPotionToItemStack(new ItemStack(Items.POTIONITEM), PotionTypes.HEALING));
-            logger.info("Fixed Pech trades.");
+            if(removePechTrade(EnumPechType.MAGE, Ingredient.fromStacks(new ItemStack(Items.POTIONITEM, 1, 8193)))) {
+                addPechTrade(EnumPechType.MAGE, 2, PotionUtils.addPotionToItemStack(new ItemStack(Items.POTIONITEM), PotionTypes.REGENERATION));
+                logger.info("Fixed Regeneration potion Pech trade.");
+            }
+            if(removePechTrade(EnumPechType.MAGE, Ingredient.fromStacks(new ItemStack(Items.POTIONITEM, 1, 8261)))) {
+                addPechTrade(EnumPechType.MAGE, 2, PotionUtils.addPotionToItemStack(new ItemStack(Items.POTIONITEM), PotionTypes.HEALING));
+                logger.info("Fixed Healing potion Pech trade.");
+            }
         } catch (Exception e) {
             logger.error("Suppressed Error: " + e.getMessage());
             logger.error("Failed to fix Pech Trades. Please check the log file for more information.");
@@ -50,11 +52,13 @@ public class PechTradeHelper {
         }
     }
 
-    public static void removePechTrade(EnumPechType pechType, Ingredient ingredient) {
+    public static boolean removePechTrade(EnumPechType pechType, Ingredient ingredient) {
+        boolean did = false;
         ArrayList<List> trades = getPechTrades(pechType);
         if(trades != null) {
-            trades.removeIf(list -> ingredient.apply((ItemStack) list.get(1)));
+            did = trades.removeIf(list -> ingredient.apply((ItemStack) list.get(1)));
         }
+        return did;
     }
 
     private static HashMap<Integer, ArrayList<List>> getPechTrades() {
