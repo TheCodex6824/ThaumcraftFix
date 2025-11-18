@@ -6,11 +6,6 @@ potion.unhunger=Unhunger
 # BASICS
 ##########################################
 #
-got.deepdown=§5You have visited deep and dark depths and have learned much.
-got.uphigh=§5The world is spread out before you. Your perspective has been broadened.
-got.finddesert=§5You have visited the scorching desert.
-got.findocean=§5You have peered into the endless blue abyss.
-#
 research.Pech.stage.1=These strange humanoids can be found wherever the veil between worlds is at its thinnest. They seem drawn to the magical energies that abound in such places.<IMG>thaumcraft:textures/research/research5.png:128:136:108:117:.75</IMG>However, I should not let their small stature fool me. They have incredible strength and can carry many times their own bodyweight.<BR>Pech are normally not aggressive, but when riled up they will band together and hunt down their attacker. Under normal conditions they avoid people at all costs.<BR>Pechs are notoriously avaricious, and will loot anything not nailed down, though they prefer precious things. It is said that if one were to feed this desire for material wealth it could be possible to befriend one.<BR>Once befriended they often carry wondrous objects that they might be willing to part with.<BR>It should be noted that such 'friendships' seldom last long, though.
 #
 research.ThaumSlime.stage.1=These purple slimes are a strange offshoot of their green cousins. Normal slimes form from the organic gunk that occasionally collects in caves, but Thaumic Slimes are formed from the purple proto-matter residue left over from magical mishaps.<BR>Apart from their strange origins they are rather similar to their green cousins for the most part. They do appear to have the ability to split at will, often spitting a lesser version of themselves at targets that venture too close. If there are no targets nearby, split slimes will endeavour to reform to once again form a larger organism.

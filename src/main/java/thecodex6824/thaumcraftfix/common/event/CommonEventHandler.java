@@ -37,7 +37,9 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockPos.MutableBlockPos;
+import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.Chunk;
@@ -269,44 +271,44 @@ public class CommonEventHandler {
 
     }
 
-	/**
-	 * Fixes an internal logic bug with Thaumcraft preventing players from receiving exploration research if they already
-	 * had other research completed.
-	 */
-	@SubscribeEvent(priority = EventPriority.LOW)
-	public static void onLivingTickLate(LivingEvent.LivingUpdateEvent event) {
-		if(!event.getEntityLiving().world.isRemote && event.getEntityLiving() instanceof EntityPlayer && event.getEntityLiving().ticksExisted % 200 == 0) {
-			EntityPlayer player = (EntityPlayer) event.getEntityLiving();
-			IPlayerKnowledge knowledge = ThaumcraftCapabilities.getKnowledge(player);
-			Biome biome = player.world.getBiome(player.getPosition());
+    /**
+     * Fixes an internal logic bug with Thaumcraft preventing players from receiving exploration research if they already
+     * had other research completed.
+     */
+    @SubscribeEvent(priority = EventPriority.LOW)
+    public static void onLivingTickLate(LivingEvent.LivingUpdateEvent event) {
+	if(!event.getEntityLiving().world.isRemote && event.getEntityLiving() instanceof EntityPlayer && event.getEntityLiving().ticksExisted % 200 == 0) {
+	    EntityPlayer player = (EntityPlayer) event.getEntityLiving();
+	    IPlayerKnowledge knowledge = ThaumcraftCapabilities.getKnowledge(player);
+	    Biome biome = player.world.getBiome(player.getPosition());
 
-			//Fixes bug caused when rewarding research with command locking players out of this research.
-			if (knowledge.isResearchKnown("UNLOCKAUROMANCY@1")) {
-				if (player.posY < (double)10.0F && !knowledge.isResearchKnown("m_deepdown")) {
-					knowledge.addResearch("m_deepdown");
-					knowledge.sync((EntityPlayerMP)player);
-					player.sendStatusMessage(new TextComponentTranslation("got.deepdown"), true);
-				}
-
-				if (player.posY > (double)player.getEntityWorld().getActualHeight() * 0.4 && !knowledge.isResearchKnown("m_uphigh")) {
-					knowledge.addResearch("m_uphigh");
-					knowledge.sync((EntityPlayerMP)player);
-					player.sendStatusMessage(new TextComponentTranslation("got.uphigh"), true);
-				}
-			}
-
-			//Fixes Thaumcraft not granting players exploration research correctly
-			if (!knowledge.isResearchKnown("m_finddesert") && BiomeDictionary.hasType(biome, BiomeDictionary.Type.HOT)) {
-				knowledge.addResearch("m_finddesert");
-				knowledge.sync((EntityPlayerMP) player);
-				player.sendStatusMessage(new TextComponentTranslation("got.finddesert"), true);
-			}
-			if (!knowledge.isResearchKnown("m_findocean") && BiomeDictionary.hasType(biome, BiomeDictionary.Type.OCEAN)) {
-				knowledge.addResearch("m_findocean");
-				knowledge.sync((EntityPlayerMP) player);
-				player.sendStatusMessage(new TextComponentTranslation("got.findocean"), true);
-			}
+	    //Fixes bug caused when rewarding research with command locking players out of this research.
+	    if (knowledge.isResearchKnown("UNLOCKAUROMANCY@1")) {
+		if (player.posY < 10.0F && !knowledge.isResearchKnown("m_deepdown")) {
+		    knowledge.addResearch("m_deepdown");
+		    knowledge.sync((EntityPlayerMP)player);
+		    player.sendStatusMessage(new TextComponentTranslation("got.deepdown").setStyle(new Style().setColor(TextFormatting.DARK_PURPLE)), true);
 		}
+
+		if (player.posY > player.getEntityWorld().getActualHeight() * 0.4 && !knowledge.isResearchKnown("m_uphigh")) {
+		    knowledge.addResearch("m_uphigh");
+		    knowledge.sync((EntityPlayerMP)player);
+		    player.sendStatusMessage(new TextComponentTranslation("got.uphigh").setStyle(new Style().setColor(TextFormatting.DARK_PURPLE)), true);
+		}
+	    }
+
+	    //Fixes Thaumcraft not granting players exploration research correctly
+	    if (!knowledge.isResearchKnown("m_finddesert") && BiomeDictionary.hasType(biome, BiomeDictionary.Type.HOT)) {
+		knowledge.addResearch("m_finddesert");
+		knowledge.sync((EntityPlayerMP) player);
+		player.sendStatusMessage(new TextComponentTranslation("got.finddesert").setStyle(new Style().setColor(TextFormatting.DARK_PURPLE)), true);
+	    }
+	    if (!knowledge.isResearchKnown("m_findocean") && BiomeDictionary.hasType(biome, BiomeDictionary.Type.OCEAN)) {
+		knowledge.addResearch("m_findocean");
+		knowledge.sync((EntityPlayerMP) player);
+		player.sendStatusMessage(new TextComponentTranslation("got.findocean").setStyle(new Style().setColor(TextFormatting.DARK_PURPLE)), true);
+	    }
 	}
+    }
 
 }
