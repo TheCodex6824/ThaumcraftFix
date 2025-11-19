@@ -53,6 +53,7 @@ import thaumcraft.common.lib.events.ServerEvents;
 import thaumcraft.common.lib.events.ServerEvents.VirtualSwapper;
 import thaumcraft.common.world.aura.AuraThread;
 import thecodex6824.thaumcraftfix.api.aura.CapabilityAuraProcessor;
+import thecodex6824.thaumcraftfix.api.casting.ICustomExchangeState;
 import thecodex6824.thaumcraftfix.common.aura.GenericAuraThread;
 
 @Mixin(ServerEvents.class)
@@ -156,17 +157,24 @@ public class ServerEventsMixin {
 
 	    BlockPos pos = getSwapperPos(vs);
 	    if (toPlace != null) {
-		world.setBlockState(pos, toPlace);
 		EntityPlayer player = getSwapperPlayer(vs);
-		placeAllowed = !ForgeEventFactory.onPlayerBlockPlace(player, snapshot, EnumFacing.UP,
-			EnumHand.MAIN_HAND).isCanceled();
-		if (!placeAllowed) {
-		    // we can't restore block snapshots since side effects of the block being destroyed already happened
-		    // instead, just drop the old block as an item and leave it as air
-		    world.setBlockToAir(pos);
-		    if (!player.isCreative()) {
-			snapshot.getReplacedBlock().getBlock().dropBlockAsItem(
-				snapshot.getWorld(), snapshot.getPos(), snapshot.getReplacedBlock(), 0);
+		if (toPlace.getBlock() instanceof ICustomExchangeState) {
+		    toPlace = ((ICustomExchangeState) toPlace.getBlock()).getPlacedExchangeState(world, pos, player, target, toPlace);
+		}
+
+		// ICustomExchangeState is allowed to return null
+		if (toPlace != null) {
+		    world.setBlockState(pos, toPlace);
+		    placeAllowed = !ForgeEventFactory.onPlayerBlockPlace(player, snapshot, EnumFacing.UP,
+			    EnumHand.MAIN_HAND).isCanceled();
+		    if (!placeAllowed) {
+			// we can't restore block snapshots since side effects of the block being destroyed already happened
+			// instead, just drop the old block as an item and leave it as air
+			world.setBlockToAir(pos);
+			if (!player.isCreative()) {
+			    snapshot.getReplacedBlock().getBlock().dropBlockAsItem(
+				    snapshot.getWorld(), snapshot.getPos(), snapshot.getReplacedBlock(), 0);
+			}
 		    }
 		}
 	    }
