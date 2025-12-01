@@ -84,8 +84,7 @@ public class ModelRobeMixin extends ModelBiped {
 		    target = "Lnet/minecraft/client/model/ModelRenderer;addBox(FFFIII)Lnet/minecraft/client/model/ModelRenderer;",
 		    ordinal = 28,
 		    unsafe = true
-		    ),
-	    remap = false
+		    )
 	    )
     private void fixupRightShoulderTexture(CallbackInfo info) {
 	ShoulderR.mirror = false;
@@ -98,8 +97,7 @@ public class ModelRobeMixin extends ModelBiped {
 		    target = "Lnet/minecraft/client/model/ModelRenderer;addBox(FFFIII)Lnet/minecraft/client/model/ModelRenderer;",
 		    ordinal = 32,
 		    unsafe = true
-		    ),
-	    remap = false
+		    )
 	    )
     private void fixupLeftShoulderTexture(CallbackInfo info) {
 	ShoulderL.mirror = true;
@@ -112,8 +110,7 @@ public class ModelRobeMixin extends ModelBiped {
 		    target = "Lnet/minecraft/client/model/ModelRenderer;addBox(FFFIII)Lnet/minecraft/client/model/ModelRenderer;",
 		    ordinal = 0,
 		    unsafe = true
-		    ),
-	    remap = false
+		    )
 	    )
     private void initClothReparent(float scale, CallbackInfo info) {
 	doClothReparent = scale < 1.0F;
@@ -125,8 +122,7 @@ public class ModelRobeMixin extends ModelBiped {
 		    value = "INVOKE",
 		    target = "Lnet/minecraft/client/model/ModelRenderer;setRotationPoint(FFF)V",
 		    unsafe = true
-		    ),
-	    remap = false
+		    )
 	    )
     private void clothRotPointOffset(ModelRenderer target, float x, float y, float z, Operation<Float> original) {
 	if (doClothReparent) {

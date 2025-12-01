@@ -21,9 +21,9 @@ public class ModelLeaderArmorMixin extends ModelBiped {
 	    at = @At(
 		    value = "INVOKE",
 		    target = "Lnet/minecraft/client/model/ModelRenderer;addBox(FFFIII)Lnet/minecraft/client/model/ModelRenderer;",
-		    ordinal = 34
-		    ),
-	    remap = false
+		    ordinal = 34,
+		    unsafe = true
+		    )
 	    )
     private void fixupLeftShoulderTexture(CallbackInfo info) {
 	ShoulderL.mirror = true;
