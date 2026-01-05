@@ -92,7 +92,7 @@ public class ItemElementalShovelMixin {
 	    @Share("goodItem") LocalRef<ItemStack> goodItem, @Share("didSomething") LocalBooleanRef didSomething) {
 
 	return ItemTransformersHooksCommon.elementalShovelWrapSetBlockStateForBlockPlacement(worldAgain,
-		origPos,state, op, player, worldAgain, origPos, hand, side, hitZ, hitZ, hitZ,
+		pos, state, op, player, worldAgain, origPos, hand, side, hitZ, hitZ, hitZ,
 		goodItem, didSomething);
     }
 
