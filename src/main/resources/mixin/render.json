@@ -9,6 +9,7 @@
     "ModelLeaderArmorMixin",
     "ModelRobeMixin",
     "ProxyEntitiesMixin",
-    "RenderEldritchCrabMixin"
+    "RenderEldritchCrabMixin",
+    "RenderFluxRiftMixin"
   ]
 }

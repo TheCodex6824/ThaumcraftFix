@@ -62,6 +62,17 @@ final class ThaumcraftFixConfigImpl {
 
     private ThaumcraftFixConfigImpl() {}
 
+    public static class ClientConfig {
+	@Name("optimizedFluxRiftRenderer")
+	@LangKey(ThaumcraftFixApi.MODID + ".text.config.optimizedFluxRiftRenderer")
+	@Comment({
+	    "Enables/disables an optimized Flux Rift renderer that caches geometry.",
+	    "This reduces CPU usage and memory pressure when there are large or multiple Flux Rifts.",
+	    "Your graphics hardware must support OpenGL 3.3, and VBOs are required to be enabled for this feature to activate."
+	})
+	public boolean optimizedFluxRiftRenderer = true;
+    }
+
     public static class ItemConfig {
 	@Name("primordialPearlDamageFix")
 	@LangKey(ThaumcraftFixApi.MODID + ".text.config.primordialPearlDamageFix")
@@ -211,6 +222,9 @@ final class ThaumcraftFixConfigImpl {
 
     }
 
+    @Name("client")
+    @LangKey(ThaumcraftFixApi.MODID + ".text.config.client")
+    public static ClientConfig client = new ClientConfig();
     @Name("item")
     @LangKey(ThaumcraftFixApi.MODID + ".text.config.item")
     public static ItemConfig item = new ItemConfig();

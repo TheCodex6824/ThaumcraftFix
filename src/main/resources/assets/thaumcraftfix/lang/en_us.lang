@@ -1,5 +1,7 @@
 thaumcraftfix.alreadyinuse=Someone is already using this.
 
+thaumcraftfix.text.config.client=Client
+thaumcraftfix.text.config.optimizedFluxRiftRenderer=Optimized Flux Rift Renderer
 thaumcraftfix.text.config.world=World
 thaumcraftfix.text.config.aura=Aura
 thaumcraftfix.text.config.crystals=Crystals
@@ -17,3 +19,5 @@ thaumcraftfix.text.config.primordialPearlDamageFix=Primordial Pearl Damage Value
 thaumcraftfix.text.loader.loaderError=Thaumcraft Fix Fatal Mod Loading Error
 thaumcraftfix.text.loader.missingMixin=A compatible version of either MixinBooter or FermiumBooter (or both) must be installed.
 thaumcraftfix.text.loader.compatibleModVersions=Compatible %s versions are: %s
+
+thaumcraftfix.text.renderer.failedRiftRendererRequirements=[TC Fix] The Optimized Flux Rift Renderer is not compatible with this system due to the graphics card lacking OpenGL 3.3 support.

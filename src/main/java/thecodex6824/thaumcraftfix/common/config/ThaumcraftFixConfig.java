@@ -95,6 +95,10 @@ public class ThaumcraftFixConfig {
 	}
     }
 
+    public static class ClientConfig {
+	public ConfigBoolean optimizedFluxRiftRenderer = new ConfigBoolean(true);
+    }
+
     public static class ItemConfig {
 	public ConfigBoolean primordialPearlDamageFix = new ConfigBoolean(true);
     }
@@ -131,10 +135,13 @@ public class ThaumcraftFixConfig {
 
     }
 
+    public ClientConfig client = new ClientConfig();
     public ItemConfig item = new ItemConfig();
     public WorldConfig world = new WorldConfig();
 
     public void bind() {
+	client.optimizedFluxRiftRenderer.setUserValue(ThaumcraftFixConfigImpl.client.optimizedFluxRiftRenderer);
+
 	item.primordialPearlDamageFix.setUserValue(ThaumcraftFixConfigImpl.item.primordialPearlDamageFix);
 
 	world.aura.biomeAllowList.setUserValue(ThaumcraftFixConfigImpl.world.aura.biomeAllowList);
