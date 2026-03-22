@@ -123,8 +123,8 @@ public abstract class RenderFluxRiftMixin extends Render<Entity> implements ISel
 	OpenGlHelper.glLinkProgram(program);
 	status = GL20.glGetProgrami(program, GL20.GL_LINK_STATUS);
 	if (status != GL11.GL_TRUE) {
-	    ThaumcraftFix.instance.getLogger().error("Failed to link shader shader: {}",
-		    OpenGlHelper.glGetProgramInfoLog(fragment, 1024));
+	    ThaumcraftFix.instance.getLogger().error("Failed to link shader: {}",
+		    OpenGlHelper.glGetProgramInfoLog(program, 1024));
 	}
 	OpenGlHelper.glDeleteShader(vertex);
 	OpenGlHelper.glDeleteShader(fragment);
