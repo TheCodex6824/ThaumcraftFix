@@ -186,7 +186,7 @@ public abstract class RenderFluxRiftMixin extends Render<Entity> implements ISel
 
     private RiftData getOrCreateVertexData(EntityFluxRift entity) {
 	RiftData data = buffers.compute(entity, (rift, existing) -> {
-	    int adjustedPointCount = Math.max(rift.points.size() - 2, 2);
+	    int adjustedPointCount = rift.points.size() - 2;
 	    if (existing == null || existing.riftSize != rift.getRiftSize() ||
 		    existing.riftSeed != rift.getRiftSeed() || existing.numPoints != adjustedPointCount) {
 
@@ -268,49 +268,32 @@ public abstract class RenderFluxRiftMixin extends Render<Entity> implements ISel
 	Vec3d up = new Vec3d(0.0, 1.0, 0.0);
 	mc.profiler.startSection("TcFixPerFrameFluxRiftData");
 	for (int layer = 0; layer < RiftData.NUM_LAYERS; ++layer) {
+	    // visual observation suggests that point 0 is not rendered in the normal renderer
 	    Vec3d point = entity.points.get(1);
 	    float pointDrift = entity.ticksExisted + pt + 10;
 	    data.stagingBuffer.put((float) point.x + MathHelper.sin(pointDrift / 50.0F) * 0.1F * stability);
 	    data.stagingBuffer.put((float) point.y + MathHelper.sin(pointDrift / 60.0F) * 0.1F * stability);
 	    data.stagingBuffer.put((float) point.z + MathHelper.sin(pointDrift / 70.0F) * 0.1F * stability);
-	    if (entity.points.size() > 2) {
-		for (int i = 2; i < entity.points.size() - 1; ++i) {
-		    pointDrift = entity.ticksExisted + pt;
-		    if (i > entity.points.size() / 2) {
-			pointDrift -= i * 10;
-		    }
-		    else {
-			pointDrift += i * 10;
-		    }
-		    double radiusDrift = 1.0 - Math.sin(pointDrift / 8.0F) * 0.1 * stability;
-		    float xMod = MathHelper.sin(pointDrift / 50.0F) * 0.1F * stability;
-		    float yMod = MathHelper.sin(pointDrift / 60.0F) * 0.1F * stability;
-		    float zMod = MathHelper.sin(pointDrift / 70.0F) * 0.1F * stability;
-		    point = entity.points.get(i);
-		    Vec3d axis = entity.points.get(i + 1).subtract(entity.points.get(i - 1)).normalize();
-		    Vec3d dirVec = axis.crossProduct(up).normalize().scale(entity.pointsWidth.get(i) * radiusDrift * (layer < RiftData.NUM_LAYERS - 1 ? 1.25F + 0.5F * layer : 1.0F));
-		    float angleMod = (float) Math.PI * 2.0F / RiftData.PIPE_NUM_SIDES;
-		    for (int j = 0; j < RiftData.PIPE_NUM_SIDES; ++j) {
-			Vec3d newPoint = point.add(dirVec);
-			data.stagingBuffer.put((float) newPoint.x + xMod);
-			data.stagingBuffer.put((float) newPoint.y + yMod);
-			data.stagingBuffer.put((float) newPoint.z + zMod);
-			Vec3d term1 = dirVec.scale(MathHelper.cos(angleMod));
-			Vec3d term2 = axis.crossProduct(dirVec).scale(MathHelper.sin(angleMod));
-			Vec3d term3 = axis.scale(axis.dotProduct(dirVec) * (1.0F - MathHelper.cos(angleMod)));
-			dirVec = term1.add(term2).add(term3);
-		    }
-		}
-	    }
-	    else {
+	    for (int i = 2; i < entity.points.size() - 1; ++i) {
 		pointDrift = entity.ticksExisted + pt;
+		if (i > entity.points.size() / 2) {
+		    pointDrift -= i * 10;
+		}
+		else {
+		    pointDrift += i * 10;
+		}
 		double radiusDrift = 1.0 - Math.sin(pointDrift / 8.0F) * 0.1 * stability;
 		float xMod = MathHelper.sin(pointDrift / 50.0F) * 0.1F * stability;
 		float yMod = MathHelper.sin(pointDrift / 60.0F) * 0.1F * stability;
 		float zMod = MathHelper.sin(pointDrift / 70.0F) * 0.1F * stability;
-		point = entity.points.get(0).add(entity.points.get(1).subtract(entity.points.get(0)).scale(0.5));
-		Vec3d axis = entity.points.get(1).subtract(entity.points.get(0)).normalize();
-		Vec3d dirVec = axis.crossProduct(up).normalize().scale(0.1 * radiusDrift * (layer < RiftData.NUM_LAYERS - 1 ? 1.25F + 0.5F * layer : 1.0F));
+		point = entity.points.get(i);
+		Vec3d axis = entity.points.get(i + 1).subtract(entity.points.get(i - 1)).normalize();
+		float width = entity.pointsWidth.get(i);
+		// thaumcraft sometimes sends widths of 0 for inner points with small rift sizes
+		if (width < 0.000001F) {
+		    width = entity.getRiftSize() * 0.003125F;
+		}
+		Vec3d dirVec = axis.crossProduct(up).normalize().scale(width * radiusDrift * (layer < RiftData.NUM_LAYERS - 1 ? 1.25F + 0.5F * layer : 1.0F));
 		float angleMod = (float) Math.PI * 2.0F / RiftData.PIPE_NUM_SIDES;
 		for (int j = 0; j < RiftData.PIPE_NUM_SIDES; ++j) {
 		    Vec3d newPoint = point.add(dirVec);
@@ -406,7 +389,7 @@ public abstract class RenderFluxRiftMixin extends Render<Entity> implements ISel
 	Profiler profiler = mc.profiler;
 	profiler.startSection(RenderFluxRift.class);
 	if (entity instanceof EntityFluxRift && ThaumcraftFix.instance.getConfig().client.optimizedFluxRiftRenderer.value() &&
-		checkCompat() && mc.gameSettings.useVbo && ((EntityFluxRift) entity).points.size() >= 2) {
+		checkCompat() && mc.gameSettings.useVbo && ((EntityFluxRift) entity).points.size() > 2) {
 	    renderOptimized((EntityFluxRift) entity, x, y, z, yaw, pt);
 	}
 	else {
