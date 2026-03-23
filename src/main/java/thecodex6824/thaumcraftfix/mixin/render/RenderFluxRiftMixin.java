@@ -1,6 +1,7 @@
 package thecodex6824.thaumcraftfix.mixin.render;
 
 import java.lang.ref.ReferenceQueue;
+import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.WeakHashMap;
@@ -67,8 +68,12 @@ public abstract class RenderFluxRiftMixin extends Render<Entity> implements ISel
     private int timeUniform = -1;
     private int yawUniform = -1;
     private int pitchUniform = -1;
+    private int mvMatrixUniform = -1;
+    private int pMatrixUniform = -1;
     private final ResourceLocation vertexShader = new ResourceLocation(ThaumcraftFixApi.MODID, "shaders/rift.vert");
     private final ResourceLocation fragmentShader = new ResourceLocation(ThaumcraftFixApi.MODID, "shaders/rift.frag");
+    private FloatBuffer mvBuffer = BufferUtils.createFloatBuffer(16);
+    private FloatBuffer pBuffer = BufferUtils.createFloatBuffer(16);
 
     private RenderFluxRiftMixin() {
 	super(null);
@@ -133,6 +138,8 @@ public abstract class RenderFluxRiftMixin extends Render<Entity> implements ISel
 	timeUniform = OpenGlHelper.glGetUniformLocation(program, "time");
 	yawUniform = OpenGlHelper.glGetUniformLocation(program, "yaw");
 	pitchUniform = OpenGlHelper.glGetUniformLocation(program, "pitch");
+	mvMatrixUniform = OpenGlHelper.glGetUniformLocation(program, "modelViewMatrix");
+	pMatrixUniform = OpenGlHelper.glGetUniformLocation(program, "projectionMatrix");
 	int textureUniform = OpenGlHelper.glGetUniformLocation(program, "texture");
 	if (textureUniform != -1) {
 	    // we only need to set this once
@@ -225,6 +232,12 @@ public abstract class RenderFluxRiftMixin extends Render<Entity> implements ISel
 	}
 	if (pitchUniform != -1) {
 	    GL20.glUniform1f(pitchUniform, (float) (-view.rotationPitch * 2.0F * Math.PI / 360.0F));
+	}
+	if (mvMatrixUniform != -1) {
+	    GL20.glUniformMatrix4(mvMatrixUniform, false, mvBuffer);
+	}
+	if (pMatrixUniform != -1) {
+	    GL20.glUniformMatrix4(pMatrixUniform, false, pBuffer);
 	}
 
 	GlStateManager.setActiveTexture(GL13.GL_TEXTURE0);
@@ -320,10 +333,12 @@ public abstract class RenderFluxRiftMixin extends Render<Entity> implements ISel
 	// TODO: batch entity rendering to not constantly bind/unbind shader?
 	//ShaderHelper.useShader(ShaderHelper.endShader, shaderCallback);
 	OpenGlHelper.glUseProgram(shaderProgram);
-	setUniforms(pt);
 	GlStateManager.enableBlend();
 	GlStateManager.pushMatrix();
 	GlStateManager.translate(x, y, z);
+	GL11.glGetFloat(GL11.GL_MODELVIEW_MATRIX, mvBuffer);
+	GL11.glGetFloat(GL11.GL_PROJECTION_MATRIX, pBuffer);
+	setUniforms(pt);
 	mc.profiler.startSection("TcFixFluxRiftDrawElements");
 	Entity renderView = mc.getRenderViewEntity() != null ? mc.getRenderViewEntity() : mc.player;
 	for (int layer = 0; layer < RiftData.NUM_LAYERS; ++layer) {

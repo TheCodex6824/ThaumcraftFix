@@ -1,4 +1,4 @@
-#version 330 compatibility
+#version 330 core
 
 // pi is required for some calculations and we have no idea if inline calcs for it will be optimized out
 #define M_PI 3.1415926535897932384626433832795
