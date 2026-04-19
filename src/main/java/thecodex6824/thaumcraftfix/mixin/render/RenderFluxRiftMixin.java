@@ -7,6 +7,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.WeakHashMap;
 import java.util.function.Predicate;
 
+import javax.vecmath.Vector3d;
+
 import org.apache.commons.io.IOUtils;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
@@ -278,7 +280,14 @@ public abstract class RenderFluxRiftMixin extends Render<Entity> implements ISel
 	RiftData data = getOrCreateVertexData(entity);
 	mc.profiler.endSection();
 	data.stagingBuffer.clear();
-	Vec3d up = new Vec3d(0.0, 1.0, 0.0);
+	Vector3d up = new Vector3d(0.0, 1.0, 0.0);
+	Vector3d axis = new Vector3d();
+	Vector3d prevVec = new Vector3d();
+	Vector3d dirVec = new Vector3d();
+	Vector3d newPoint = new Vector3d();
+	Vector3d rodTerm1 = new Vector3d();
+	Vector3d rodTerm2 = new Vector3d();
+	Vector3d rodTerm3 = new Vector3d();
 	mc.profiler.startSection("TcFixPerFrameFluxRiftData");
 	for (int layer = 0; layer < RiftData.NUM_LAYERS; ++layer) {
 	    // visual observation suggests that point 0 is not rendered in the normal renderer
@@ -295,28 +304,38 @@ public abstract class RenderFluxRiftMixin extends Render<Entity> implements ISel
 		else {
 		    pointDrift += i * 10;
 		}
-		double radiusDrift = 1.0 - Math.sin(pointDrift / 8.0F) * 0.1 * stability;
+		double radiusDrift = 1.0 - MathHelper.sin(pointDrift / 8.0F) * 0.1 * stability;
 		float xMod = MathHelper.sin(pointDrift / 50.0F) * 0.1F * stability;
 		float yMod = MathHelper.sin(pointDrift / 60.0F) * 0.1F * stability;
 		float zMod = MathHelper.sin(pointDrift / 70.0F) * 0.1F * stability;
 		point = entity.points.get(i);
-		Vec3d axis = entity.points.get(i + 1).subtract(entity.points.get(i - 1)).normalize();
+		Vec3d next = entity.points.get(i + 1);
+		axis.set(next.x, next.y, next.z);
+		Vec3d prev = entity.points.get(i - 1);
+		prevVec.set(prev.x, prev.y, prev.z);
+		axis.sub(prevVec);
+		axis.normalize();
 		float width = entity.pointsWidth.get(i);
 		// thaumcraft sometimes sends widths of 0 for inner points with small rift sizes
 		if (width < 0.000001F) {
 		    width = entity.getRiftSize() * 0.003125F;
 		}
-		Vec3d dirVec = axis.crossProduct(up).normalize().scale(width * radiusDrift * (layer < RiftData.NUM_LAYERS - 1 ? 1.25F + 0.5F * layer : 1.0F));
+		dirVec.cross(axis, up);
+		dirVec.normalize();
+		dirVec.scale(width * radiusDrift * (layer < RiftData.NUM_LAYERS - 1 ? 1.25F + 0.5F * layer : 1.0F));
 		float angleMod = (float) Math.PI * 2.0F / RiftData.PIPE_NUM_SIDES;
 		for (int j = 0; j < RiftData.PIPE_NUM_SIDES; ++j) {
-		    Vec3d newPoint = point.add(dirVec);
+		    newPoint.set(point.x + dirVec.x, point.y + dirVec.y, point.z + dirVec.z);
 		    data.stagingBuffer.put((float) newPoint.x + xMod);
 		    data.stagingBuffer.put((float) newPoint.y + yMod);
 		    data.stagingBuffer.put((float) newPoint.z + zMod);
-		    Vec3d term1 = dirVec.scale(MathHelper.cos(angleMod));
-		    Vec3d term2 = axis.crossProduct(dirVec).scale(MathHelper.sin(angleMod));
-		    Vec3d term3 = axis.scale(axis.dotProduct(dirVec) * (1.0F - MathHelper.cos(angleMod)));
-		    dirVec = term1.add(term2).add(term3);
+		    rodTerm1.set(dirVec);
+		    rodTerm1.scale(MathHelper.cos(angleMod));
+		    rodTerm2.cross(axis, dirVec);
+		    rodTerm2.scale(MathHelper.sin(angleMod));
+		    rodTerm3.set(axis);
+		    rodTerm3.scale(axis.dot(dirVec) * (1.0F - MathHelper.cos(angleMod)));
+		    dirVec.set(rodTerm1.x + rodTerm2.x + rodTerm3.x, rodTerm1.y + rodTerm2.y + rodTerm3.y, rodTerm1.z + rodTerm2.z + rodTerm3.z);
 		}
 	    }
 	    point = entity.points.get(entity.points.size() - 1);
@@ -330,8 +349,6 @@ public abstract class RenderFluxRiftMixin extends Render<Entity> implements ISel
 
 	GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, data.vboId);
 	GL15.glBufferData(GL15.GL_ARRAY_BUFFER, data.stagingBuffer, GL15.GL_STREAM_DRAW);
-	// TODO: batch entity rendering to not constantly bind/unbind shader?
-	//ShaderHelper.useShader(ShaderHelper.endShader, shaderCallback);
 	OpenGlHelper.glUseProgram(shaderProgram);
 	GlStateManager.enableBlend();
 	GlStateManager.pushMatrix();
