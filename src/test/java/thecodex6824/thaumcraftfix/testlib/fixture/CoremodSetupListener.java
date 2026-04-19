@@ -77,7 +77,7 @@ public class CoremodSetupListener implements LauncherSessionListener {
 			((URLClassLoader) ClassLoader.getSystemClassLoader()).getURLs()), null);
 
 		ThaumcraftFixCore coremod = new ThaumcraftFixCore();
-		coremod.injectData(ImmutableMap.of());
+		coremod.injectData(ImmutableMap.of(ThaumcraftFixCore.UNIT_TEST_PROPERTY, true));
 		// early configs were already handled in injectData
 		Mixins.addConfigurations(ThaumcraftFixCore.getLateMixinConfigs().toArray(new String[0]),
 			new UnitTestMixinConfigSource());

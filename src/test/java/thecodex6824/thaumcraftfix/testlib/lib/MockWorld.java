@@ -20,6 +20,8 @@
 
 package thecodex6824.thaumcraftfix.testlib.lib;
 
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.GameType;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldProviderSurface;
@@ -47,6 +49,20 @@ public class MockWorld extends World {
 
     @Override
     protected boolean isChunkLoaded(int x, int z, boolean allowEmpty) {
+	return true;
+    }
+
+    @Override
+    public boolean spawnEntity(Entity entity) {
+	if (entity instanceof EntityPlayer) {
+	    playerEntities.add((EntityPlayer) entity);
+	    updateAllPlayersSleepingFlag();
+	}
+
+	// entity join world event is normally fired here
+
+	loadedEntityList.add(entity);
+	onEntityAdded(entity);
 	return true;
     }
 

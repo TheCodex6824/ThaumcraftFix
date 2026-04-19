@@ -43,6 +43,8 @@ import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin.TransformerExclusions
 @TransformerExclusions("thecodex6824.thaumcraftfix.core")
 public class ThaumcraftFixCore implements IFMLLoadingPlugin {
 
+    public static final String UNIT_TEST_PROPERTY = "thaumcraftfix.unit_test";
+
     protected static final String AUG_GOOD_VERSION = "2.1.14";
 
     private static Logger log = LogManager.getLogger("thaumcraftfixcore");
@@ -95,9 +97,15 @@ public class ThaumcraftFixCore implements IFMLLoadingPlugin {
     public void injectData(Map<String, Object> data) {
 	// I know addConfigurations exists, but the single-argument form doesn't exist in FermiumBooter
 	// trying to use the 2 argument version here runs into classloader issues from IMixinConfigSource
+	// although that issue only happens in the actual game (not sure if one or both Mixin providers)
 	try {
-	    for (String c : getEarlyMixinConfigs()) {
-		Mixins.addConfiguration(c);
+	    if (data.get(UNIT_TEST_PROPERTY) != null) {
+		Mixins.addConfigurations(getEarlyMixinConfigs().toArray(new String[0]), null);
+	    }
+	    else {
+		for (String c : getEarlyMixinConfigs()) {
+		    Mixins.addConfiguration(c);
+		}
 	    }
 	}
 	catch (NoClassDefFoundError ex) {

@@ -88,8 +88,6 @@ public class TransformerExecutor implements IClassTransformer {
 	transformers.add(BlockTransformers.TABLE_TOP_SOLID.get());
 	transformers.add(BlockTransformers.THAUMATORIUM_TOP_EMPTY.get());
 	transformers.add(CastingTransformers.EXCHANGE_MOD_INTERFACEIFY);
-	transformers.add(CastingTransformers.FOCUS_PACKAGE_INIT);
-	transformers.add(CastingTransformers.FOCUS_PACKAGE_SET_CASTER_UUID);
 	transformers.add(CastingTransformers.TOUCH_MOD_AVOID_PLAYER_CAST_TARGET);
 	transformers.add(CastingTransformers.TOUCH_MOD_AVOID_PLAYER_CAST_TRAJECTORY);
 	transformers.add(EntityTransformers.ADVANCED_CROSSBOW_PROCESS_INTERACT_DEAD.get());

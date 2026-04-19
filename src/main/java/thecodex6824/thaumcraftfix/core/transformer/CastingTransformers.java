@@ -35,15 +35,12 @@ import org.objectweb.asm.tree.VarInsnNode;
 import com.google.common.collect.ImmutableList;
 
 import thecodex6824.coremodlib.ASMUtil;
-import thecodex6824.coremodlib.FieldDefinition;
 import thecodex6824.coremodlib.MethodDefinition;
 import thecodex6824.coremodlib.PatchStateMachine;
 import thecodex6824.thaumcraftfix.core.transformer.custom.ChangeVariableTypeTransformer;
 import thecodex6824.thaumcraftfix.core.transformer.custom.ThrowingTransformerWrapper;
 
 public class CastingTransformers {
-
-    private static final String HOOKS = "thecodex6824/thaumcraftfix/core/transformer/hooks/CastingTransformersHooks";
 
     public static final ITransformer EXCHANGE_MOD_INTERFACEIFY = new ThrowingTransformerWrapper(
 	    new ChangeVariableTypeTransformer(
@@ -59,61 +56,6 @@ public class CastingTransformers {
 		    Types.I_CASTER,
 		    true
 		    ));
-
-    public static final ITransformer FOCUS_PACKAGE_INIT = new GenericStateMachineTransformer(
-	    PatchStateMachine.builder(
-		    new MethodDefinition(
-			    Types.FOCUS_PACKAGE.getInternalName(),
-			    false,
-			    "initialize",
-			    Type.VOID_TYPE,
-			    Types.ENTITY_LIVING_BASE
-			    )
-		    )
-	    .findNextOpcode(Opcodes.RETURN)
-	    .insertInstructionsBefore(
-		    new VarInsnNode(Opcodes.ALOAD, 0),
-		    new VarInsnNode(Opcodes.ALOAD, 1),
-		    new MethodInsnNode(Opcodes.INVOKESTATIC,
-			    HOOKS,
-			    "initializeFocusPackage",
-			    Type.getMethodDescriptor(Type.VOID_TYPE, Types.FOCUS_PACKAGE, Types.ENTITY_LIVING_BASE),
-			    false
-			    )
-		    )
-	    .build()
-	    );
-
-    public static final ITransformer FOCUS_PACKAGE_SET_CASTER_UUID = new GenericStateMachineTransformer(
-	    PatchStateMachine.builder(
-		    new MethodDefinition(
-			    Types.FOCUS_PACKAGE.getInternalName(),
-			    false,
-			    "setCasterUUID",
-			    Type.VOID_TYPE,
-			    Types.UUID
-			    )
-		    )
-	    .findNextOpcode(Opcodes.RETURN)
-	    .insertInstructionsBefore(
-		    new VarInsnNode(Opcodes.ALOAD, 0),
-		    new InsnNode(Opcodes.ACONST_NULL),
-		    new FieldDefinition(
-			    Types.FOCUS_PACKAGE.getInternalName(),
-			    "caster",
-			    Types.ENTITY_LIVING_BASE
-			    ).asFieldInsnNode(Opcodes.PUTFIELD),
-		    new VarInsnNode(Opcodes.ALOAD, 0),
-		    new VarInsnNode(Opcodes.ALOAD, 1),
-		    new MethodInsnNode(Opcodes.INVOKESTATIC,
-			    HOOKS,
-			    "setFocusPackageCasterUUID",
-			    Type.getMethodDescriptor(Type.VOID_TYPE, Types.FOCUS_PACKAGE, Types.UUID),
-			    false
-			    )
-		    )
-	    .build()
-	    );
 
     private static final MethodDefinition TOUCH_GET_PACKAGE = new MethodDefinition(
 	    "thaumcraft/common/items/casters/foci/FocusMediumTouch",
