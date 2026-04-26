@@ -8,6 +8,9 @@ Thaumcraft Fix is licensed under the GNU Lesser Public License v3 (or later). So
 
 ---
 
+## Additions
+- **Optimized Flux Rift Rendering** (configurable)
+
 ## Fixes
 - **Arcane Bore**
   - Fixed Arcane Bore Gui position
@@ -47,6 +50,7 @@ Thaumcraft Fix is licensed under the GNU Lesser Public License v3 (or later). So
   - Fixed duplication issue with the Thaumatorium
   
 - **Focal Manipulator/Casting**
+  - Fixed the Exchange Focus Effect messing up TC wooden log block rotation
   - Fixed the Exchange Focus Effect's silk touch not having a complexity cost
   - Fixed Focal Manipulator not reporting the actual amount of levels required for crafting
   - Fixed Focal Manipulator sometimes not completing and/or creating glitched foci
@@ -106,11 +110,14 @@ Thaumcraft Fix is licensed under the GNU Lesser Public License v3 (or later). So
   - Fixed Thaumometer entity aspect display persisting on dead entities and when the item is put away
   
 - **Visual**
-  - Fixed eldritch guardians always creating fog regardless of dimension
-  - Fixed firebats not having particles
+  - Fixed custom armor model rendering on armor stands
+  - Fixed Eldritch Guardians always creating fog regardless of dimension
+  - Fixed Exploration research status text
+  - Fixed Firebats not having particles
+  - Fixed shoulder textures on some models being mirrored
   - Fixed Thaumcraft OBJ models having a lighting multiplier that made them darker
   - Fixed Void Thaumaturge Robes displaying twice the amount of armor on the hud
-  - Fixed wisps having really small burst particles on death
+  - Fixed Wisps having really small burst particles on death
   - Stopped screen shake and damage sound if fall damage is reduced to 0 from gear
   
 ---
@@ -120,7 +127,8 @@ Thaumcraft Fix is licensed under the GNU Lesser Public License v3 (or later). So
   - Added a recipe to craft 9 sliver back into quartz
   - Added aspects to more entities that were missing them
   - Fixed Banners consuming Phials when applying essentia icons
-  - Made eldritch crabs rotate all the way to match the death animations of spiders, silverfish and endermites
+  - Gave Primordial Crusher the ability to make dirt/grass paths
+  - Made Eldritch Crabs rotate all the way to match the death animations of spiders, silverfish and endermites
   - Made "TC.RUNIC" and "TC.WARP" NBT tags not capped
   - Phials no longer get consumed in creative mode  
   - Sanity Soap no longer gets consumed in creative mode
