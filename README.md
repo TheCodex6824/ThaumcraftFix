@@ -27,8 +27,8 @@ Thaumcraft Fix is licensed under the GNU Lesser Public License v3 (or later). So
   - Fixed Vis draining into chunks it isn't supposed to
   
 - **Automated Crossbows**
-  - Fixed Automated Crossbow Gui positions
   - Fixed Automated Crossbows being unable to fire special arrows
+  - Fixed Automated Crossbow Gui positions
   
 - **Crashes**
   - Deregistered spellbat spawn egg to prevent a crash when using it
@@ -36,24 +36,24 @@ Thaumcraft Fix is licensed under the GNU Lesser Public License v3 (or later). So
   - Fixed Magical Mirrors causing a crash when they link to an invalid dimension
   
 - **Duping**
-  - Fixed duplication issue with the Arcane Workbench
   - Fixed duplication issue with brain jars
-  - Fixed duplication issue with owned constructs
   - Fixed duplication issue with infusion pillars
+  - Fixed duplication issue with owned constructs
   - Fixed duplication issue with pechs
   - Fixed duplication issue with primordial pearls (configurable)
   - Fixed duplication issue with Shovel of the Earthmover
+  - Fixed duplication issue with the Arcane Workbench
   - Fixed duplication issue with the Infernal Furnace
   - Fixed duplication issue with the Thaumatorium
   
 - **Focal Manipulator/Casting**
-  - Fixed Caster's Gauntlet Gui rendering in the incorrect location if gauntlet is held in the offhand
-  - Fixed Caster's Gauntlet Gui causing rendering issues when gauntlet is in mainhand and Thaumometer or Sanity Checker is held in the offhand
-  - Fixed Caster's Gauntlet Gui causing rendering issues when plan focus is equipped and Thaumometer or Sanity Checker is also held
-  - Fixed Caster's Gauntlet select focus keybind breaking swap hands keybind
   - Fixed the Exchange Focus Effect's silk touch not having a complexity cost
   - Fixed Focal Manipulator not reporting the actual amount of levels required for crafting
   - Fixed Focal Manipulator sometimes not completing and/or creating glitched foci
+  - Fixed Caster's Gauntlet Gui causing rendering issues when gauntlet is in mainhand and Thaumometer or Sanity Checker is held in the offhand
+  - Fixed Caster's Gauntlet Gui causing rendering issues when plan focus is equipped and Thaumometer or Sanity Checker is also held
+  - Fixed Caster's Gauntlet Gui rendering in the incorrect location if gauntlet is held in the offhand
+  - Fixed Caster's Gauntlet select focus keybind breaking swap hands keybind
   - Fixed not being able to put the scatter modifier after any trajectory pattern on the Focal Manipulator
   
 - **Golems**
@@ -77,13 +77,13 @@ Thaumcraft Fix is licensed under the GNU Lesser Public License v3 (or later). So
   - Fixed Ancient and Eldritch Infusion Altars being impossible to create
   - Fixed Exploration Research missing or not being granted to players under specific circumstances
   - Fixed extra colored nitor recipes not displaying in Discovering Alchemy
+  - Fixed research items not accepting wildcard metadata
   - Fixed research page formatting tags getting dropped if they are the last text in an entry
   - Fixed Research Table shift-click interaction for Paper and Scribing Tools
   - Fixed Runic Shielding infusion not working on items with baubles capability
   - Fixed scribing tools from other addons not being able to be used for celestial note scanning
   - Tightened research packet requirement to only allow research with parent research
   - Tweaked research category detection to work around weird research with null categories
-  - Fixed research items not accepting wildcard metadata
   
 - **Performance**
   - Fixed aura chunks impacting performance
@@ -122,29 +122,29 @@ Thaumcraft Fix is licensed under the GNU Lesser Public License v3 (or later). So
   - Fixed Banners consuming Phials when applying essentia icons
   - Made eldritch crabs rotate all the way to match the death animations of spiders, silverfish and endermites
   - Made "TC.RUNIC" and "TC.WARP" NBT tags not capped
+  - Phials no longer get consumed in creative mode  
   - Sanity Soap no longer gets consumed in creative mode
-  - Phials no longer get consumed in creative mode
   
 - **Research**
+  - Added back the original Infernal Furnace research icon
   - Added Block of Flesh recipe to the Sanitizing Soap page
   - Added robe recipes from Discovering Infusion to the Basic Infusion page
-  - Added back the original Infernal Furnace research icon
   - Added rotating icons to Alchemical Metallurgy, Thaumium Fortress Armor, and Void Thaumaturge Armor
   - Rewrote several research entries to fix typos and improve wording
+  - Stopped theorycraft cards from giving points in unused categories
   - Updated research images to not be from older versions of Thaumcraft
   - Updated Types of Knowledge to use a different icon to stand out a little more
-  - Stopped theorycraft cards from giving points in unused categories
   
 - **Resources**
-  - Darkened the handle of void tools, similar to the Primal Crusher
-  - Fixed Triple Meat Treat's texture not being animated
-  - Fixed Redstone Inlay texture having white borders
-  - Fixed Primal Crusher's texture not being animated
   - Added subtitles for all Thaumcraft sounds
+  - Darkened the handle of void tools, similar to the Primal Crusher
+  - Fixed Primal Crusher's texture not being animated
+  - Fixed Redstone Inlay texture having white borders
+  - Fixed Triple Meat Treat's texture not being animated
   - Renamed Unnatural Hunger to Unhunger to prevent overlap in the gui
   - Scaled the gauntlet model up slightly
-  - Tweaked Flux Sponge texture
   - Several armor item sprites have had their positions centered
+  - Tweaked Flux Sponge texture
 
 ---
 For much more tweaks (and some fixes), check out [ThaumicTweaker](https://www.curseforge.com/minecraft/mc-mods/thaumictweaker)!
