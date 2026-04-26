@@ -8,9 +8,6 @@ Thaumcraft Fix is licensed under the GNU Lesser Public License v3 (or later). So
 
 ---
 
-## Additions
-- **Optimized Flux Rift Rendering** (configurable)
-
 ## Fixes
 - **Arcane Bore**
   - Fixed Arcane Bore Gui position
@@ -94,6 +91,7 @@ Thaumcraft Fix is licensed under the GNU Lesser Public License v3 (or later). So
   - Fixed Giant Taintacle spamming log errors when rendering
   - Fixed Magical Forest biome decoration causing cascading lag
   - Fixed unloaded dimensions still retaining Thaumcraft particles
+  - Optimized rendering on Flux Rifts (configurable)
   
 - **Sounds**
   - Fixed Arcane Bore sounds being bugged
