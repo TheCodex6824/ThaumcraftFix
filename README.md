@@ -9,33 +9,33 @@ Thaumcraft Fix is licensed under the GNU Lesser Public License v3 (or later). So
 ---
 
 ## Fixes
-- **Arcane Bore**
+- **Arcane Bore:**
   - Fixed Arcane Bore Gui position
   - Fixed Arcane Bore having errored particles when digging certain blocks
   - Fixed Arcane Bore having some issues with the Destructive infusion enchantment
   - Fixed Arcane Bore not working with the Lamplighter infusion enchantment
 
-- **Arcane Workbench**
+- **Arcane Workbench:**
   - Fixed Arcane Workbench causing issues with certain items from other mods like Akashic Tome or Morph-o-Tool
 
-- **Aspects**
+- **Aspects:**
   - Fixed items having aspects registered even when there are no aspects available
   - Fixed Thaumcraft mobs having no aspects registered
 
-- **Aura/Vis**
+- **Aura/Vis:**
   - Fixed aura chunks sometimes not holding any Vis in multiplayer
   - Fixed Vis draining into chunks it isn't supposed to
 
-- **Automated Crossbows**
+- **Automated Crossbows:**
   - Fixed Automated Crossbows being unable to fire special arrows
   - Fixed Automated Crossbow Gui positions
 
-- **Crashes**
+- **Crashes:**
   - Deregistered spellbat spawn egg to prevent a crash when using it
   - Fixed Flux pollution client crash with large pollution values
   - Fixed Magical Mirrors causing a crash when they link to an invalid dimension
 
-- **Duping**
+- **Duping:**
   - Fixed duplication issue with brain jars
   - Fixed duplication issue with infusion pillars
   - Fixed duplication issue with owned constructs
@@ -46,7 +46,7 @@ Thaumcraft Fix is licensed under the GNU Lesser Public License v3 (or later). So
   - Fixed duplication issue with the Infernal Furnace
   - Fixed duplication issue with the Thaumatorium
 
-- **Focal Manipulator/Casting**
+- **Focal Manipulator/Casting:**
   - Fixed the Exchange Focus Effect messing up TC wooden log block rotation
   - Fixed the Exchange Focus Effect's silk touch not having a complexity cost
   - Fixed Focal Manipulator not reporting the actual amount of levels required for crafting
@@ -57,10 +57,10 @@ Thaumcraft Fix is licensed under the GNU Lesser Public License v3 (or later). So
   - Fixed Caster's Gauntlet select focus keybind breaking swap hands keybind
   - Fixed not being able to put the scatter modifier after any trajectory pattern on the Focal Manipulator
 
-- **Golems**
+- **Golems:**
   - Fixed Golems voiding held items when interacting with Use Seals with "Can use empty hand" enabled
 
-- **Misc**
+- **Misc:**
   - Fixed all plant hitboxes
   - Fixed Burrowing infusion enchantment not dropping any experiencees
   - Fixed Magical Hand Mirror not checking which hand it's in, causing NBT loss and other issues
@@ -70,11 +70,11 @@ Thaumcraft Fix is licensed under the GNU Lesser Public License v3 (or later). So
   - Removed Thaumcraft's single usage of a scala class
   - Silenced all Thaumcraft texture/model errors
 
-- **Pech**
+- **Pech:**
   - Fixed Pech trading Gui position and item shading
   - Fixed Uncraftable Potion Pech trade item
 
-- **Research**
+- **Research:**
   - Fixed Ancient and Eldritch Infusion Altars being impossible to create
   - Fixed Exploration Research missing or not being granted to players under specific circumstances
   - Fixed extra colored nitor recipes not displaying in Discovering Alchemy
@@ -86,14 +86,14 @@ Thaumcraft Fix is licensed under the GNU Lesser Public License v3 (or later). So
   - Tightened research packet requirement to only allow research with parent research
   - Tweaked research category detection to work around weird research with null categories
 
-- **Performance**
+- **Performance:**
   - Fixed aura chunks impacting performance
   - Fixed Giant Taintacle spamming log errors when rendering
   - Fixed Magical Forest biome decoration causing cascading lag
   - Fixed unloaded dimensions still retaining Thaumcraft particles
   - Optimized rendering on Flux Rifts (configurable)
 
-- **Sounds**
+- **Sounds:**
   - Fixed Arcane Bore sounds being bugged
   - Fixed Focal Manipulator not playing a sound when it fails to craft
   - Fixed sounds not properly playing for casting gauntlets
@@ -104,10 +104,10 @@ Thaumcraft Fix is licensed under the GNU Lesser Public License v3 (or later). So
   - Fixed sounds not properly playing for the Sword of Zephyr
   - Fixed the 'runicshieldcharge' sound event not playing
 
-- **Thaumometer**
+- **Thaumometer:**
   - Fixed Thaumometer entity aspect display persisting on dead entities and when the item is put away
 
-- **Visual**
+- **Visual:**
   - Fixed custom armor model rendering on armor stands
   - Fixed Eldritch Guardians always creating fog regardless of dimension
   - Fixed Exploration research status text
@@ -121,7 +121,7 @@ Thaumcraft Fix is licensed under the GNU Lesser Public License v3 (or later). So
 ---
 
 ## Tweaks
-- **Quality of Life**
+- **Quality of Life:**
   - Added a recipe to craft 9 sliver back into quartz
   - Added aspects to more entities that were missing them
   - Fixed Banners consuming Phials when applying essentia icons
@@ -131,7 +131,7 @@ Thaumcraft Fix is licensed under the GNU Lesser Public License v3 (or later). So
   - Phials no longer get consumed in creative mode  
   - Sanity Soap no longer gets consumed in creative mode
 
-- **Research**
+- **Research:**
   - Added back the original Infernal Furnace research icon
   - Added Block of Flesh recipe to the Sanitizing Soap page
   - Added robe recipes from Discovering Infusion to the Basic Infusion page
@@ -141,7 +141,7 @@ Thaumcraft Fix is licensed under the GNU Lesser Public License v3 (or later). So
   - Updated research images to not be from older versions of Thaumcraft
   - Updated Types of Knowledge to use a different icon to stand out a little more
 
-- **Resources**
+- **Resources:**
   - Added subtitles for all Thaumcraft sounds
   - Darkened the handle of void tools, similar to the Primal Crusher
   - Fixed Primal Crusher's texture not being animated
