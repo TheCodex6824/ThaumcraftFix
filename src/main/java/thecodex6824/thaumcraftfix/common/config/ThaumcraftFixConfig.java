@@ -96,7 +96,7 @@ public class ThaumcraftFixConfig {
     }
 
     public static class ClientConfig {
-	public ConfigBoolean optimizedFluxRiftRenderer = new ConfigBoolean(true);
+	public ConfigBoolean optimizedFluxRiftRenderer = new ConfigBoolean(false);
     }
 
     public static class ItemConfig {

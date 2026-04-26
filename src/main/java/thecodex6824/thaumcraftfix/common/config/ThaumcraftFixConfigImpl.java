@@ -70,7 +70,7 @@ final class ThaumcraftFixConfigImpl {
 	    "This reduces CPU usage and memory pressure when there are large or multiple Flux Rifts.",
 	    "Your graphics hardware must support OpenGL 3.3, and VBOs are required to be enabled for this feature to activate."
 	})
-	public boolean optimizedFluxRiftRenderer = true;
+	public boolean optimizedFluxRiftRenderer = false;
     }
 
     public static class ItemConfig {
