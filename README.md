@@ -149,7 +149,7 @@ Thaumcraft Fix is licensed under the GNU Lesser Public License v3 (or later). So
   - Fixed Thaumometer texture being flipped and mirrored
   - Fixed Triple Meat Treat's texture not being animated
   - Renamed Unnatural Hunger to Unhunger to prevent overlap in the gui
-  - Restored TC4's Thaumometer texture
+  - Restored TC4's Thaumometer texture (with tweaks)
   - Scaled the gauntlet model up slightly
   - Several armor item sprites have had their positions centered
   - Tweaked Flux Sponge texture
