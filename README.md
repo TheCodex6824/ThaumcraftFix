@@ -153,4 +153,4 @@ Thaumcraft Fix is licensed under the GNU Lesser Public License v3 (or later). So
   - Tweaked Flux Sponge texture
 
 ---
-For much more tweaks (and some fixes), check out [ThaumicTweaker](https://www.curseforge.com/minecraft/mc-mods/thaumictweaker)!
+For many more tweaks (and some fixes), check out [ThaumicTweaker](https://www.curseforge.com/minecraft/mc-mods/thaumictweaker)!
