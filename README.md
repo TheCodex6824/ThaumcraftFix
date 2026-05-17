@@ -116,6 +116,7 @@ Thaumcraft Fix is licensed under the GNU Lesser Public License v3 (or later). So
   - Fixed Thaumcraft OBJ models having a lighting multiplier that made them darker
   - Fixed Void Thaumaturge Robes displaying twice the amount of armor on the hud
   - Fixed Wisps having really small burst particles on death
+  - Fixed some mods making the aspect tooltip to render in an incorrect position
   - Stopped screen shake and damage sound if fall damage is reduced to 0 from gear
 
 ---
