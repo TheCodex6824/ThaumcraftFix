@@ -62,13 +62,6 @@ public class TestPrimordialPearl {
 	assertEquals(damageRatio, stack.getItem().getDurabilityForDisplay(stack));
     }
 
-    @Test
-    void testPearlNotDamageable() {
-	ItemStack pearl = new ItemStack(ItemsTC.primordialPearl);
-	assertFalse(pearl.isItemStackDamageable());
-	assertTrue(pearl.getHasSubtypes());
-    }
-
     static final List<Arguments> testAnvilHandlerIsDisabled = ImmutableList.of(
 	    Arguments.of(ItemStack.EMPTY, ItemStack.EMPTY),
 	    Arguments.of(new ItemStack(ItemsTC.primordialPearl), ItemStack.EMPTY),
@@ -92,13 +85,13 @@ public class TestPrimordialPearl {
     @ResourceLock(value = TestConstants.RESOURCE_CONFIG, mode = ResourceAccessMode.READ_WRITE)
     void testConfigOptionAtRuntime() {
 	ThaumcraftFixConfig config = ThaumcraftFix.instance.getConfig();
-	config.item.primordialPearlDamageFix.setSessionValue(false);
+	config.item.primordialPearlDamageFix.setSessionValue(true);
 	ItemStack pearl = new ItemStack(ItemsTC.primordialPearl);
-	assertTrue(pearl.isItemStackDamageable());
-	assertFalse(pearl.getHasSubtypes());
-	config.item.primordialPearlDamageFix.unsetSessionValue();
 	assertFalse(pearl.isItemStackDamageable());
 	assertTrue(pearl.getHasSubtypes());
+	config.item.primordialPearlDamageFix.unsetSessionValue();
+	assertTrue(pearl.isItemStackDamageable());
+	assertFalse(pearl.getHasSubtypes());
     }
 
 }
