@@ -100,7 +100,7 @@ public class ThaumcraftFixConfig {
     }
 
     public static class ItemConfig {
-	public ConfigBoolean primordialPearlDamageFix = new ConfigBoolean(true);
+	public ConfigBoolean primordialPearlDamageFix = new ConfigBoolean(false);
     }
 
     public static class WorldConfig {

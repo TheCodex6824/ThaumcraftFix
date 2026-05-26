@@ -81,7 +81,7 @@ final class ThaumcraftFixConfigImpl {
 	    "This fix will prevent vanilla and other mods from repairing Primordial Pearls,",
 	    "but may cause compatibility issues with existing Thaumcraft addons."
 	})
-	public boolean primordialPearlDamageFix = true;
+	public boolean primordialPearlDamageFix = false;
     }
 
     public static class WorldConfig {
