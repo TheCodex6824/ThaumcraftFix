@@ -10,6 +10,7 @@
     "GuiTurretAdvancedMixin",
     "GuiTurretBasicMixin",
     "HudHandlerMixin",
-    "KeyHandlerMixin"
+    "KeyHandlerMixin",
+    "RenderEventHandlerMixin"
   ]
 }
