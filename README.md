@@ -40,7 +40,7 @@ Thaumcraft Fix is licensed under the GNU Lesser Public License v3 (or later). So
   - Fixed duplication issue with infusion pillars
   - Fixed duplication issue with owned constructs
   - Fixed duplication issue with pechs
-  - Fixed duplication issue with primordial pearls (configurable)
+  - Fixed duplication issue with primordial pearls (configurable, disabled by default due to addon breakage)
   - Fixed duplication issue with Shovel of the Earthmover
   - Fixed duplication issue with the Arcane Workbench
   - Fixed duplication issue with the Infernal Furnace
@@ -59,11 +59,13 @@ Thaumcraft Fix is licensed under the GNU Lesser Public License v3 (or later). So
 
 - **Golems:**
   - Fixed Golems voiding held items when interacting with Use Seals with "Can use empty hand" enabled
+  - Fixed seals disappearing in some situations if they were placed and then the chunk was unloaded
 
 - **Misc:**
   - Fixed all plant hitboxes
-  - Fixed Burrowing infusion enchantment not dropping any experiencees
+  - Fixed Burrowing infusion enchantment not dropping any experiences
   - Fixed Magical Hand Mirror not checking which hand it's in, causing NBT loss and other issues
+  - The Magical Hand Mirror now allows clicking blocks while holding it if it is unlinked or the player is sneaking
   - Fixed Primordial Pearl boss drop spawn location and movement logic
   - Fixed Thaumcraft not correctly using a block placement event when swapping blocks
   - Fixed TileThaumcraftInventory trying to send packets to the client on the client side
@@ -91,7 +93,7 @@ Thaumcraft Fix is licensed under the GNU Lesser Public License v3 (or later). So
   - Fixed Giant Taintacle spamming log errors when rendering
   - Fixed Magical Forest biome decoration causing cascading lag
   - Fixed unloaded dimensions still retaining Thaumcraft particles
-  - Optimized rendering on Flux Rifts (configurable)
+  - Optimized rendering on Flux Rifts (configurable, currently disabled by default)
 
 - **Sounds:**
   - Fixed Arcane Bore sounds being bugged
@@ -129,7 +131,7 @@ Thaumcraft Fix is licensed under the GNU Lesser Public License v3 (or later). So
   - Gave Primordial Crusher the ability to make dirt/grass paths
   - Made Eldritch Crabs rotate all the way to match the death animations of spiders, silverfish and endermites
   - Made "TC.RUNIC" and "TC.WARP" NBT tags not capped
-  - Phials no longer get consumed in creative mode  
+  - Phials no longer get consumed in creative mode
   - Sanity Soap no longer gets consumed in creative mode
 
 - **Research:**
