@@ -151,6 +151,7 @@ Thaumcraft Fix is licensed under the GNU Lesser Public License v3 (or later). So
   - Fixed Redstone Inlay texture having white borders
   - Fixed Thaumometer texture being flipped and mirrored
   - Fixed Triple Meat Treat's texture not being animated
+  - Fixed missing beam textures
   - Renamed Unnatural Hunger to Unhunger to prevent overlap in the gui
   - Restored TC4's Thaumometer texture (with tweaks)
   - Scaled the gauntlet model up slightly
