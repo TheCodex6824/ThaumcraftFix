@@ -6,6 +6,7 @@
   "mixins": [
     "FocusEffectExchangeMixin",
     "FocusMediumTouchMixin",
-    "FocusPackageMixin"
+    "FocusPackageMixin",
+    "ItemFocusMixin"
   ]
 }
