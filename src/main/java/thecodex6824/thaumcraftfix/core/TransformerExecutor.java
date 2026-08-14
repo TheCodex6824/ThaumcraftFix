@@ -47,32 +47,23 @@ public class TransformerExecutor implements IClassTransformer {
 
     public TransformerExecutor() {
 	transformers = new ArrayList<>();
-	if (!ThaumcraftFixCore.isOldThaumicAugmentationDetected()) {
-	    transformers.add(EntityTransformers.ELDRITCH_GUARDIAN_FOG);
-	    transformers.add(EntityTransformers.FLUX_RIFT_DESTROY_BLOCK_EVENT);
-	    transformers.add(EntityTransformers.VOID_ROBE_ARMOR_DISPLAY);
-	    transformers.add(ItemTransformers.CYCLE_ITEM_NON_DAMAGEABLE);
-	    transformers.add(ItemTransformers.RUNIC_SHIELD_INFUSION_BAUBLE_CAP);
-	    transformers.add(SoundTransformers.SOUND_FIX_CASTER_TICK.get());
-	    transformers.add(SoundTransformers.SOUND_FIX_JAR_FILL.get());
-	    transformers.add(SoundTransformers.SOUND_FIX_LOOT_BAG.get());
-	    transformers.add(SoundTransformers.SOUND_FIX_MIRROR_TRANSPORT.get());
-	    transformers.add(SoundTransformers.SOUND_FIX_MIRROR_USE.get());
-	    transformers.add(SoundTransformers.SOUND_FIX_PHIAL_FILL.get());
-	    transformers.add(SoundTransformers.SOUND_FIX_WIND_SWORD_USE.get());
-	}
-	else {
-	    ThaumcraftFixCore.getLogger().warn("An old version of Thaumic Augmentation was detected."
-		    + " Some of the fixes normally provided by Thaumcraft Fix will be handled by Thaumic Augmentation instead."
-		    + " Consider updating Thaumic Augmentation to version {} or newer, as Thaumcraft Fix will probably have better compatibility and less of a chance of issues occuring.",
-		    ThaumcraftFixCore.AUG_GOOD_VERSION);
-	}
-
 	// Thaumic Wands deletes the code we want to hook into, and uses custom arcane workbench stuff
 	if (!ThaumcraftFixCore.isThaumicWandsDetected()) {
 	    transformers.add(BlockTransformers.ARCANE_WORKBENCH_NO_CONCURRENT_USE.get());
 	    transformers.add(BlockTransformers.ARCANE_WORKBENCH_NO_CONCURRENT_USE_CHARGER.get());
 	}
+	transformers.add(EntityTransformers.ELDRITCH_GUARDIAN_FOG);
+	transformers.add(EntityTransformers.FLUX_RIFT_DESTROY_BLOCK_EVENT);
+	transformers.add(EntityTransformers.VOID_ROBE_ARMOR_DISPLAY);
+	transformers.add(ItemTransformers.CYCLE_ITEM_NON_DAMAGEABLE);
+	transformers.add(ItemTransformers.RUNIC_SHIELD_INFUSION_BAUBLE_CAP);
+	transformers.add(SoundTransformers.SOUND_FIX_CASTER_TICK.get());
+	transformers.add(SoundTransformers.SOUND_FIX_JAR_FILL.get());
+	transformers.add(SoundTransformers.SOUND_FIX_LOOT_BAG.get());
+	transformers.add(SoundTransformers.SOUND_FIX_MIRROR_TRANSPORT.get());
+	transformers.add(SoundTransformers.SOUND_FIX_MIRROR_USE.get());
+	transformers.add(SoundTransformers.SOUND_FIX_PHIAL_FILL.get());
+	transformers.add(SoundTransformers.SOUND_FIX_WIND_SWORD_USE.get());
 	transformers.add(BlockTransformers.BRAIN_JAR_EAT_DELAY.get());
 	transformers.add(BlockTransformers.FOCAL_MANIPULATOR_FOCUS_SLOT.get());
 	transformers.add(BlockTransformers.FOCAL_MANIPULATOR_COMPONENTS);

@@ -30,7 +30,6 @@ import org.spongepowered.asm.mixin.Mixins;
 
 import com.google.common.collect.ImmutableList;
 
-import net.minecraftforge.fml.common.versioning.ComparableVersion;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin.MCVersion;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin.Name;
@@ -45,26 +44,13 @@ public class ThaumcraftFixCore implements IFMLLoadingPlugin {
 
     public static final String UNIT_TEST_PROPERTY = "thaumcraftfix.unit_test";
 
-    protected static final String AUG_GOOD_VERSION = "2.1.14";
-
     private static Logger log = LogManager.getLogger("thaumcraftfixcore");
     private static boolean debug = false;
     private static boolean ready = false;
     private static boolean modChecksDone = false;
-    private static boolean oldAug = false;
     private static boolean thaumicWands = false;
 
     private static void doModChecks() {
-	// Thaumic Augmentation detection
-	try {
-	    Class<?> augApi = Class.forName("thecodex6824.thaumicaugmentation.api.ThaumicAugmentationAPI");
-	    String apiVersion = (String) augApi.getField("API_VERSION").get(null);
-	    oldAug = new ComparableVersion(apiVersion).compareTo(new ComparableVersion(AUG_GOOD_VERSION)) < 0;
-	}
-	catch (Exception ex) {
-	    // assume we don't have it
-	}
-
 	// Thaumic Wands detection
 	// I don't like depending on internal classes existing, but the coremod list from the
 	// injectData map doesn't seem to be working with cleanroom (?)
@@ -87,13 +73,6 @@ public class ThaumcraftFixCore implements IFMLLoadingPlugin {
 
     public static boolean isInitComplete() {
 	return ready;
-    }
-
-    public static boolean isOldThaumicAugmentationDetected() {
-	if (!modChecksDone) {
-	    doModChecks();
-	}
-	return oldAug;
     }
 
     public static boolean isThaumicWandsDetected() {
@@ -186,10 +165,10 @@ public class ThaumcraftFixCore implements IFMLLoadingPlugin {
     }
 
     public static List<String> getLateMixinConfigs() {
-	return ImmutableList.of("mixin/aura.json", "mixin/block.json", "mixin/client.json",
-		"mixin/entities.json", "mixin/event.json", "mixin/focus.json", "mixin/golem.json",
-		"mixin/inventory.json", "mixin/item.json", "mixin/network.json", "mixin/render.json",
-		"mixin/tile.json", "mixin/util.json");
+	return ImmutableList.of("mixin/aura.json", "mixin/baubles.json", "mixin/block.json",
+		"mixin/client.json", "mixin/entities.json", "mixin/event.json", "mixin/focus.json",
+		"mixin/golem.json", "mixin/inventory.json", "mixin/item.json", "mixin/network.json",
+		"mixin/render.json", "mixin/tile.json", "mixin/util.json");
     }
 
 }
