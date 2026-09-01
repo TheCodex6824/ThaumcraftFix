@@ -34,6 +34,7 @@ Thaumcraft Fix is licensed under the GNU Lesser Public License v3 (or later). So
   - Deregistered spellbat spawn egg to prevent a crash when using it
   - Fixed Flux pollution client crash with large pollution values
   - Fixed Magical Mirrors causing a crash when they link to an invalid dimension
+  - Fixed Invalid essentia source FX entries causing NPE
 
 - **Duping:**
   - Fixed duplication issue with brain jars

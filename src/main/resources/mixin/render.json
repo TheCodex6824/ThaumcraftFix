@@ -10,6 +10,7 @@
     "ModelRobeMixin",
     "ProxyEntitiesMixin",
     "RenderEldritchCrabMixin",
-    "RenderFluxRiftMixin"
+    "RenderFluxRiftMixin",
+    "RenderEventHandlerMixin"
   ]
 }
