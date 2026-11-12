@@ -21,7 +21,7 @@
 package thecodex6824.thaumcraftfix;
 
 import java.nio.file.Paths;
-import java.util.ArrayList;
+import java.util.HashSet;
 
 import javax.annotation.Nullable;
 
@@ -341,7 +341,8 @@ public class ThaumcraftFix {
 	ThaumcraftFixApiBridge.InternalImplementation impl = ThaumcraftFixApiBridge.implementation();
 	if (impl instanceof DefaultApiImplementation) {
 	    ImmutableSet.Builder<ResearchCategory> allowed = ImmutableSet.builder();
-	    ArrayList<ResearchCategory> empty = new ArrayList<>();
+	    HashSet<ResearchCategory> empty = new HashSet<>();
+	    HashSet<ResearchCategory> usedBySomething = new HashSet<>();
 	    for (ResearchCategory category : ResearchCategories.researchCategories.values()) {
 		if (category.research.isEmpty()) {
 		    empty.add(category);
@@ -352,8 +353,11 @@ public class ThaumcraftFix {
 			for (ResearchStage stage : entry.getStages()) {
 			    if (stage.getKnow() != null) {
 				for (Knowledge know : stage.getKnow()) {
-				    if (know.type == EnumKnowledgeType.THEORY && know.category != null) {
-					allowed.add(know.category);
+				    if (know.category != null) {
+					if (know.type == EnumKnowledgeType.THEORY) {
+					    allowed.add(know.category);
+					}
+					usedBySomething.add(know.category);
 				    }
 				}
 			    }
@@ -361,6 +365,8 @@ public class ThaumcraftFix {
 		    }
 		}
 	    }
+	    // if a category is used for any reason, we can't delete it
+	    empty.removeAll(usedBySomething);
 
 	    ((DefaultApiImplementation) impl).setAllowedTheorycraftCategories(allowed.build());
 	    logger.debug("The following research categories will be allowed for theorycrafting:");
