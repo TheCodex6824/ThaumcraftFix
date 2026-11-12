@@ -46,18 +46,22 @@ public class AuraFinalizerWorldGenerator implements IWorldGenerator {
 	    if (!FeatureControlApi.auraAllowedDimensions().contains(world.provider.getDimensionType()) ||
 		    !FeatureControlApi.auraAllowedBiomes().contains(biome)) {
 		AuraChunk chunk = AuraHandler.getAuraChunk(world.provider.getDimension(), chunkX, chunkZ);
-		chunk.setBase((short) 0);
-		chunk.setVis(0.0F);
-		chunk.setFlux(0.0F);
+		if (chunk != null) {
+		    chunk.setBase((short) 0);
+		    chunk.setVis(0.0F);
+		    chunk.setFlux(0.0F);
+		}
 	    }
 	}
 
 	IOriginalAuraInfo info = world.getChunk(chunkX, chunkZ).getCapability(CapabilityOriginalAuraInfo.AURA_INFO, null);
 	if (info != null) {
 	    AuraChunk chunk = AuraHandler.getAuraChunk(world.provider.getDimension(), chunkX, chunkZ);
-	    info.setBase(chunk.getBase());
-	    info.setVis(chunk.getVis());
-	    info.setFlux(chunk.getFlux());
+	    if (chunk != null) {
+		info.setBase(chunk.getBase());
+		info.setVis(chunk.getVis());
+		info.setFlux(chunk.getFlux());
+	    }
 	}
     }
 
